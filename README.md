@@ -61,6 +61,22 @@ Lean `v4.29.0-rc6` | Mathlib4 pinned to `fde0cc5` | FLT kernel from `main`
 - [ ] MoE routing efficiency bounds
 - [ ] Conformal prediction integration
 
+## Citation
+
+If you use this work, please cite it:
+
+```bibtex
+@software{gupta2026transformer,
+  author       = {Gupta, Dhruv},
+  title        = {Transformer Learning Theory},
+  year         = {2026},
+  url          = {https://github.com/Zetetic-Dhruv/transformer-learning-theory},
+  license      = {Apache-2.0}
+}
+```
+
+Or use the [CITATION.cff](CITATION.cff) file — GitHub will automatically generate an "APA" and "BibTeX" citation from it via the repo sidebar.
+
 ## License
 
-Copyright (c) 2026 Dhruv Gupta. Apache 2.0.
+Copyright (c) 2026 Dhruv Gupta. Licensed under the [Apache License 2.0](LICENSE).
