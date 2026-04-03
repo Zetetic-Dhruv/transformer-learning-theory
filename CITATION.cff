@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "Transformer Learning Theory"
+abstract: >-
+  Lean4 formalization of measurability-theoretic foundations for transformer
+  architectures, including attention routing measurability, softmax-argmax
+  equivalence, parametric attention learners, and compositional confidence
+  theory.
+authors:
+  - family-names: Gupta
+    given-names: Dhruv
+    email: dhruv.gupta@artpark.in
+repository-code: "https://github.com/Zetetic-Dhruv/transformer-learning-theory"
+license: Apache-2.0
+keywords:
+  - lean4
+  - formal verification
+  - transformer
+  - learning theory
+  - measurability
+  - attention mechanism
+  - mathlib
