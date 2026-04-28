@@ -13,7 +13,7 @@ formal-learning-theory-kernel (dependency)
 
 transformer-learning-theory (this repo)
   └── Attention routing measurability, softmax-argmax equivalence,
-      parametric attention learners, compositional confidence theory
+      parametric attention learners, non-Borel strictness witness
 ```
 
 ## Current Results
@@ -44,6 +44,15 @@ transformer-learning-theory (this repo)
 | `ParametricLearnerFamily.instMeasurableBatchLearner` | Learner/AttentionLearner | Parametric learner families are MeasurableBatchLearner |
 | `ParametricBinaryAttentionLearner.instMBL` | Learner/AttentionLearner | Binary attention learners are MeasurableBatchLearner |
 | `ParametricFiniteHeadAttentionLearner.instMBL'` | Learner/AttentionLearner | k-head attention learners are MeasurableBatchLearner |
+
+### Non-Borel Strictness Witness
+
+| Theorem | File | Result |
+|---------|------|--------|
+| `quadraticCostRouter` | Strictness/NonBorelWitness | Witness `BinaryAttentionRouterCode ℝ` from a continuous parameterization `g : β → ℝ` of an analytic non-Borel set |
+| `patchEval_class_eq_singletonClassOn` | Strictness/NonBorelWitness | The witness's patchEval class equals `singletonClassOn (range g)` |
+| `witnessBadEventSet_not_measurable` | Strictness/NonBorelWitness | The witness's sample-space bad event is not Borel-measurable |
+| `attention_architecture_produces_non_borel_bad_event` | Strictness/NonBorelWitness | Architecturally honest binary attention with continuous score functions over a Polish parameter space produces a non-Borel sample-space bad event |
 
 ## Build
 

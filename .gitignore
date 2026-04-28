@@ -6,3 +6,5 @@ build/
 *.ilean
 *.trace
 *.oleanmap
+.claude/
+urs-traces/

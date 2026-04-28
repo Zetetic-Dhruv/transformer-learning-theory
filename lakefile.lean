@@ -11,7 +11,8 @@ lean_lib TLT_Proofs where
   roots := #[
     `TLT_Proofs.Attention.BinaryRouting,
     `TLT_Proofs.Attention.FiniteRouting,
-    `TLT_Proofs.Learner.AttentionLearner
+    `TLT_Proofs.Learner.AttentionLearner,
+    `TLT_Proofs.Strictness.NonBorelWitness
   ]
 
 require mathlib from git
