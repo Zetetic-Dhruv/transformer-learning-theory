@@ -39,6 +39,15 @@ transformer-learning-theory (this repo)
 | `multiHeadArgmax_wellBehaved` | Attention/FiniteRouting | Multi-head argmax routing satisfies WellBehavedVCMeasTarget |
 | `attention_requires_nullMeasurable` | Attention/FiniteRouting | NullMeasurable regime is necessary for attention |
 
+### Finite-Cell Argmax Partition
+
+| Theorem | File | Result |
+|---------|------|--------|
+| `FiniteScoreRouterCode.routeCell_measurable` / `jointArgmaxCell_measurable` | Tame/FiniteCellRouter | Each argmax routing cell is Borel — a finite intersection of measurable score-inequalities; the Krapp–Wirth Lemma A.9 "every cell is Borel" realized for measurable scores |
+| `FiniteScoreRouterCode.iUnion_routeCell` / `routeCell_disjoint` | Tame/FiniteCellRouter | The `k` argmax cells form a finite Borel partition of the input space — they cover it and are pairwise disjoint, and the router is constant on each cell |
+| `FiniteScoreRouterCode.route_measurable_via_cells` | Tame/FiniteCellRouter | Joint route-measurability derived *from* the Borel cells — the §A.3 implication "finite union of Borel cells ⟹ measurable routing" |
+| `finiteCellRouter_wellBehaved` | Tame/FiniteCellRouter | The finite-cell argmax router's patched class satisfies `WellBehavedVCMeasTarget`, closed *through* the explicit cell partition |
+
 ### Parametric Attention Learners
 
 | Theorem | File | Result |
