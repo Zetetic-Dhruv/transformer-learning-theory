@@ -14,7 +14,8 @@ formal-learning-theory-kernel (dependency)
 transformer-learning-theory (this repo)
   └── Attention routing measurability, softmax-argmax equivalence,
       parametric attention learners, non-Borel strictness witness,
-      measurability dichotomy, base-up MoE cascade (mixing-insensitivity)
+      measurability dichotomy, Krapp–Wirth well-behavedness,
+      mixture-of-experts routing cascade
 ```
 
 ## Current Results
@@ -55,24 +56,31 @@ transformer-learning-theory (this repo)
 | `witnessBadEventSet_not_measurable` | Strictness/NonBorelWitness | The witness's sample-space bad event is not Borel-measurable |
 | `attention_architecture_produces_non_borel_bad_event` | Strictness/NonBorelWitness | Architecturally honest binary attention with continuous score functions over a Polish parameter space produces a non-Borel sample-space bad event |
 
-### Measurability Dichotomy (P0_settle_debate)
+### Measurability Dichotomy
 
 | Theorem | File | Result |
 |---------|------|--------|
 | `measurableSet_range_of_continuous_of_sigmaCompact` | Tame/SigmaCompactParam | Over a σ-compact parameter space, every continuous score map has a measurable *score range* (range reflection) |
 | `singletonBadEvent_measurableSet_iff` | Tame/SingletonBadEventBorel | **Sharp characterization**: the singleton-class empirical-process bad event is Borel **iff** the underlying set is Borel |
-| `singletonBadEvent_measurable_of_sigmaCompact` | Tame/SingletonBadEventBorel | (tame) Over a σ-compact parameter space the singleton bad event is Borel — the bad-event-level tame counterpart of the wild witness; finite-dimensional transformers are measurability-free |
-| `attention_measurability_dichotomy` | Boundary/Location | Conjoins (tame) σ-compact ⇒ measurable score range **and** Borel bad event, (wild) ∃ a Polish, non-σ-compact attention router with a non-Borel bad event, and a depth-uniform cascade leg. The boundary sits exactly at `SigmaCompactSpace` |
+| `singletonBadEvent_measurable_of_sigmaCompact` | Tame/SingletonBadEventBorel | Over a σ-compact parameter space the singleton bad event is Borel — the bad-event-level counterpart of the non-Borel witness; for finite-dimensional transformers the bad event is always Borel |
+| `attention_measurability_dichotomy` | Boundary/Location | Conjoins three facts: over a σ-compact parameter space the score range is measurable **and** the bad event is Borel; there exists a Polish, non-σ-compact attention router with a non-Borel bad event; and a cascade conjunct that holds uniformly in depth. The boundary sits exactly at `SigmaCompactSpace` |
 
-### Base-up MoE Cascade (P4_cascade)
+### Krapp–Wirth Well-Behavedness
 
 | Theorem | File | Result |
 |---------|------|--------|
-| `witnessCascade` | Boundary/Cascade | A genuine base-up MoE cascade — the witness's own quadratic-cost router, stacked as real 2-head routing layers above the base (not a degenerate layer) |
-| `cascadeBadEvent_eq_singletonBadEvent` | Boundary/Cascade | **Mixing-insensitivity**: per-input MoE routing enlarges the realizable *class*, yet the m=1 bad *event* collapses to the single-layer (singleton) bad event at *every* depth |
+| `singletonClass_oneSidedBadEvent_measurable` | Tame/SingletonWellBehaved | For a measurable set `A` and a measurable target `c`, the singleton-class empirical-process bad event is Borel at every sample size `m`, generalizing the `m=1`, zero-target slice |
+| `singletonClassOn_wellBehavedVCMeasTarget` | Tame/SingletonWellBehaved | For `MeasurableSet A`, the singleton class satisfies Krapp–Wirth measurable-target well-behavedness (`WellBehavedVCMeasTarget`), discharged at the strict Borel level |
+
+### Mixture-of-Experts Routing Cascade
+
+| Theorem | File | Result |
+|---------|------|--------|
+| `witnessCascade` | Boundary/Cascade | A mixture-of-experts cascade — the witness's own quadratic-cost router, stacked as genuine two-head routing layers above the base (not a degenerate layer) |
+| `cascadeBadEvent_eq_singletonBadEvent` | Boundary/Cascade | Per-input expert routing enlarges the realizable *class*, yet the `m=1` bad *event* collapses to the single-layer (singleton) bad event at *every* depth |
 | `cascadeReductionInvariant` | Boundary/Cascade | The depth-`L` bad event is a continuous-surjection pullback of the planar witness, uniformly in depth |
-| `cascadeNonInvariance` | Boundary/Cascade | At every routing depth `L`, the cascade bad event is analytic but **not** Borel — the wild side, depth-uniform |
-| `universalRepair` | Boundary/UniversalRepair | At every depth and for every finite measure, the cascade bad event is `NullMeasurableSet` (analytic ⇒ null-measurable) — the pathology never escapes null-measurability |
+| `cascadeNonInvariance` | Boundary/Cascade | At every routing depth `L`, the cascade bad event is analytic but **not** Borel — non-Borel uniformly in depth |
+| `universalRepair` | Boundary/UniversalRepair | At every depth and for every finite measure, the cascade bad event is `NullMeasurableSet` (analytic ⇒ null-measurable) — the non-Borel set is nonetheless null-measurable at every depth |
 
 ## Build
 
@@ -87,12 +95,12 @@ Lean `v4.29.0-rc6` | Mathlib4 pinned to `fde0cc5` | FLT kernel from `main`
 - [ ] MeasurableConfidenceLearner typeclass
 - [ ] Compositional calibration bounds
 - [ ] NullMeasurable necessity for confidence under composition
-- [ ] MoE routing efficiency bounds
+- [ ] Mixture-of-experts routing efficiency bounds
 - [ ] Conformal prediction integration
 
 ## References
 
-- L. S. Krapp and L. Wirth, *Measurability in the Fundamental Theorem of Statistical Learning* (with an appendix by L. Wirth), arXiv:[2410.10243](https://arxiv.org/abs/2410.10243) (2024). Identifies the minimal measurability assumptions tacit in the Fundamental Theorem of Statistical Learning — their *well-behavedness*, i.e. measurability of the uniform-convergence bad event. The measurability dichotomy here makes that boundary precise and machine-checks it: the tame side is exactly where their well-behavedness holds; the wild side is a concrete instance where it fails. The tame and `FiniteCellScoreRouter` proofs are grounded in their well-behavedness conditions (§A.2) and o-minimal cells-are-Borel lemma (Lemma A.9).
+- L. S. Krapp and L. Wirth, *Measurability in the Fundamental Theorem of Statistical Learning* (with an appendix by L. Wirth), arXiv:[2410.10243](https://arxiv.org/abs/2410.10243) (2024). Identifies the minimal measurability assumptions tacit in the Fundamental Theorem of Statistical Learning — their *well-behavedness*, i.e. measurability of the uniform-convergence bad event. The measurability dichotomy here makes that boundary precise and machine-checks it: the σ-compact side is exactly where their well-behavedness holds; the non-σ-compact side is a concrete instance where it fails. The σ-compact and `FiniteCellScoreRouter` proofs are grounded in their well-behavedness conditions (§A.2) and o-minimal cells-are-Borel lemma (Lemma A.9).
 
 ## Citation
 
