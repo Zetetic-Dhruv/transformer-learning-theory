@@ -13,7 +13,8 @@ formal-learning-theory-kernel (dependency)
 
 transformer-learning-theory (this repo)
   └── Attention routing measurability, softmax-argmax equivalence,
-      parametric attention learners, non-Borel strictness witness
+      parametric attention learners, non-Borel strictness witness,
+      measurability dichotomy, base-up MoE cascade (mixing-insensitivity)
 ```
 
 ## Current Results
@@ -53,6 +54,23 @@ transformer-learning-theory (this repo)
 | `patchEval_class_eq_singletonClassOn` | Strictness/NonBorelWitness | The witness's patchEval class equals `singletonClassOn (range g)` |
 | `witnessBadEventSet_not_measurable` | Strictness/NonBorelWitness | The witness's sample-space bad event is not Borel-measurable |
 | `attention_architecture_produces_non_borel_bad_event` | Strictness/NonBorelWitness | Architecturally honest binary attention with continuous score functions over a Polish parameter space produces a non-Borel sample-space bad event |
+
+### Measurability Dichotomy (P0_settle_debate)
+
+| Theorem | File | Result |
+|---------|------|--------|
+| `measurableSet_range_of_continuous_of_sigmaCompact` | Tame/SigmaCompactParam | (tame) Over a σ-compact parameter space, every continuous score map has a measurable range — finite-dimensional transformers are measurability-free |
+| `attention_measurability_dichotomy` | Boundary/Location | Conjoins (tame) σ-compact ⇒ measurable range, (wild) ∃ a Polish, non-σ-compact attention router with a non-Borel bad event, and a depth-uniform cascade leg. The boundary sits exactly at `SigmaCompactSpace` |
+
+### Base-up MoE Cascade (P4_cascade)
+
+| Theorem | File | Result |
+|---------|------|--------|
+| `witnessCascade` | Boundary/Cascade | A genuine base-up MoE cascade — the witness's own quadratic-cost router, stacked as real 2-head routing layers above the base (not a degenerate layer) |
+| `cascadeBadEvent_eq_singletonBadEvent` | Boundary/Cascade | **Mixing-insensitivity**: per-input MoE routing enlarges the realizable *class*, yet the m=1 bad *event* collapses to the single-layer (singleton) bad event at *every* depth |
+| `cascadeReductionInvariant` | Boundary/Cascade | The depth-`L` bad event is a continuous-surjection pullback of the planar witness, uniformly in depth |
+| `cascadeNonInvariance` | Boundary/Cascade | At every routing depth `L`, the cascade bad event is analytic but **not** Borel — the wild side, depth-uniform |
+| `universalRepair` | Boundary/UniversalRepair | At every depth and for every finite measure, the cascade bad event is `NullMeasurableSet` (analytic ⇒ null-measurable) — the pathology never escapes null-measurability |
 
 ## Build
 
