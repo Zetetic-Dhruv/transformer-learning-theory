@@ -11,7 +11,7 @@ import TLT_Proofs.Attention.BinaryRouting
 
 -- ℝ instances (ContinuousMul ℝ, ContinuousSub ℝ, T2Space ℝ, MeasurableSpace ℝ,
 -- BorelSpace ℝ) come transitively via the Polish/BorelSpace imports above.
--
+
 /-!
 # Non-Borel Bad Event in Binary Attention
 

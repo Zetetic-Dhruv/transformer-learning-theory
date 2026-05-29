@@ -12,7 +12,9 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Attention.BinaryRouting,
     `TLT_Proofs.Attention.FiniteRouting,
     `TLT_Proofs.Learner.AttentionLearner,
-    `TLT_Proofs.Strictness.NonBorelWitness
+    `TLT_Proofs.Strictness.NonBorelWitness,
+    `TLT_Proofs.Tame.SigmaCompactParam,
+    `TLT_Proofs.Boundary.Location
   ]
 
 require mathlib from git
