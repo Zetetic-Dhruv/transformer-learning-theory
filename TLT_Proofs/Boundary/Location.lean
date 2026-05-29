@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dhruv Gupta
 -/
 import TLT_Proofs.Tame.SigmaCompactParam
+import TLT_Proofs.Tame.SingletonBadEventBorel
 import TLT_Proofs.Strictness.NonBorelWitness
 import TLT_Proofs.Boundary.UniversalRepair
 
@@ -16,9 +17,10 @@ theorem**, settling the "agent vs. witness" debate:
 
 * **Tame half (the agent's world).** For *any* σ-compact parameter space `β`
   and *any* continuous score map `g : β → ℝ`, the range `Set.range g` is
-  measurable (`TLT_Proofs.Tame.SigmaCompactParam`).  Every finite-dimensional
-  transformer — every finite product of `ℝ^d` blocks — has a σ-compact
-  parameter space, so its routing pathology is *measurability-free*.
+  measurable (`TLT_Proofs.Tame.SigmaCompactParam`) **and** the induced singleton
+  empirical-process bad event is Borel (`TLT_Proofs.Tame.SingletonBadEventBorel`).
+  Every finite-dimensional transformer — every finite product of `ℝ^d` blocks —
+  has a σ-compact parameter space, so its routing pathology is *measurability-free*.
 
 * **Wild half (the witness's world).** There nonetheless *exists* a binary
   attention router with continuous scores over a Polish parameter space whose
@@ -31,6 +33,13 @@ presence forces measurability; only its absence admits the analytic-non-Borel
 pathology.  This is the honest *location* theorem — it pins exactly where the
 boundary sits, rather than over-claiming non-measurability for σ-compact
 architectures (the error that started the debate).
+
+This makes precise — and machine-checks — the measurability assumption that
+Krapp–Wirth (2024, arXiv:2410.10243) identify as tacit in the Fundamental Theorem of
+Statistical Learning (their *well-behavedness*, i.e. measurability of the
+uniform-convergence bad event `U⁻¹([0,ε])`): the tame half is exactly where it holds,
+the wild half a concrete instance where it fails.  (`hex` is the classical existence of
+an analytic non-Borel subset of ℝ — Suslin–Lusin 1917 — assumed, as is standard.)
 -/
 
 namespace TLT.Boundary
@@ -55,7 +64,8 @@ The hinge is `SigmaCompactSpace`: present ⟹ no pathology; absent ⟹ witness. 
 theorem attention_measurability_dichotomy
     (hex : ∃ A : Set ℝ, AnalyticSet A ∧ ¬ MeasurableSet A) :
     (∀ (β : Type) [TopologicalSpace β] [SigmaCompactSpace β] (g : β → ℝ),
-        Continuous g → MeasurableSet (Set.range g))
+        Continuous g → MeasurableSet (Set.range g)
+          ∧ MeasurableSet (singletonBadEvent (Set.range g)))
     ∧
     (∃ (β : Type) (_hτ : TopologicalSpace β) (_hP : PolishSpace β)
         (_hm : MeasurableSpace β) (_hBor : BorelSpace β)
@@ -75,7 +85,8 @@ theorem attention_measurability_dichotomy
             NullMeasurableSet (cascadeBadEvent (witnessCascade g hg) L) μ) := by
   refine ⟨?_, ?_, ?_⟩
   · intro β _ _ g hg
-    exact measurableSet_range_of_continuous_of_sigmaCompact hg
+    exact ⟨measurableSet_range_of_continuous_of_sigmaCompact hg,
+      singletonBadEvent_measurable_of_sigmaCompact hg⟩
   · exact attention_architecture_produces_non_borel_bad_event hex
   · obtain ⟨A, hA_an, hA_non⟩ := hex
     obtain ⟨β, hτ, hP, g, hg_cont, hg_range⟩ :=
