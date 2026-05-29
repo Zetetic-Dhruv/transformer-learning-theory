@@ -15,6 +15,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Strictness.NonBorelWitness,
     `TLT_Proofs.Tame.SigmaCompactParam,
     `TLT_Proofs.Tame.SingletonBadEventBorel,
+    `TLT_Proofs.Tame.SingletonWellBehaved,
     `TLT_Proofs.Boundary.Location,
     `TLT_Proofs.Boundary.Cascade,
     `TLT_Proofs.Boundary.UniversalRepair
