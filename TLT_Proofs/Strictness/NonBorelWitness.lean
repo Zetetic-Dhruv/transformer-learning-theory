@@ -71,7 +71,7 @@ noncomputable def quadraticCostRouter
   instStdΡ := inferInstance
   scoreL := fun ρ x => (x - g ρ) ^ 2
   scoreR := fun _ _ => 0
-  scoreL_meas := ((continuous_snd.sub (hg.comp continuous_fst)).pow 2).measurable
+  scoreL_meas := (measurable_snd.sub (hg.measurable.comp measurable_fst)).pow_const 2
   scoreR_meas := measurable_const
 
 /-- Back-compat alias per dictionary v3.0. The original name from the inquiry
