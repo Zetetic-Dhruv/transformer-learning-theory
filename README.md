@@ -1,6 +1,6 @@
 # Transformer Learning Theory
 
-Lean4 formalization of measurability-theoretic foundations for transformer architectures. Builds on the [formal-learning-theory-kernel](https://github.com/Zetetic-Dhruv/formal-learning-theory-kernel) measurability infrastructure.
+Lean4 formalization of measurability-theoretic foundations for transformer architectures. Builds on the [formal-learning-theory-kernel](https://github.com/Zetetic-Dhruv/formal-learning-theory-kernel) measurability infrastructure. It makes precise — and machine-checks — the measurability assumptions that [Krapp–Wirth (2024)](https://arxiv.org/abs/2410.10243) identify as tacit in the Fundamental Theorem of Statistical Learning.
 
 ## Architecture
 
@@ -59,8 +59,10 @@ transformer-learning-theory (this repo)
 
 | Theorem | File | Result |
 |---------|------|--------|
-| `measurableSet_range_of_continuous_of_sigmaCompact` | Tame/SigmaCompactParam | (tame) Over a σ-compact parameter space, every continuous score map has a measurable range — finite-dimensional transformers are measurability-free |
-| `attention_measurability_dichotomy` | Boundary/Location | Conjoins (tame) σ-compact ⇒ measurable range, (wild) ∃ a Polish, non-σ-compact attention router with a non-Borel bad event, and a depth-uniform cascade leg. The boundary sits exactly at `SigmaCompactSpace` |
+| `measurableSet_range_of_continuous_of_sigmaCompact` | Tame/SigmaCompactParam | Over a σ-compact parameter space, every continuous score map has a measurable *score range* (range reflection) |
+| `singletonBadEvent_measurableSet_iff` | Tame/SingletonBadEventBorel | **Sharp characterization**: the singleton-class empirical-process bad event is Borel **iff** the underlying set is Borel |
+| `singletonBadEvent_measurable_of_sigmaCompact` | Tame/SingletonBadEventBorel | (tame) Over a σ-compact parameter space the singleton bad event is Borel — the bad-event-level tame counterpart of the wild witness; finite-dimensional transformers are measurability-free |
+| `attention_measurability_dichotomy` | Boundary/Location | Conjoins (tame) σ-compact ⇒ measurable score range **and** Borel bad event, (wild) ∃ a Polish, non-σ-compact attention router with a non-Borel bad event, and a depth-uniform cascade leg. The boundary sits exactly at `SigmaCompactSpace` |
 
 ### Base-up MoE Cascade (P4_cascade)
 
@@ -87,6 +89,10 @@ Lean `v4.29.0-rc6` | Mathlib4 pinned to `fde0cc5` | FLT kernel from `main`
 - [ ] NullMeasurable necessity for confidence under composition
 - [ ] MoE routing efficiency bounds
 - [ ] Conformal prediction integration
+
+## References
+
+- L. S. Krapp and L. Wirth, *Measurability in the Fundamental Theorem of Statistical Learning* (with an appendix by L. Wirth), arXiv:[2410.10243](https://arxiv.org/abs/2410.10243) (2024). Identifies the minimal measurability assumptions tacit in the Fundamental Theorem of Statistical Learning — their *well-behavedness*, i.e. measurability of the uniform-convergence bad event. The measurability dichotomy here makes that boundary precise and machine-checks it: the tame side is exactly where their well-behavedness holds; the wild side is a concrete instance where it fails. The tame and `FiniteCellScoreRouter` proofs are grounded in their well-behavedness conditions (§A.2) and o-minimal cells-are-Borel lemma (Lemma A.9).
 
 ## Citation
 
