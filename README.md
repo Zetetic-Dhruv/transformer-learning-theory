@@ -15,7 +15,8 @@ transformer-learning-theory (this repo)
   └── Attention routing measurability, softmax-argmax equivalence,
       parametric attention learners, non-Borel strictness witness,
       measurability dichotomy, Krapp–Wirth well-behavedness,
-      mixture-of-experts routing cascade
+      mixture-of-experts routing cascade, TorchLean integration
+      (real attention/softmax over IEEE floats, fp32 rounding channel)
 ```
 
 ## Current Results
@@ -90,6 +91,19 @@ transformer-learning-theory (this repo)
 | `cascadeReductionInvariant` | Boundary/Cascade | The depth-`L` bad event is a continuous-surjection pullback of the planar witness, uniformly in depth |
 | `cascadeNonInvariance` | Boundary/Cascade | At every routing depth `L`, the cascade bad event is analytic but **not** Borel — non-Borel uniformly in depth |
 | `universalRepair` | Boundary/UniversalRepair | At every depth and for every finite measure, the cascade bad event is `NullMeasurableSet` (analytic ⇒ null-measurable) — the non-Borel set is nonetheless null-measurable at every depth |
+| `cascadeBadEvent_measurableSet_iff` | Boundary/CascadeTame | The depth-`L` cascade bad event is Borel **iff** the base score range is Borel — the sharp dichotomy, uniform in depth (the tame counterpart of `cascadeNonInvariance`) |
+| `cascadeBadEvent_measurable_of_sigmaCompact` | Boundary/CascadeTame | Over a σ-compact base parameter space the cascade bad event is Borel at every depth |
+
+### TorchLean Integration
+
+These results connect the measurability framework to [TorchLean](https://github.com/lean-dojo/TorchLean) (lean-dojo), a Lean formalization of neural networks — using TorchLean's *actual* attention scores (`Spec.dot`, the `Q Kᵀ` entry), softmax, and IEEE-float semantics. The two repos are reconciled onto one toolchain (`v4.29.0`, Mathlib `8a17838`); TorchLean is required as a local-path dependency on the design-lab vendored source.
+
+| Theorem | File | Result |
+|---------|------|--------|
+| `attentionRouting_wellBehaved` | Bridge/TorchLeanAttention | The argmax router scored by TorchLean's actual `Spec.dot` satisfies `WellBehavedVCMeasTarget` |
+| `softAttention_wellBehaved` | Bridge/SoftAttention | The real softmax-weighted attention output `∑ᵢ softmax(⟨x,Kᵢ⟩)ᵢ·Vᵢ`, thresholded, gives a well-behaved concept class — beyond the argmax idealization (all prior results are argmax/top-1) |
+| `soft_vs_hard_attention_separation` | Bridge/SoftHardSeparation | Soft (softmax) attention is *unconditionally* well-behaved, while hard (argmax) attention admits a non-Borel witness — softmax removes the measurability pathology argmax can exhibit |
+| `neuralUlp_le_rel_on_normal` | Bridge/FP32Channel | On the normal range (`mag x ≥ −125`), binary32's unit-in-the-last-place satisfies `ulp(x) ≤ 2⁻²³·|x|` — the relative-error foundation for the IEEE-`Float32`/ℝ rounding-error channel |
 
 ## Build
 
@@ -97,7 +111,9 @@ transformer-learning-theory (this repo)
 lake build   # First build fetches Mathlib + FLT kernel (~25 min clean)
 ```
 
-Lean `v4.29.0-rc6` | Mathlib4 pinned to `fde0cc5` | FLT kernel from `main`
+Lean `v4.29.0` | Mathlib4 pinned to `8a17838` | FLT kernel from `main` | TorchLean integrated as a local-path dependency (design-lab vendored source)
+
+> The TorchLean-integration branch reconciles this repo's toolchain with TorchLean's (`v4.29.0`, Mathlib `8a17838`). It requires the design-lab vendored TorchLean at a local path, so it does not build standalone; the core results above are independent of the TorchLean bridge.
 
 ## Roadmap
 
