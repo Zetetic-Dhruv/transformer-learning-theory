@@ -59,4 +59,33 @@ def transformerForwardMap_continuous_resolution (T : RealTransformer) :
     Resolution T ForwardMapContinuous :=
   Resolution.discharged (transformerForwardMap_continuous T)
 
+/-! ### The measurable forward map (regularizer-free)
+
+Measurability needs no nonzero-denominator hypothesis (`Measurable.div` is unconditional), so it holds
+for *measurable* layers — and the transformer layers are measurable for **every** layer-norm
+regularizer `ε ≥ 0` (`measurable_layerNormCoordEps`), including `ε = 0`, where the forward map is
+measurable but not continuous. -/
+
+/-- The transformer forward map is **measurable**: an input embedding, a stack of measurable layers,
+and an output projection compose to a measurable map of the input coordinates. -/
+def ForwardMapMeasurable (T : RealTransformer) : Prop :=
+  ∀ {seqLen : ℕ} (Wembed Wout : Fin T.cfg.embedDim → Fin T.cfg.embedDim → ℝ)
+    (layers : List ((Fin seqLen → Fin T.cfg.embedDim → ℝ) → Fin seqLen → Fin T.cfg.embedDim → ℝ)),
+    (∀ L ∈ layers, Measurable L) →
+    Measurable (fun X : Fin seqLen → Fin T.cfg.embedDim → ℝ =>
+      matMulCoord Wout (layers.foldl (fun acc L => L acc) (matMulCoord Wembed X)))
+
+/-- Every real transformer's forward map is measurable (composition of the measurable embedding, the
+measurable-layer stack, and the measurable output projection). -/
+theorem transformerForwardMap_measurable (T : RealTransformer) : ForwardMapMeasurable T := by
+  intro seqLen Wembed Wout layers hL
+  exact (measurable_matMulCoord Wout).comp
+    ((measurable_listFoldl layers hL).comp (measurable_matMulCoord Wembed))
+
+/-- The discharged resolution recording that the forward map of `T` is measurable — regularizer-free
+(it holds even at `ε = 0`, where continuity fails). -/
+def transformerForwardMap_measurable_resolution (T : RealTransformer) :
+    Resolution T ForwardMapMeasurable :=
+  Resolution.discharged (transformerForwardMap_measurable T)
+
 end TLT
