@@ -16,7 +16,8 @@ transformer-learning-theory (this repo)
       parametric attention learners, non-Borel strictness witness,
       measurability dichotomy, Krapp–Wirth well-behavedness,
       mixture-of-experts routing cascade, TorchLean integration
-      (real attention/softmax over IEEE floats, fp32 rounding channel)
+      (real attention/softmax over IEEE floats, fp32 rounding channel,
+      α-parametric transformer object with proof-carrying resolutions)
 ```
 
 ## Current Results
@@ -98,12 +99,16 @@ transformer-learning-theory (this repo)
 
 These results connect the measurability framework to [TorchLean](https://github.com/lean-dojo/TorchLean) (lean-dojo), a Lean formalization of neural networks — using TorchLean's *actual* attention scores (`Spec.dot`, the `Q Kᵀ` entry), softmax, and IEEE-float semantics. The two repos are reconciled onto one toolchain (`v4.29.0`, Mathlib `8a17838`); TorchLean is required as a local-path dependency on the design-lab vendored source.
 
+A common scaffold `TransformerObject` (Bridge/TransformerRoot) packages TorchLean's `Spec.Transformer` parametrically in the numeric backend — one object serving both `ℝ` (learning theory) and `IEEE32Exec` (binary32 execution) — together with a proof-carrying `Resolution` type that records each property proved (`discharged`) or refuted (`refuted`) about it. Properties of a transformer are then stated and resolved against this single object.
+
 | Theorem | File | Result |
 |---------|------|--------|
 | `attentionRouting_wellBehaved` | Bridge/TorchLeanAttention | The argmax router scored by TorchLean's actual `Spec.dot` satisfies `WellBehavedVCMeasTarget` |
 | `softAttention_wellBehaved` | Bridge/SoftAttention | The real softmax-weighted attention output `∑ᵢ softmax(⟨x,Kᵢ⟩)ᵢ·Vᵢ`, thresholded, gives a well-behaved concept class — beyond the argmax idealization (all prior results are argmax/top-1) |
 | `soft_vs_hard_attention_separation` | Bridge/SoftHardSeparation | Soft (softmax) attention is *unconditionally* well-behaved, while hard (argmax) attention admits a non-Borel witness — softmax removes the measurability pathology argmax can exhibit |
 | `neuralUlp_le_rel_on_normal` | Bridge/FP32Channel | On the normal range (`mag x ≥ −125`), binary32's unit-in-the-last-place satisfies `ulp(x) ≤ 2⁻²³·|x|` — the relative-error foundation for the IEEE-`Float32`/ℝ rounding-error channel |
+| `fp32Sum_error_le` | Bridge/FP32Channel | On the binary32 normal range, the round-to-nearest fold sum differs from the exact sum by at most an accumulated relative-error budget — a self-contained summation enclosure for the rounding channel |
+| `transformerAttention_wellBehaved` | Bridge/TransformerAttention | The scaled-dot-product attention routing at a real transformer's embedding dimension is well-behaved, recorded as a discharged `Resolution` of the `TransformerObject` |
 
 ## Build
 
