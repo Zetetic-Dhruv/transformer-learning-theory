@@ -5,6 +5,8 @@ Authors: Dhruv Gupta
 -/
 import NN.Floats.NeuralFloat.Core
 import NN.Floats.FP32.Core
+import NN.Floats.FP32.Notation
+import NN.Floats.IEEEExec.ErrorBounds
 import Mathlib.Analysis.SpecialFunctions.Log.Base
 
 /-!
@@ -63,3 +65,70 @@ theorem neuralUlp_le_rel_on_normal (x : ℝ) (hx : x ≠ 0)
     _ ≤ neuralBpow binaryRadix (-23) * |x| :=
         mul_le_mul_of_nonneg_left (neuralBpow_magnitude_sub_one_le_abs x hx)
           (neuralBpow.nonneg binaryRadix (-23))
+
+open TorchLean.Floats.IEEE754.IEEE32Exec
+
+/-- `bpow(−1) = 1/2`. -/
+private lemma neuralBpow_neg_one : neuralBpow binaryRadix (-1) = 1 / 2 := by
+  simp only [neuralBpow, binaryRadix_toReal_eq]; norm_num
+
+/-- `bpow(−24) = bpow(−23)/2`. -/
+private lemma neuralBpow_half :
+    neuralBpow binaryRadix (-24) = neuralBpow binaryRadix (-23) / 2 := by
+  show neuralBpow binaryRadix (-23 + -1) = neuralBpow binaryRadix (-23) / 2
+  rw [neuralBpow_add, neuralBpow_neg_one]; ring
+
+/-- **Normal-range add bound.** When `a + b` is normal, fp32-rounding `a + b` is within
+`2⁻²⁴·(|a|+|b|)` of `a + b` — the `LocalAddBound` envelope, valid on the normal range. -/
+theorem fp32_addBound_on_normal (a b : ℝ) (hab : a + b ≠ 0)
+    (hnorm : (-125 : ℤ) ≤ neuralMagnitude binaryRadix (a + b)) :
+    |fp32Round (a + b) - (a + b)| ≤ neuralBpow binaryRadix (-24) * (|a| + |b|) := by
+  calc |fp32Round (a + b) - (a + b)|
+      ≤ eps₃₂ (a + b) := fp32Round_abs_error (a + b)
+    _ = neuralUlp binaryRadix fexp32 (a + b) TrainingPhase.forward / 2 := by
+        simp only [eps₃₂, eps32, ulp32]
+    _ ≤ neuralBpow binaryRadix (-23) * |a + b| / 2 := by
+        gcongr
+        exact neuralUlp_le_rel_on_normal (a + b) hab hnorm
+    _ = neuralBpow binaryRadix (-24) * |a + b| := by rw [neuralBpow_half]; ring
+    _ ≤ neuralBpow binaryRadix (-24) * (|a| + |b|) :=
+        mul_le_mul_of_nonneg_left (abs_add_le a b) (neuralBpow.nonneg binaryRadix (-24))
+
+/-- The fp32 (round-to-nearest) right-fold sum of a list of reals: each partial sum is rounded. -/
+noncomputable def fp32Sum : List ℝ → ℝ
+  | [] => 0
+  | x :: xs => fp32Round (x + fp32Sum xs)
+
+/-- Every accumulation step `x + fp32Sum xs` lands in the binary32 normal range. -/
+def Fp32SumNormal : List ℝ → Prop
+  | [] => True
+  | x :: xs => (x + fp32Sum xs ≠ 0 ∧ (-125 : ℤ) ≤ neuralMagnitude binaryRadix (x + fp32Sum xs))
+               ∧ Fp32SumNormal xs
+
+/-- The accumulated rounding-error budget of `fp32Sum`. -/
+noncomputable def fp32SumErrorBudget : List ℝ → ℝ
+  | [] => 0
+  | x :: xs => neuralBpow binaryRadix (-24) * (|x| + |fp32Sum xs|) + fp32SumErrorBudget xs
+
+/-- **Normal-range summation enclosure.** When every accumulation step stays in the binary32 normal
+range, the fp32 fold-sum differs from the exact sum by at most the accumulated rounding-error budget.
+This is the fp32-summation channel bound the attention score (a dot product) performs — derived from
+the per-step bound `fp32_addBound_on_normal` by induction, *without* TorchLean's unconditional
+`dotTreeResult_enclosure` (which fp32 cannot satisfy). -/
+theorem fp32Sum_error_le :
+    ∀ xs : List ℝ, Fp32SumNormal xs → |fp32Sum xs - xs.sum| ≤ fp32SumErrorBudget xs := by
+  intro xs
+  induction xs with
+  | nil => intro _; simp [fp32Sum, fp32SumErrorBudget]
+  | cons x xs ih =>
+    intro h
+    obtain ⟨⟨hne, hnorm⟩, htail⟩ := h
+    calc |fp32Sum (x :: xs) - (x :: xs).sum|
+        = |(fp32Round (x + fp32Sum xs) - (x + fp32Sum xs)) + (fp32Sum xs - xs.sum)| := by
+          simp only [fp32Sum, List.sum_cons]; congr 1; ring
+      _ ≤ |fp32Round (x + fp32Sum xs) - (x + fp32Sum xs)| + |fp32Sum xs - xs.sum| := abs_add_le _ _
+      _ ≤ neuralBpow binaryRadix (-24) * (|x| + |fp32Sum xs|) + fp32SumErrorBudget xs := by
+          gcongr
+          · exact fp32_addBound_on_normal x (fp32Sum xs) hne hnorm
+          · exact ih htail
+      _ = fp32SumErrorBudget (x :: xs) := by simp [fp32SumErrorBudget]
