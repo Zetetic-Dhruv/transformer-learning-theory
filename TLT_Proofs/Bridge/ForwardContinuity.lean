@@ -152,4 +152,20 @@ theorem continuous_softmaxCoord {n : ℕ} : Continuous (softmaxCoord (n := n)) :
   exact (EuclideanSpace.equiv (𝕜 := ℝ) (ι := Fin n)).continuous.comp
     (continuous_softmaxVec.comp (EuclideanSpace.equiv (𝕜 := ℝ) (ι := Fin n)).symm.continuous)
 
+/-- The verified layerNorm regularization constant for the ℝ backend is strictly positive
+(`Numbers.epsilon = 1e-6`, `NN/Spec/Core/Context.lean`). This single scalar is what makes the entire
+transformer forward map continuous: it bounds the layerNorm denominator away from zero. -/
+lemma numbers_epsilon_real_pos : (0 : ℝ) < Numbers.epsilon := by
+  have h : (Numbers.epsilon : ℝ) = 1e-6 := rfl
+  rw [h]; norm_num
+
+/-- The layerNorm standard deviation `std = √(max(var,0) + ε)` is strictly positive for every variance
+value, because `ε > 0` (verified `1e-6`). This discharges the `divSpec` side-condition in layerNorm
+unconditionally — the crux of the forward map's continuity. -/
+lemma layerNorm_std_pos (v : ℝ) : 0 < Real.sqrt (max v 0 + Numbers.epsilon) := by
+  refine Real.sqrt_pos.mpr ?_
+  have h0 : (0 : ℝ) ≤ max v 0 := le_max_right v 0
+  have hε : (0 : ℝ) < Numbers.epsilon := numbers_epsilon_real_pos
+  linarith
+
 end TLT
