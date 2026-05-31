@@ -15,7 +15,9 @@ transformer-learning-theory (this repo)
   └── Attention routing measurability, softmax-argmax equivalence,
       parametric attention learners, non-Borel strictness witness,
       measurability dichotomy, Krapp–Wirth well-behavedness,
-      mixture-of-experts routing cascade
+      mixture-of-experts routing cascade, TorchLean integration
+      (real attention/softmax over IEEE floats, fp32 rounding channel,
+      α-parametric transformer object with proof-carrying resolutions)
 ```
 
 ## Current Results
@@ -38,6 +40,15 @@ transformer-learning-theory (this repo)
 | `top1_softmax_eq_argmax` | Attention/FiniteRouting | Softmax top-1 = argmax (measurability equivalence) |
 | `multiHeadArgmax_wellBehaved` | Attention/FiniteRouting | Multi-head argmax routing satisfies WellBehavedVCMeasTarget |
 | `attention_requires_nullMeasurable` | Attention/FiniteRouting | NullMeasurable regime is necessary for attention |
+
+### Finite-Cell Argmax Partition
+
+| Theorem | File | Result |
+|---------|------|--------|
+| `FiniteScoreRouterCode.routeCell_measurable` / `jointArgmaxCell_measurable` | Tame/FiniteCellRouter | Each argmax routing cell is Borel — a finite intersection of measurable score-inequalities; the Krapp–Wirth Lemma A.9 "every cell is Borel" realized for measurable scores |
+| `FiniteScoreRouterCode.iUnion_routeCell` / `routeCell_disjoint` | Tame/FiniteCellRouter | The `k` argmax cells form a finite Borel partition of the input space — they cover it and are pairwise disjoint, and the router is constant on each cell |
+| `FiniteScoreRouterCode.route_measurable_via_cells` | Tame/FiniteCellRouter | Joint route-measurability derived *from* the Borel cells — the §A.3 implication "finite union of Borel cells ⟹ measurable routing" |
+| `finiteCellRouter_wellBehaved` | Tame/FiniteCellRouter | The finite-cell argmax router's patched class satisfies `WellBehavedVCMeasTarget`, closed *through* the explicit cell partition |
 
 ### Parametric Attention Learners
 
@@ -81,6 +92,25 @@ transformer-learning-theory (this repo)
 | `cascadeReductionInvariant` | Boundary/Cascade | The depth-`L` bad event is a continuous-surjection pullback of the planar witness, uniformly in depth |
 | `cascadeNonInvariance` | Boundary/Cascade | At every routing depth `L`, the cascade bad event is analytic but **not** Borel — non-Borel uniformly in depth |
 | `universalRepair` | Boundary/UniversalRepair | At every depth and for every finite measure, the cascade bad event is `NullMeasurableSet` (analytic ⇒ null-measurable) — the non-Borel set is nonetheless null-measurable at every depth |
+| `cascadeBadEvent_measurableSet_iff` | Boundary/CascadeTame | The depth-`L` cascade bad event is Borel **iff** the base score range is Borel — the sharp dichotomy, uniform in depth (the tame counterpart of `cascadeNonInvariance`) |
+| `cascadeBadEvent_measurable_of_sigmaCompact` | Boundary/CascadeTame | Over a σ-compact base parameter space the cascade bad event is Borel at every depth |
+
+### TorchLean Integration
+
+These results connect the measurability framework to [TorchLean](https://github.com/lean-dojo/TorchLean) (lean-dojo), a Lean formalization of neural networks — using TorchLean's *actual* attention scores (`Spec.dot`, the `Q Kᵀ` entry), softmax, and IEEE-float semantics. The two repos are reconciled onto one toolchain (`v4.29.0`, Mathlib `8a17838`); TorchLean is required as a local-path dependency on the design-lab vendored source.
+
+A common scaffold `TransformerObject` (Bridge/TransformerRoot) packages TorchLean's `Spec.Transformer` parametrically in the numeric backend — one object serving both `ℝ` (learning theory) and `IEEE32Exec` (binary32 execution) — together with a proof-carrying `Resolution` type that records each property proved (`discharged`) or refuted (`refuted`) about it. Properties of a transformer are then stated and resolved against this single object.
+
+| Theorem | File | Result |
+|---------|------|--------|
+| `attentionRouting_wellBehaved` | Bridge/TorchLeanAttention | The argmax router scored by TorchLean's actual `Spec.dot` satisfies `WellBehavedVCMeasTarget` |
+| `softAttention_wellBehaved` | Bridge/SoftAttention | The real softmax-weighted attention output `∑ᵢ softmax(⟨x,Kᵢ⟩)ᵢ·Vᵢ`, thresholded, gives a well-behaved concept class — beyond the argmax idealization (all prior results are argmax/top-1) |
+| `soft_vs_hard_attention_separation` | Bridge/SoftHardSeparation | Soft (softmax) attention is *unconditionally* well-behaved, while hard (argmax) attention admits a non-Borel witness — softmax removes the measurability pathology argmax can exhibit |
+| `neuralUlp_le_rel_on_normal` | Bridge/FP32Channel | On the normal range (`mag x ≥ −125`), binary32's unit-in-the-last-place satisfies `ulp(x) ≤ 2⁻²³·|x|` — the relative-error foundation for the IEEE-`Float32`/ℝ rounding-error channel |
+| `fp32Sum_error_le` | Bridge/FP32Channel | On the binary32 normal range, the round-to-nearest fold sum differs from the exact sum by at most an accumulated relative-error budget — a self-contained summation enclosure for the rounding channel |
+| `transformerAttention_wellBehaved` | Bridge/TransformerAttention | The scaled-dot-product attention routing at a real transformer's embedding dimension is well-behaved, recorded as a discharged `Resolution` of the `TransformerObject` |
+| `continuous_matCoords_matMulSpec`, `continuous_softmaxCoord`, `layerNorm_std_pos` | Bridge/ForwardContinuity | The forward-pass operations — matrix multiplication, ReLU, addition, and softmax — are continuous as maps of the real coordinates (the softmax via its TorchLean differentiability and the continuous-linear equivalence `EuclideanSpace ℝ (Fin n) ≃L (Fin n → ℝ)`), and the layer-normalization denominator `√(max(var,0)+ε)` is bounded below by `√ε > 0` (the real backend fixes `ε = 10⁻⁶`); the components toward Borel-measurability of the transformer's forward map |
+| `transformerForwardMap_continuous_resolution` | Bridge/TransformerForwardContinuous | The transformer forward map — an input embedding, a stack of continuous transformer layers (residual self-attention + layer-norm + residual feed-forward), and an output projection — is continuous over real coordinates, discharged as a `Resolution` of the `TransformerObject`; the only singular operation, the layer-normalization division, is everywhere-defined by the verified positive regularizer (`ε = 10⁻⁶`) |
 
 ## Build
 
@@ -88,7 +118,9 @@ transformer-learning-theory (this repo)
 lake build   # First build fetches Mathlib + FLT kernel (~25 min clean)
 ```
 
-Lean `v4.29.0-rc6` | Mathlib4 pinned to `fde0cc5` | FLT kernel from `main`
+Lean `v4.29.0` | Mathlib4 pinned to `8a17838` | FLT kernel from `main` | TorchLean integrated as a local-path dependency (design-lab vendored source)
+
+> The TorchLean-integration branch reconciles this repo's toolchain with TorchLean's (`v4.29.0`, Mathlib `8a17838`). It requires the design-lab vendored TorchLean at a local path, so it does not build standalone; the core results above are independent of the TorchLean bridge.
 
 ## Roadmap
 
