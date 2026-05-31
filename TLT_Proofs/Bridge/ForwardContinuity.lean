@@ -5,6 +5,7 @@ Authors: Dhruv Gupta
 -/
 import Mathlib.Topology.Instances.Matrix
 import Mathlib.Analysis.SpecialFunctions.Log.Base
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 import NN.Spec.Core.Tensor.Core
 import NN.Spec.Core.Tensor.Linalg
 import NN.Spec.Core.Tensor.Constructors
@@ -312,5 +313,90 @@ lemma continuous_listFoldl {α : Type*} [TopologicalSpace α] (fs : List (α →
     simp only [List.foldl_cons]
     exact (ih (fun g hg => h g (List.mem_cons.mpr (Or.inr hg)))).comp
       (h f (List.mem_cons.mpr (Or.inl rfl)))
+
+/-! ### Measurable counterpart, regularizer-free
+
+Continuity of the forward map needs the layer-normalization regularizer `ε > 0` (its division is
+continuous only where the denominator is nonzero). **Measurability needs no such hypothesis**:
+`Measurable.div` is unconditional (`x/0 = 0` is Borel). So the forward map is measurable for *every*
+`ε ≥ 0`, while continuous only for `ε > 0` — the regularizer is a continuity requirement, not a
+measurability one. -/
+
+open MeasureTheory
+
+/-- The coordinate matrix-multiply layer is measurable (continuous ⇒ measurable). -/
+theorem measurable_matMulCoord {m n p : ℕ} (W : Fin n → Fin p → ℝ) :
+    Measurable (matMulCoord (m := m) W) := (continuous_matMulCoord W).measurable
+
+/-- A left-fold of measurable endomorphisms is measurable (the measurable analogue of
+`continuous_listFoldl`). -/
+lemma measurable_listFoldl {α : Type*} [MeasurableSpace α] (fs : List (α → α))
+    (h : ∀ f ∈ fs, Measurable f) :
+    Measurable (fun x => fs.foldl (fun acc f => f acc) x) := by
+  induction fs with
+  | nil => exact measurable_id
+  | cons f rest ih =>
+    simp only [List.foldl_cons]
+    exact (ih (fun g hg => h g (List.mem_cons.mpr (Or.inr hg)))).comp
+      (h f (List.mem_cons.mpr (Or.inl rfl)))
+
+/-- Per-row layer-norm standard deviation with an arbitrary regularizer `ε` (`rowStdCoord` is the
+`ε = Numbers.epsilon` case). Continuous in the input for every `ε`. -/
+noncomputable def rowStdCoordEps {s d : ℕ} (ε : ℝ) (i : Fin s) (X : Fin s → Fin d → ℝ) : ℝ :=
+  Real.sqrt (max (rowVarCoord i X) 0 + ε)
+
+lemma continuous_rowStdCoordEps {s d : ℕ} (ε : ℝ) (i : Fin s) :
+    Continuous (rowStdCoordEps (s := s) (d := d) ε i) := by
+  unfold rowStdCoordEps
+  exact Real.continuous_sqrt.comp
+    (((continuous_rowVarCoord i).max continuous_const).add continuous_const)
+
+/-- Layer normalization with an arbitrary regularizer `ε` (`layerNormCoord` is the
+`ε = Numbers.epsilon` case). -/
+noncomputable def layerNormCoordEps {s d : ℕ} (ε : ℝ) (γ β : Fin d → ℝ) (X : Fin s → Fin d → ℝ) :
+    Fin s → Fin d → ℝ :=
+  fun i j => (X i j - rowMeanCoord i X) / rowStdCoordEps ε i X * γ j + β j
+
+/-- Layer normalization is **measurable for every regularizer `ε`** — including `ε = 0`, where it is
+discontinuous at the constant-input locus. The unguarded division is measurable by `Measurable.div`
+(no nonzero hypothesis), unlike `Continuous.div`. This is the operation-level form of: measurability is
+the regularizer-free invariant; continuity is not. -/
+theorem measurable_layerNormCoordEps {s d : ℕ} (ε : ℝ) (γ β : Fin d → ℝ) :
+    Measurable (layerNormCoordEps (s := s) ε γ β) := by
+  unfold layerNormCoordEps
+  refine measurable_pi_iff.mpr (fun i => measurable_pi_iff.mpr (fun j => ?_))
+  refine ((Measurable.div ?_ (continuous_rowStdCoordEps ε i).measurable).mul
+    measurable_const).add measurable_const
+  exact ((measurable_pi_apply j).comp (measurable_pi_apply i)).sub
+    (continuous_rowMeanCoord i).measurable
+
+/-! ### The `ε = 0` layer-normalization division: measurable but not continuous
+
+At `ε = 0` the layer-normalization division is `centered / √(var)`; on a one-dimensional slice through
+the constant-input locus `{var = 0}` it is `x ↦ x / √(x²) = sign x` (with value `0` at `x = 0`). This
+map is **measurable** (`Measurable.div` is unconditional) yet **discontinuous at `0`** (a sign jump). It
+is the one operation whose continuity requires the regularizer `ε > 0`. -/
+
+/-- The `ε = 0` layer-norm division `x ↦ x/√(x²) = sign x` is measurable (unconditional `Measurable.div`). -/
+theorem measurable_signDiv : Measurable (fun x : ℝ => x / Real.sqrt (x ^ 2)) :=
+  measurable_id.div (Real.continuous_sqrt.comp (continuous_pow 2)).measurable
+
+/-- The `ε = 0` layer-norm division `x ↦ x/√(x²) = sign x` is discontinuous at `0`: the sequence
+`1/(n+1) → 0` has constant image `1`, while the value at `0` is `0`. -/
+theorem not_continuous_signDiv : ¬ Continuous (fun x : ℝ => x / Real.sqrt (x ^ 2)) := by
+  intro h
+  have hpos : ∀ n : ℕ, (0 : ℝ) < 1 / ((n : ℝ) + 1) := fun n => by positivity
+  have hlim := (h.tendsto 0).comp tendsto_one_div_add_atTop_nhds_zero_nat
+  have hconst : ((fun x : ℝ => x / Real.sqrt (x ^ 2)) ∘ fun n : ℕ => 1 / ((n : ℝ) + 1))
+      = fun _ : ℕ => (1 : ℝ) := by
+    funext n
+    show (1 / ((n : ℝ) + 1)) / Real.sqrt ((1 / ((n : ℝ) + 1)) ^ 2) = 1
+    rw [Real.sqrt_sq_eq_abs, abs_of_pos (hpos n), div_self ((hpos n).ne')]
+  rw [hconst] at hlim
+  have e1 : (fun x : ℝ => x / Real.sqrt (x ^ 2)) 0 = 1 :=
+    tendsto_nhds_unique hlim tendsto_const_nhds
+  have e0 : (fun x : ℝ => x / Real.sqrt (x ^ 2)) 0 = 0 := by simp
+  rw [e0] at e1
+  exact zero_ne_one e1
 
 end TLT
