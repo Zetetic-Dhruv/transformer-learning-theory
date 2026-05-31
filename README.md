@@ -109,6 +109,7 @@ A common scaffold `TransformerObject` (Bridge/TransformerRoot) packages TorchLea
 | `neuralUlp_le_rel_on_normal` | Bridge/FP32Channel | On the normal range (`mag x ≥ −125`), binary32's unit-in-the-last-place satisfies `ulp(x) ≤ 2⁻²³·|x|` — the relative-error foundation for the IEEE-`Float32`/ℝ rounding-error channel |
 | `fp32Sum_error_le` | Bridge/FP32Channel | On the binary32 normal range, the round-to-nearest fold sum differs from the exact sum by at most an accumulated relative-error budget — a self-contained summation enclosure for the rounding channel |
 | `transformerAttention_wellBehaved` | Bridge/TransformerAttention | The scaled-dot-product attention routing at a real transformer's embedding dimension is well-behaved, recorded as a discharged `Resolution` of the `TransformerObject` |
+| `continuous_matCoords_matMulSpec`, `continuous_softmaxCoord` | Bridge/ForwardContinuity | TorchLean's forward-pass operations — the linear (matrix-multiply), ReLU, and addition layers and the softmax — are continuous as maps of the real coordinates, the foundation for Borel-measurability of the transformer's forward map (the softmax continuity transported from its TorchLean differentiability through `EuclideanSpace ≃L (Fin n → ℝ)`) |
 
 ## Build
 
