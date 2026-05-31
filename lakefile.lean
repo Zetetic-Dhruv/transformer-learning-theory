@@ -24,7 +24,8 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Bridge.TorchLeanAttention,
     `TLT_Proofs.Bridge.SoftAttention,
     `TLT_Proofs.Bridge.SoftHardSeparation,
-    `TLT_Proofs.Bridge.FP32Channel
+    `TLT_Proofs.Bridge.FP32Channel,
+    `TLT_Proofs.Bridge.TransformerRoot
   ]
 
 require FLT from git
