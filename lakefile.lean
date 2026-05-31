@@ -27,7 +27,8 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Bridge.FP32Channel,
     `TLT_Proofs.Bridge.TransformerRoot,
     `TLT_Proofs.Bridge.TransformerAttention,
-    `TLT_Proofs.Bridge.ForwardContinuity
+    `TLT_Proofs.Bridge.ForwardContinuity,
+    `TLT_Proofs.Bridge.TransformerForwardContinuous
   ]
 
 require FLT from git
