@@ -2,6 +2,10 @@
 
 **A formal laboratory for transformers — where the same network is at once a literal IEEE‑754 float32 program you can execute and a mathematical object you can prove hard learning‑theoretic theorems about in exact real arithmetic, with machine‑checked bridges carrying guarantees between the two.**
 
+[![Documentation](https://img.shields.io/badge/docs-API%20reference-0b4f8b)](https://zetetic-dhruv.github.io/transformer-learning-theory/) [![Lean](https://img.shields.io/badge/Lean-v4.29.0-blue)](https://github.com/leanprover/lean4/releases/tag/v4.29.0) ![sorry 0](https://img.shields.io/badge/sorry-0-brightgreen) [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
+
+**Documentation (doc‑gen4 API reference):** [zetetic‑dhruv.github.io/transformer‑learning‑theory](https://zetetic-dhruv.github.io/transformer-learning-theory/)
+
 Most theory about neural networks is written in ℝ and silently assumed to survive contact with float32 hardware; most empirical work runs in float32 and silently assumes the ℝ theory applies. This project removes the "silently": it puts both regimes inside one proof assistant, on one transformer object, and forces every claim that crosses between them to be a theorem.
 
 It is built on the [formal‑learning‑theory‑kernel](https://github.com/Zetetic-Dhruv/formal-learning-theory-kernel) (measurability infrastructure for statistical learning) and on [TorchLean](https://github.com/lean-dojo/TorchLean)'s executable neural‑network semantics, and it makes precise — and machine‑checks — the measurability assumptions that [Krapp–Wirth (2024)](https://arxiv.org/abs/2410.10243) identify as tacit in the Fundamental Theorem of Statistical Learning. Its measurability foundations are developed further in the companion paper, [*Null Measurability at the Symmetrization Interface in VC Learning*](https://arxiv.org/abs/2604.25028).
