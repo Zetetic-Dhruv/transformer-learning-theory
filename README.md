@@ -80,7 +80,8 @@ Per‑layer data — an ideal Lipschitz constant `Λ` and a uniform local roundi
 
 | Result | Module | What it says |
 |---|---|---|
-| `execComp_envelope` · `execComp_risk_transfer` | `Bridge/ForwardEnvelope` | `∀x, dist(executed, ideal) ≤ envBound`, and the resulting `L·envBound` risk gap |
+| `execComp_envelope` | `Bridge/ForwardEnvelope` | the network envelope `∀x, dist(executed, ideal) ≤ envBound` — per‑layer rounding budgets amplified by downstream Lipschitz products |
+| `execComp_risk_transfer` · `executed_risk_transfer` | `Bridge/ForwardEnvelope`, `Bridge/ExecutedForward` | **the executed‑risk certificate** — for an `L`‑Lipschitz loss, `\|R_exec − R_ideal\| ≤ L·envBound`, with `envBound` a closed form in the weights |
 | `reluExecLayer` · `linearExecLayer` | `Bridge/ExecLayerInstances` | ReLU (1‑Lipschitz, rounding‑free) and linear (operator‑norm Lipschitz) layers as `ExecLayer`s |
 | `reluSpecExecLayer` · `matMulSpecExecLayer` | `Bridge/SpecExecLayers` | the **literal** TorchLean `reluSpec`/`matMulSpec`, read in coordinates, as `ExecLayer`s |
 
