@@ -8,3 +8,4 @@ build/
 *.oleanmap
 .claude/
 urs-traces/
+docbuild/lake-manifest.json
