@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dhruv Gupta
 -/
 import TLT_Proofs.Tame.FiniteCellRouter
+import TLT_Proofs.Tame.SingletonBadEventBorel
 import NN.Spec.Core.Tensor
 import NN.Proofs.Tensor.Basic
 import NN.Proofs.Tensor.Algebra
@@ -69,5 +70,25 @@ theorem attentionRouting_wellBehaved (hnK : 0 < nK) {Θ : Type}
     WellBehavedVCMeasTarget (Fin d → ℝ)
       (Set.range (multiPatchEval e ((attentionScoreRouter d nK).route hnK))) :=
   finiteCellRouter_wellBehaved hnK e (attentionScoreRouter d nK) he
+
+/-- The scaled-dot-product attention score `K ↦ ⟨x, Kᵢ⟩`, as a function of the **key parameters**,
+is continuous: over the coordinate sum `∑ⱼ xⱼ·Kᵢⱼ` it is a finite sum of coordinate projections
+scaled by constants. -/
+theorem continuous_attentionScore (d nK : ℕ) (x : Fin d → ℝ) (i : Fin nK) :
+    Continuous (fun K : Fin nK → Fin d → ℝ => (attentionScoreRouter d nK).score K x i) := by
+  simp only [attentionScoreRouter, dot_dimScalarEquivSymm_eq_sum]
+  exact continuous_finset_sum Finset.univ (fun j _ =>
+    continuous_const.mul ((continuous_apply j).comp (continuous_apply i)))
+
+/-- **The concrete attention bad event is Borel.** Instantiating the abstract tame result
+(`singletonBadEvent_measurable_of_sigmaCompact`) on the *actual* finite-dimensional attention
+parameter space `Fin nK → Fin d → ℝ`: that space is σ-compact, and the scaled-dot-product score map
+over it is continuous, so the singleton-class empirical-process bad event of the attention scores is
+Borel. This is the end-to-end instantiation on a concrete finite-dimensional transformer parameter
+space — the tame side realized for the actual attention scoring, not an abstract score map. -/
+theorem attentionScore_badEvent_measurable (d nK : ℕ) (x : Fin d → ℝ) (i : Fin nK) :
+    MeasurableSet (singletonBadEvent
+      (Set.range (fun K : Fin nK → Fin d → ℝ => (attentionScoreRouter d nK).score K x i))) :=
+  TLT.Tame.singletonBadEvent_measurable_of_sigmaCompact (continuous_attentionScore d nK x i)
 
 end TLT.Bridge

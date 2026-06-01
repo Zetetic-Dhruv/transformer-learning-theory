@@ -65,4 +65,26 @@ def transformerAttention_resolution (T : RealTransformer) :
     Resolution T WellBehavedAttentionRouting :=
   Resolution.discharged (transformerAttention_wellBehaved T)
 
+/-- For every key count `nK`, query `x`, and head `i`, the singleton-class empirical-process bad event
+of `T`'s attention scoring — taken over `T`'s **actual** key-parameter space `Fin nK → Fin cfg.embedDim
+→ ℝ` — is Borel. -/
+def AttentionBadEventBorel (T : RealTransformer) : Prop :=
+  ∀ (nK : ℕ) (x : Fin T.cfg.embedDim → ℝ) (i : Fin nK),
+    MeasurableSet (singletonBadEvent
+      (Set.range (fun K : Fin nK → Fin T.cfg.embedDim → ℝ => (T.scoreRouter nK).score K x i)))
+
+/-- **A concrete finite transformer is on the tame side of the measurability boundary.** For every
+real transformer `T`, the singleton bad event of its attention scoring is Borel — instantiating
+`singletonBadEvent_measurable_of_sigmaCompact` end-to-end on `T`'s actual key-parameter space
+`Fin nK → Fin cfg.embedDim → ℝ`, which is finite-dimensional hence σ-compact, with `T`'s continuous
+scaled-dot-product score. This turns the "finite transformers are measurability-safe" statement from
+prose into a theorem about the concrete transformer object. -/
+theorem transformerAttentionBadEvent_borel (T : RealTransformer) : AttentionBadEventBorel T :=
+  fun nK x i => Bridge.attentionScore_badEvent_measurable T.cfg.embedDim nK x i
+
+/-- The discharged resolution recording that a concrete transformer's attention bad event is Borel. -/
+def transformerAttentionBadEvent_resolution (T : RealTransformer) :
+    Resolution T AttentionBadEventBorel :=
+  Resolution.discharged (transformerAttentionBadEvent_borel T)
+
 end TLT
