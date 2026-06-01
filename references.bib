@@ -1,0 +1,145 @@
+% references.bib — Transformer Learning Theory
+%
+% Citations are partitioned into three groups:
+%   (1) sources strictly formalized by a theorem/lemma in this repository,
+%   (2) stated open questions the program is built to attack,
+%   (3) software this repository depends on.
+% Only strict-isomorphism citations are included under (1): a source appears
+% there iff a Lean theorem here is a direct formalization of its stated result.
+
+% ---------------------------------------------------------------------------
+% (1) Sources strictly formalized in this repository
+% ---------------------------------------------------------------------------
+
+% Unit roundoff (neuralUlp_le_rel_on_normal) and the gamma_n recursive-summation
+% backward error (fp32Sum_error_le, fp32FoldlErrorBudget_closed_form).
+% Higham, Ch. 2 (standard model, Eq. 2.4) and Ch. 4 / §4.2 (summation, Eq. 4.3).
+@book{Higham2002,
+  author    = {Higham, Nicholas J.},
+  title     = {Accuracy and Stability of Numerical Algorithms},
+  edition   = {2},
+  publisher = {Society for Industrial and Applied Mathematics (SIAM)},
+  address   = {Philadelphia, PA},
+  year      = {2002},
+  isbn      = {978-0-89871-521-7},
+  doi       = {10.1137/1.9780898718027}
+}
+
+% Exact floating-point subtraction for a/2 <= b <= 2a
+% (fp32Round_eq_self_of_genericFormat and the Sterbenz exactness region).
+% Sterbenz, Theorem 4.3.1.
+@book{Sterbenz1974,
+  author    = {Sterbenz, Pat H.},
+  title     = {Floating-Point Computation},
+  series    = {Prentice-Hall Series in Automatic Computation},
+  publisher = {Prentice-Hall},
+  address   = {Englewood Cliffs, NJ},
+  year      = {1974},
+  isbn      = {978-0-13-322495-5}
+}
+
+% Layer normalization (get2_layerNorm, layerNormCoordEps, LayerNormSpec) —
+% the per-row normalizer (x - mean)/sqrt(var + eps) * gamma + beta. Eq. (3)-(4).
+@article{ba2016layernorm,
+  author  = {Ba, Jimmy Lei and Kiros, Jamie Ryan and Hinton, Geoffrey E.},
+  title   = {Layer Normalization},
+  journal = {arXiv preprint arXiv:1607.06450},
+  year    = {2016}
+}
+
+% Scaled dot-product attention (transformerAttention_wellBehaved,
+% attentionRouting_wellBehaved) — softmax(Q K^T / sqrt(d)) V, Eq. (1).
+@inproceedings{vaswani2017attention,
+  author    = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N. and Kaiser, {\L}ukasz and Polosukhin, Illia},
+  title     = {Attention Is All You Need},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2017}
+}
+
+% Well-behavedness (singletonClassOn_wellBehavedVCMeasTarget) = Definition 3.2;
+% cells are Borel (Tame/FiniteCellRouter) = Lemma A.9.
+@misc{krapp2024measurability,
+  author        = {Krapp, Lothar Sebastian and Wirth, Laura},
+  title         = {Measurability in the {Fundamental} {Theorem} of {Statistical} {Learning}},
+  year          = {2024},
+  eprint        = {2410.10243},
+  archivePrefix = {arXiv},
+  primaryClass  = {math.LO},
+  note          = {With an appendix by Laura Wirth}
+}
+
+% ---------------------------------------------------------------------------
+% (2) Stated open questions the program is built to attack
+% ---------------------------------------------------------------------------
+
+% "Learnability can be undecidable" — general (EMX) learnability is independent
+% of ZFC. Foundational measurability / well-posedness of statistical learning.
+@article{bendavid2019learnability,
+  author    = {Ben-David, Shai and Hrube{\v{s}}, Pavel and Moran, Shay and Shpilka, Amir and Yehudayoff, Amir},
+  title     = {Learnability can be undecidable},
+  journal   = {Nature Machine Intelligence},
+  volume    = {1},
+  number    = {1},
+  pages     = {44--48},
+  year      = {2019},
+  publisher = {Nature Publishing Group},
+  doi       = {10.1038/s42256-018-0002-3}
+}
+
+% Low-precision training: convergence guarantees suffer dimension-dependent
+% bounds; provable accuracy outside convex settings is open.
+@article{hao2025lowprecision,
+  author  = {Hao, Zhiwei and Guo, Jianyuan and Shen, Li and Luo, Yong and Hu, Han and Wang, Guoxia and Yu, Dianhai and Wen, Yonggang and Tao, Dacheng},
+  title   = {Low-Precision Training of Large Language Models: Methods, Challenges, and Opportunities},
+  journal = {arXiv preprint arXiv:2505.01043},
+  year    = {2025}
+}
+
+% Standard dot-product self-attention is not Lipschitz for unbounded input
+% domain; tight/certified Lipschitz constants of attention remain open.
+@inproceedings{kim2021lipschitz,
+  author    = {Kim, Hyunjik and Papamakarios, George and Mnih, Andriy},
+  title     = {The Lipschitz Constant of Self-Attention},
+  booktitle = {Proceedings of the 38th International Conference on Machine Learning (ICML)},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {139},
+  pages     = {5562--5571},
+  year      = {2021},
+  publisher = {PMLR}
+}
+
+% Companion paper of this program: the measurability foundations extended.
+@misc{gupta2026null,
+  author        = {Gupta, Dhruv},
+  title         = {Null Measurability at the Symmetrization Interface in {VC} Learning},
+  year          = {2026},
+  eprint        = {2604.25028},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG}
+}
+
+% ---------------------------------------------------------------------------
+% (3) Software dependencies
+% ---------------------------------------------------------------------------
+
+@misc{torchlean,
+  author       = {{lean-dojo}},
+  title        = {{TorchLean}: Neural Network Semantics in {Lean}},
+  howpublished = {\url{https://github.com/lean-dojo/TorchLean}},
+  note         = {Accessed 2026}
+}
+
+@misc{fltkernel,
+  author       = {Gupta, Dhruv},
+  title        = {Formal Learning Theory Kernel},
+  howpublished = {\url{https://github.com/Zetetic-Dhruv/formal-learning-theory-kernel}},
+  year         = {2026}
+}
+
+@software{gupta2026transformer,
+  author  = {Gupta, Dhruv},
+  title   = {Transformer Learning Theory},
+  year    = {2026},
+  url     = {https://github.com/Zetetic-Dhruv/transformer-learning-theory},
+  license = {Apache-2.0}
+}

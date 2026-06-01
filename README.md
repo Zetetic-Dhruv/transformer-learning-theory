@@ -1,142 +1,150 @@
 # Transformer Learning Theory
 
-Lean4 formalization of measurability-theoretic foundations for transformer architectures. Builds on the [formal-learning-theory-kernel](https://github.com/Zetetic-Dhruv/formal-learning-theory-kernel) measurability infrastructure. It makes precise — and machine-checks — the measurability assumptions that [Krapp–Wirth (2024)](https://arxiv.org/abs/2410.10243) identify as tacit in the Fundamental Theorem of Statistical Learning.
+**A formal laboratory for transformers — where the same network is at once a literal IEEE‑754 float32 program you can execute and a mathematical object you can prove hard learning‑theoretic theorems about in exact real arithmetic, with machine‑checked bridges carrying guarantees between the two.**
 
-## Architecture
+Most theory about neural networks is written in ℝ and silently assumed to survive contact with float32 hardware; most empirical work runs in float32 and silently assumes the ℝ theory applies. This project removes the "silently": it puts both regimes inside one proof assistant, on one transformer object, and forces every claim that crosses between them to be a theorem.
 
-This repo imports the FLT kernel as a dependency and applies its measurability framework (NullMeasurableSet, WellBehavedVCMeasTarget, MeasurableBatchLearner) to attention-based architectures.
+It is built on the [formal‑learning‑theory‑kernel](https://github.com/Zetetic-Dhruv/formal-learning-theory-kernel) (measurability infrastructure for statistical learning) and on [TorchLean](https://github.com/lean-dojo/TorchLean)'s executable neural‑network semantics, and it makes precise — and machine‑checks — the measurability assumptions that [Krapp–Wirth (2024)](https://arxiv.org/abs/2410.10243) identify as tacit in the Fundamental Theorem of Statistical Learning. Its measurability foundations are developed further in the companion paper, [*Null Measurability at the Symmetrization Interface in VC Learning*](https://arxiv.org/abs/2604.25028).
 
-```
-formal-learning-theory-kernel (dependency)
-  └── MeasurableBatchLearner, closure algebra, Borel-analytic bridge,
-      amalgamation, interpolation descent
+---
 
-transformer-learning-theory (this repo)
-  └── Attention routing measurability, softmax-argmax equivalence,
-      parametric attention learners, non-Borel strictness witness,
-      measurability dichotomy, Krapp–Wirth well-behavedness,
-      mixture-of-experts routing cascade, TorchLean integration
-      (real attention/softmax over IEEE floats, fp32 rounding channel,
-      α-parametric transformer object with proof-carrying resolutions)
-```
+## Two regimes, one object
 
-## Current Results
+A single scaffold, `TransformerObject` (`Bridge/TransformerRoot`), packages TorchLean's `Spec.Transformer` parametrically in its numeric backend `α`. The *same* definition is read two ways:
 
-### Attention Routing
+| Backend | What it is | What you do with it |
+|---|---|---|
+| **`α = ℝ`** | exact real arithmetic | prove hard theorems — measurability, continuity, Lipschitz envelopes, learning‑theoretic risk bounds |
+| **`α = IEEE32Exec`** | bit‑exact binary32 | *execute* — the literal float32 forward pass, rounding and all, as a Lean computation you can run |
 
-| Theorem | File | Result |
-|---------|------|--------|
-| `BinaryAttentionRouterCode.route_measurable` | Attention/BinaryRouting | Binary score-comparison routing is jointly measurable |
-| `attentionOfRouter_route_eq` | Attention/BinaryRouting | Every measurable Boolean router IS binary attention (universality) |
-| `binaryAttentionPatch_wellBehaved` | Attention/BinaryRouting | Attention-patched concept classes satisfy WellBehavedVCMeasTarget |
-| `sharedRouterAmalgClass_eq_patchRange` | Attention/BinaryRouting | Shared-router routing = amalgamation |
+Properties are stated once and resolved against this one object through a proof‑carrying `Resolution` type that records each property as `discharged` (proved) or `refuted` (a witnessed counterexample). The transformer is not a diagram in a paper — it is a thing in the kernel that you can both run and reason about.
 
-### Finite-Head Routing
+## The bridges (this is the point)
 
-| Theorem | File | Result |
-|---------|------|--------|
-| `FiniteScoreRouterCode.route_measurable` | Attention/FiniteRouting | k-head argmax routing is jointly measurable |
-| `attentionOfFiniteRouter_route_eq` | Attention/FiniteRouting | Every measurable k-valued router IS argmax attention (universality) |
-| `top1_softmax_eq_argmax` | Attention/FiniteRouting | Softmax top-1 = argmax (measurability equivalence) |
-| `multiHeadArgmax_wellBehaved` | Attention/FiniteRouting | Multi-head argmax routing satisfies WellBehavedVCMeasTarget |
-| `attention_requires_nullMeasurable` | Attention/FiniteRouting | NullMeasurable regime is necessary for attention |
+The two regimes are connected by **verified** transfer theorems, so a result in one becomes a result in the other:
 
-### Finite-Cell Argmax Partition
+- **`toReal` of the executed reduction `=` the rounded real model** (`Fp32Reduction.toReal_foldl_add`) — the literal float fold *is* the real‑valued rounding model, so error theorems about ℝ apply to the running float code.
+- **The literal layer‑norm op‑tree `=` its coordinate model** (`LayerNormSpec.get2_layerNorm`) — TorchLean's actual `Spec.layerNorm` agrees coordinatewise with the analytic definition, so continuity/measurability proved on one transfers to the other.
+- **Executed risk is envelope‑controlled** (`ExecutedForward.executed_risk_transfer`, `ForwardEnvelope.execComp_risk_transfer`) — under a rounding envelope and a Lipschitz loss, the float32 expected risk is within `L·ε` of the ideal.
 
-| Theorem | File | Result |
-|---------|------|--------|
-| `FiniteScoreRouterCode.routeCell_measurable` / `jointArgmaxCell_measurable` | Tame/FiniteCellRouter | Each argmax routing cell is Borel — a finite intersection of measurable score-inequalities; the Krapp–Wirth Lemma A.9 "every cell is Borel" realized for measurable scores |
-| `FiniteScoreRouterCode.iUnion_routeCell` / `routeCell_disjoint` | Tame/FiniteCellRouter | The `k` argmax cells form a finite Borel partition of the input space — they cover it and are pairwise disjoint, and the router is constant on each cell |
-| `FiniteScoreRouterCode.route_measurable_via_cells` | Tame/FiniteCellRouter | Joint route-measurability derived *from* the Borel cells — the §A.3 implication "finite union of Borel cells ⟹ measurable routing" |
-| `finiteCellRouter_wellBehaved` | Tame/FiniteCellRouter | The finite-cell argmax router's patched class satisfies `WellBehavedVCMeasTarget`, closed *through* the explicit cell partition |
+A theorem proved in ℝ thus *converts into a float32‑executable insight*; a float32 experiment can in turn *falsify or motivate* a theorem. That loop is the laboratory.
 
-### Parametric Attention Learners
+---
 
-| Theorem | File | Result |
-|---------|------|--------|
-| `ParametricLearnerFamily.instMeasurableBatchLearner` | Learner/AttentionLearner | Parametric learner families are MeasurableBatchLearner |
-| `ParametricBinaryAttentionLearner.instMBL` | Learner/AttentionLearner | Binary attention learners are MeasurableBatchLearner |
-| `ParametricFiniteHeadAttentionLearner.instMBL'` | Learner/AttentionLearner | k-head attention learners are MeasurableBatchLearner |
+## Open questions the laboratory is built to attack
 
-### Non-Borel Strictness Witness
+The program targets *stated, citable* open problems at the seam between learning theory and numerical execution. Each is matched to a machine‑checked foundation already in the kernel — concrete traction, not just an interest.
 
-| Theorem | File | Result |
-|---------|------|--------|
-| `quadraticCostRouter` | Strictness/NonBorelWitness | Witness `BinaryAttentionRouterCode ℝ` from a continuous parameterization `g : β → ℝ` of an analytic non-Borel set |
-| `patchEval_class_eq_singletonClassOn` | Strictness/NonBorelWitness | The witness's patchEval class equals `singletonClassOn (range g)` |
-| `witnessBadEventSet_not_measurable` | Strictness/NonBorelWitness | The witness's sample-space bad event is not Borel-measurable |
-| `attention_architecture_produces_non_borel_bad_event` | Strictness/NonBorelWitness | Architecturally honest binary attention with continuous score functions over a Polish parameter space produces a non-Borel sample-space bad event |
+**Is statistical learnability decidable, and where is it even measurable?** Ben‑David, Hrubeš, Moran, Shpilka and Yehudayoff proved in *Nature Machine Intelligence* that "learnability can be undecidable" — general (EMX) learnability is independent of ZFC [[Ben‑David et al. 2019]](https://doi.org/10.1038/s42256-018-0002-3) — and Krapp–Wirth showed the Fundamental Theorem of Statistical Learning holds only under measurability assumptions usually left tacit [[Krapp–Wirth 2024]](https://arxiv.org/abs/2410.10243). *Traction here:* the kernel machine‑checks exactly where attention‑based learning stays measurable (the σ‑compact, finite‑dimensional regime) and exhibits a concrete architecture whose uniform‑convergence bad event leaves the Borel σ‑algebra (`attention_measurability_dichotomy`, `attention_architecture_produces_non_borel_bad_event`); the analysis is carried further in the companion paper [[Gupta 2026]](https://arxiv.org/abs/2604.25028).
 
-### Measurability Dichotomy
+**Does low numerical precision preserve learnability?** Surveys of low‑precision training note that convergence guarantees "suffer from dimension‑dependent bounds" and that provable accuracy outside convex settings is open [[Hao et al. 2025]](https://arxiv.org/abs/2505.01043). *Traction here:* the kernel carries a *bit‑exact* float32 forward pass together with a machine‑checked envelope `|R_exec − R_ideal| ≤ L·envBound`, with `envBound` a closed form in the weights (`executed_risk_transfer`, `fp32FoldlErrorBudget_closed_form`, `execComp_risk_transfer`).
 
-| Theorem | File | Result |
-|---------|------|--------|
-| `measurableSet_range_of_continuous_of_sigmaCompact` | Tame/SigmaCompactParam | Over a σ-compact parameter space, every continuous score map has a measurable *score range* (range reflection) |
-| `singletonBadEvent_measurableSet_iff` | Tame/SingletonBadEventBorel | **Sharp characterization**: the singleton-class empirical-process bad event is Borel **iff** the underlying set is Borel |
-| `singletonBadEvent_measurable_of_sigmaCompact` | Tame/SingletonBadEventBorel | Over a σ-compact parameter space the singleton bad event is Borel — the bad-event-level counterpart of the non-Borel witness; for finite-dimensional transformers the bad event is always Borel |
-| `attention_measurability_dichotomy` | Boundary/Location | Conjoins three facts: over a σ-compact parameter space the score range is measurable **and** the bad event is Borel; there exists a Polish, non-σ-compact attention router with a non-Borel bad event; and a cascade conjunct that holds uniformly in depth. The boundary sits exactly at `SigmaCompactSpace` |
+**What is the Lipschitz constant of self‑attention?** Kim, Papamakarios and Mnih proved standard dot‑product self‑attention "is not Lipschitz for unbounded input domain" [[Kim et al. 2021]](https://arxiv.org/abs/2006.04710); tight, certified constants remain open. *Traction here:* the per‑layer `ExecLayer` records carry operator‑norm Lipschitz constants for the literal TorchLean operations on bounded domains (`matMulSpecExecLayer`, `reluSpecExecLayer`) — the building blocks of a certified network constant.
 
-### Krapp–Wirth Well-Behavedness
+A real float32 transformer is **finite‑dimensional**, hence always on the *tame* side of the measurability boundary (its uniform‑convergence bad event is Borel — `Tame.singletonBadEvent_measurable_of_sigmaCompact`). Actual float networks therefore live exactly where both the measurability foundations **and** the rounding envelope apply — which is what makes these the right open problems for this laboratory.
 
-| Theorem | File | Result |
-|---------|------|--------|
-| `singletonClass_oneSidedBadEvent_measurable` | Tame/SingletonWellBehaved | For a measurable set `A` and a measurable target `c`, the singleton-class empirical-process bad event is Borel at every sample size `m`, generalizing the `m=1`, zero-target slice |
-| `singletonClassOn_wellBehavedVCMeasTarget` | Tame/SingletonWellBehaved | For `MeasurableSet A`, the singleton class satisfies Krapp–Wirth measurable-target well-behavedness (`WellBehavedVCMeasTarget`), discharged at the strict Borel level |
+---
 
-### Mixture-of-Experts Routing Cascade
+## Foundations already in place
 
-| Theorem | File | Result |
-|---------|------|--------|
-| `witnessCascade` | Boundary/Cascade | A mixture-of-experts cascade — the witness's own quadratic-cost router, stacked as genuine two-head routing layers above the base (not a degenerate layer) |
-| `cascadeBadEvent_eq_singletonBadEvent` | Boundary/Cascade | Per-input expert routing enlarges the realizable *class*, yet the `m=1` bad *event* collapses to the single-layer (singleton) bad event at *every* depth |
-| `cascadeReductionInvariant` | Boundary/Cascade | The depth-`L` bad event is a continuous-surjection pullback of the planar witness, uniformly in depth |
-| `cascadeNonInvariance` | Boundary/Cascade | At every routing depth `L`, the cascade bad event is analytic but **not** Borel — non-Borel uniformly in depth |
-| `universalRepair` | Boundary/UniversalRepair | At every depth and for every finite measure, the cascade bad event is `NullMeasurableSet` (analytic ⇒ null-measurable) — the non-Borel set is nonetheless null-measurable at every depth |
-| `cascadeBadEvent_measurableSet_iff` | Boundary/CascadeTame | The depth-`L` cascade bad event is Borel **iff** the base score range is Borel — the sharp dichotomy, uniform in depth (the tame counterpart of `cascadeNonInvariance`) |
-| `cascadeBadEvent_measurable_of_sigmaCompact` | Boundary/CascadeTame | Over a σ-compact base parameter space the cascade bad event is Borel at every depth |
+Everything below is machine‑checked. It is organized by idea, not by file.
 
-### TorchLean Integration
+### 1 · The execution bridge — measurable though discontinuous
 
-These results connect the measurability framework to [TorchLean](https://github.com/lean-dojo/TorchLean) (lean-dojo), a Lean formalization of neural networks — using TorchLean's *actual* attention scores (`Spec.dot`, the `Q Kᵀ` entry), softmax, and IEEE-float semantics. The two repos are reconciled onto one toolchain (`v4.29.0`, Mathlib `8a17838`); TorchLean is required as a local-path dependency on the design-lab vendored source.
+The executed forward, read over real coordinates, is a step function — discontinuous on the rounding‑cell boundaries — yet **measurable**, because IEEE round‑to‑nearest decomposes into measurable atoms (base‑2 magnitude `⌊log₂⌋`, canonical exponent, base power, round‑to‑nearest‑even) with no appeal to continuity. Measurability is what makes expected risk a well‑defined integral, so it is the property the learning theory actually needs.
 
-A common scaffold `TransformerObject` (Bridge/TransformerRoot) packages TorchLean's `Spec.Transformer` parametrically in the numeric backend — one object serving both `ℝ` (learning theory) and `IEEE32Exec` (binary32 execution) — together with a proof-carrying `Resolution` type that records each property proved (`discharged`) or refuted (`refuted`) about it. Properties of a transformer are then stated and resolved against this single object.
+| Result | Module | What it says |
+|---|---|---|
+| `measurable_fp32Round` · `transformerForwardMap_executed_measurable` | `Bridge/ExecutedForward` | IEEE round‑to‑nearest, and hence the whole executed forward, is measurable |
+| `executed_risk_transfer` | `Bridge/ExecutedForward` | under a rounding envelope and an `L`‑Lipschitz loss, executed risk is within `L·ε` of ideal |
+| `get2_layerNorm` · `measurable_matCoords_layerNorm` · `continuous_matCoords_layerNorm` | `Bridge/LayerNormSpec` | the literal `Spec.layerNorm` — the layer normalization of [[Ba et al. 2016]](https://arxiv.org/abs/1607.06450) — equals its coordinate model; measurable for all `ε ≥ 0`, continuous for `ε > 0` |
 
-| Theorem | File | Result |
-|---------|------|--------|
-| `attentionRouting_wellBehaved` | Bridge/TorchLeanAttention | The argmax router scored by TorchLean's actual `Spec.dot` satisfies `WellBehavedVCMeasTarget` |
-| `softAttention_wellBehaved` | Bridge/SoftAttention | The real softmax-weighted attention output `∑ᵢ softmax(⟨x,Kᵢ⟩)ᵢ·Vᵢ`, thresholded, gives a well-behaved concept class — beyond the argmax idealization (all prior results are argmax/top-1) |
-| `soft_vs_hard_attention_separation` | Bridge/SoftHardSeparation | Soft (softmax) attention is *unconditionally* well-behaved, while hard (argmax) attention admits a non-Borel witness — softmax removes the measurability pathology argmax can exhibit |
-| `neuralUlp_le_rel_on_normal` | Bridge/FP32Channel | On the normal range (`mag x ≥ −125`), binary32's unit-in-the-last-place satisfies `ulp(x) ≤ 2⁻²³·|x|` — the relative-error foundation for the IEEE-`Float32`/ℝ rounding-error channel |
-| `fp32Sum_error_le` | Bridge/FP32Channel | On the binary32 normal range, the round-to-nearest fold sum differs from the exact sum by at most an accumulated relative-error budget — a self-contained summation enclosure for the rounding channel |
-| `transformerAttention_wellBehaved` | Bridge/TransformerAttention | The scaled-dot-product attention routing at a real transformer's embedding dimension is well-behaved, recorded as a discharged `Resolution` of the `TransformerObject` |
-| `continuous_matCoords_matMulSpec`, `continuous_softmaxCoord`, `layerNorm_std_pos` | Bridge/ForwardContinuity | The forward-pass operations — matrix multiplication, ReLU, addition, and softmax — are continuous as maps of the real coordinates (the softmax via its TorchLean differentiability and the continuous-linear equivalence `EuclideanSpace ℝ (Fin n) ≃L (Fin n → ℝ)`), and the layer-normalization denominator `√(max(var,0)+ε)` is bounded below by `√ε > 0` (the real backend fixes `ε = 10⁻⁶`); the components toward Borel-measurability of the transformer's forward map |
-| `transformerForwardMap_continuous_resolution` | Bridge/TransformerForwardContinuous | The transformer forward map — an input embedding, a stack of continuous transformer layers (residual self-attention + layer-norm + residual feed-forward), and an output projection — is continuous over real coordinates, discharged as a `Resolution` of the `TransformerObject`; the only singular operation, the layer-normalization division, is everywhere-defined by the verified positive regularizer (`ε = 10⁻⁶`) |
+### 2 · The float error theory — from one rounding step to a closed form
+
+A self‑contained account of binary32 summation error, from the per‑step relative bound up to a backward‑error closed form, bound to the *literal* executed reduction.
+
+| Result | Module | What it says |
+|---|---|---|
+| `neuralUlp_le_rel_on_normal` · `fp32Sum_error_le` | `Bridge/FP32Channel` | the relative‑error channel and the normal‑range summation enclosure — the standard model of [[Higham 2002]](https://doi.org/10.1137/1.9780898718027) (§2.2, §4.2) |
+| `fp32FoldlErrorBudget_closed_form` | `Bridge/Fp32Reduction` | the backward‑error bound `≤ u·(n·|acc| + (n+1)·Σ|xᵢ|)/(1 − n·u)` — the classical γₙ recursive‑summation bound [[Higham 2002]](https://doi.org/10.1137/1.9780898718027) (§4.2) |
+| `ie32_foldl_closed_envelope` | `Bridge/Fp32Reduction` | the executed `IEEE32Exec` reduction sits inside that closed‑form envelope |
+| `layerNorm_cancellation_secondOrder` · `cancellation_term_zero_of_exact` | `Boundary/CancellationRepair` | mean‑centering demotes the naive‑variance cancellation to second order, with the 2‑adic exactness refinement of Sterbenz (1974), Thm 4.3.1 |
+
+### 3 · The network rounding envelope — composing error through the forward pass
+
+Per‑layer data — an ideal Lipschitz constant `Λ` and a uniform local rounding bound `δ` — composes through the standard error recurrence to a network‑level envelope, then into the risk machinery. The backbone is substrate‑independent; the instances make it concrete on real ops.
+
+| Result | Module | What it says |
+|---|---|---|
+| `execComp_envelope` · `execComp_risk_transfer` | `Bridge/ForwardEnvelope` | `∀x, dist(executed, ideal) ≤ envBound`, and the resulting `L·envBound` risk gap |
+| `reluExecLayer` · `linearExecLayer` | `Bridge/ExecLayerInstances` | ReLU (1‑Lipschitz, rounding‑free) and linear (operator‑norm Lipschitz) layers as `ExecLayer`s |
+| `reluSpecExecLayer` · `matMulSpecExecLayer` | `Bridge/SpecExecLayers` | the **literal** TorchLean `reluSpec`/`matMulSpec`, read in coordinates, as `ExecLayer`s |
+
+A structural fact discovered here: because fp32 error is *relative*, every arithmetic layer's uniform `δ` exists only on a bounded input domain — the same boundary that makes attention's Lipschitz constant domain‑dependent is universal across the arithmetic ops.
+
+### 4 · The tameness boundary — where attention‑based learning stays measurable
+
+The complementary pillar: a precise, machine‑checked characterization of *where* attention routing remains learning‑theoretically well‑behaved and where it does not. The boundary sits exactly at σ‑compactness of the parameter space.
+
+| Result | Module | What it says |
+|---|---|---|
+| `route_measurable` · `top1_softmax_eq_argmax` | `Attention/BinaryRouting`, `Attention/FiniteRouting` | score‑comparison and `k`‑head argmax routing are jointly measurable; softmax top‑1 = argmax — over the scaled dot‑product attention of [[Vaswani et al. 2017]](https://arxiv.org/abs/1706.03762) |
+| `attention_measurability_dichotomy` | `Boundary/Location` | over a σ‑compact parameter space the bad event is Borel; there is a Polish, non‑σ‑compact router whose bad event is **not** Borel — uniform in depth |
+| `attention_architecture_produces_non_borel_bad_event` | `Strictness/NonBorelWitness` | an architecturally honest attention router with continuous scores over a Polish parameter space yields a non‑Borel bad event |
+| `cascadeNonInvariance` · `universalRepair` · `cascadeBadEvent_measurableSet_iff` | `Boundary/Cascade`, `UniversalRepair`, `CascadeTame` | a mixture‑of‑experts cascade is analytic‑but‑not‑Borel at every depth, yet null‑measurable at every depth; Borel iff the base score range is |
+| `soft_vs_hard_attention_separation` | `Bridge/SoftHardSeparation` | soft (softmax) attention is unconditionally well‑behaved; hard (argmax) attention admits the non‑Borel witness — softmax removes the pathology |
+| `singletonClassOn_wellBehavedVCMeasTarget` | `Tame/SingletonWellBehaved` | the measurable‑target well‑behavedness of [[Krapp–Wirth 2024]](https://arxiv.org/abs/2410.10243) (Def. 3.2), discharged at the strict Borel level |
+
+---
+
+## Using the laboratory
+
+1. **Run a transformer.** Instantiate `TransformerObject` at `α = IEEE32Exec` and evaluate the forward pass — a literal float32 computation inside Lean, rounding included.
+2. **Prove a property.** State it once against the object and discharge it (at `α = ℝ`) as a `Resolution`; a refutation is a witnessed counterexample, not a gap.
+3. **Transfer.** Carry the result across the regimes with the bridge theorems (`get2_layerNorm`, `toReal_foldl_add`, `execComp_risk_transfer`) — an ℝ guarantee becomes an executable float32 certificate, and a float experiment becomes a target for proof.
+
+## Status
+
+- **Machine‑checked:** everything in *Foundations* above. Full `lake build` is green; the headline results (`transformerForwardMap_executed_measurable`, `executed_risk_transfer`, `get2_layerNorm`, `fp32FoldlErrorBudget_closed_form`, `ie32_foldl_closed_envelope`, `execComp_envelope`/`execComp_risk_transfer`) reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `sorry`, no added axioms.
+- **Open (the questions above):** machine‑checking that reduced precision preserves learnability, and that the rounding envelope is a non‑vacuous certificate against the statistical rate; certified Lipschitz constants for self‑attention.
+- **In progress:** per‑op `δ`/`Λ` instantiation on a concrete bounded domain for the full network; explicit Lipschitz constants for layer‑norm (`~1/√ε`) and attention (domain‑restricted, since dot‑product self‑attention is not globally Lipschitz).
 
 ## Build
 
 ```bash
-lake build   # First build fetches Mathlib + FLT kernel (~25 min clean)
+lake build   # first build fetches Mathlib + the FLT kernel (~25 min clean)
 ```
 
-Lean `v4.29.0` | Mathlib4 pinned to `8a17838` | FLT kernel from `main` | TorchLean integrated as a local-path dependency (design-lab vendored source)
+Lean `v4.29.0` · Mathlib4 pinned to `8a17838` · FLT kernel from `main` · TorchLean integrated as a local‑path dependency (design‑lab vendored source).
 
-> The TorchLean-integration branch reconciles this repo's toolchain with TorchLean's (`v4.29.0`, Mathlib `8a17838`). It requires the design-lab vendored TorchLean at a local path, so it does not build standalone; the core results above are independent of the TorchLean bridge.
+> The TorchLean bridge requires the design‑lab vendored TorchLean at a local path, so the `Bridge/*` modules do not build standalone. The measurability foundations (pillar 4) are independent of the TorchLean bridge.
 
-## Roadmap
+## Relationship to Krapp–Wirth and the FLT kernel
 
-- [ ] MeasurableConfidenceLearner typeclass
-- [ ] Compositional calibration bounds
-- [ ] NullMeasurable necessity for confidence under composition
-- [ ] Mixture-of-experts routing efficiency bounds
-- [ ] Conformal prediction integration
+Krapp–Wirth identify the minimal measurability assumption tacit in the Fundamental Theorem of Statistical Learning — *well‑behavedness*, the measurability of the uniform‑convergence bad event. This repository makes that boundary precise for attention architectures and machine‑checks it: the σ‑compact side is exactly where their well‑behavedness holds, the non‑σ‑compact side is a concrete failure, and the o‑minimal "cells are Borel" lemma (their Lemma A.9) is realized for measurable scores in `Tame/FiniteCellRouter`. The kernel supplies the measurability algebra (`MeasurableBatchLearner`, the Borel–analytic bridge, amalgamation) these results are built on.
 
 ## References
 
-- L. S. Krapp and L. Wirth, *Measurability in the Fundamental Theorem of Statistical Learning* (with an appendix by L. Wirth), arXiv:[2410.10243](https://arxiv.org/abs/2410.10243) (2024). Identifies the minimal measurability assumptions tacit in the Fundamental Theorem of Statistical Learning — their *well-behavedness*, i.e. measurability of the uniform-convergence bad event. The measurability dichotomy here makes that boundary precise and machine-checks it: the σ-compact side is exactly where their well-behavedness holds; the non-σ-compact side is a concrete instance where it fails. The σ-compact and `FiniteCellScoreRouter` proofs are grounded in their well-behavedness conditions (§A.2) and o-minimal cells-are-Borel lemma (Lemma A.9).
+Full BibTeX is in [`references.bib`](references.bib). A source is listed only where a theorem here *strictly* formalizes its stated result, or where a stated open problem is one the program attacks — no indirect or background citations.
+
+**Strictly formalized in this repository**
+- N. J. Higham, *Accuracy and Stability of Numerical Algorithms*, 2nd ed., SIAM (2002) — unit roundoff (§2.2) and the γₙ recursive‑summation backward error (§4.2).
+- P. H. Sterbenz, *Floating‑Point Computation*, Prentice‑Hall (1974) — the exact‑subtraction lemma (Thm 4.3.1).
+- J. L. Ba, J. R. Kiros, G. E. Hinton, *Layer Normalization*, arXiv:[1607.06450](https://arxiv.org/abs/1607.06450) (2016).
+- A. Vaswani et al., *Attention Is All You Need*, NeurIPS (2017), arXiv:[1706.03762](https://arxiv.org/abs/1706.03762).
+- L. S. Krapp and L. Wirth, *Measurability in the Fundamental Theorem of Statistical Learning*, arXiv:[2410.10243](https://arxiv.org/abs/2410.10243) (2024) — well‑behavedness (Def. 3.2) and cells‑are‑Borel (Lemma A.9).
+
+**Open problems the program attacks**
+- S. Ben‑David, P. Hrubeš, S. Moran, A. Shpilka, A. Yehudayoff, *Learnability can be undecidable*, Nature Machine Intelligence 1 (2019), [doi:10.1038/s42256‑018‑0002‑3](https://doi.org/10.1038/s42256-018-0002-3).
+- Z. Hao et al., *Low‑Precision Training of Large Language Models: Methods, Challenges, and Opportunities*, arXiv:[2505.01043](https://arxiv.org/abs/2505.01043) (2025).
+- H. Kim, G. Papamakarios, A. Mnih, *The Lipschitz Constant of Self‑Attention*, ICML (2021), arXiv:[2006.04710](https://arxiv.org/abs/2006.04710).
+
+**Companion paper and software**
+- D. Gupta, *Null Measurability at the Symmetrization Interface in VC Learning*, arXiv:[2604.25028](https://arxiv.org/abs/2604.25028) (2026).
+- [TorchLean](https://github.com/lean-dojo/TorchLean) (lean‑dojo) — executable neural‑network semantics in Lean.
+- [formal‑learning‑theory‑kernel](https://github.com/Zetetic-Dhruv/formal-learning-theory-kernel) — the measurability infrastructure this repo depends on.
 
 ## Citation
-
-If you use this work, please cite it:
 
 ```bibtex
 @software{gupta2026transformer,
@@ -148,7 +156,7 @@ If you use this work, please cite it:
 }
 ```
 
-Or use the [CITATION.cff](CITATION.cff) file — GitHub will automatically generate an "APA" and "BibTeX" citation from it via the repo sidebar.
+Or use the [CITATION.cff](CITATION.cff) file — GitHub generates an APA/BibTeX citation from it via the repo sidebar.
 
 ## License
 
