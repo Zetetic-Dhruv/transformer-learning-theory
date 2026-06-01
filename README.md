@@ -41,7 +41,7 @@ The program targets *stated, citable* open problems at the seam between learning
 
 **What is the Lipschitz constant of self‑attention?** Kim, Papamakarios and Mnih proved standard dot‑product self‑attention "is not Lipschitz for unbounded input domain" [[Kim et al. 2021]](https://arxiv.org/abs/2006.04710); tight, certified constants remain open. *Traction here:* the per‑layer `ExecLayer` records carry operator‑norm Lipschitz constants for the literal TorchLean operations on bounded domains (`matMulSpecExecLayer`, `reluSpecExecLayer`) — the building blocks of a certified network constant.
 
-A real float32 transformer is **finite‑dimensional**, hence always on the *tame* side of the measurability boundary (its uniform‑convergence bad event is Borel — `Tame.singletonBadEvent_measurable_of_sigmaCompact`). Actual float networks therefore live exactly where both the measurability foundations **and** the rounding envelope apply — which is what makes these the right open problems for this laboratory.
+The kernel proves the singleton‑class uniform‑convergence bad event is Borel over *any* σ‑compact parameter space (`Tame.singletonBadEvent_measurable_of_sigmaCompact`), and that finite‑dimensional parameter spaces are σ‑compact (`isSigmaCompact_range`) — so a finite transformer's parameters fall on the tame side. The end‑to‑end instantiation — deriving Borelness of a *concrete* `RealTransformer`'s bad event by exhibiting its score map as a finite‑cell router over its actual `ℝ^d` parameter space — is **not yet mechanized**; it is the highest‑value next proof, and until it lands the "finite transformers are measurability‑safe" step is a sound argument in prose, not a theorem in the kernel.
 
 ---
 
@@ -92,7 +92,7 @@ The complementary pillar: a precise, machine‑checked characterization of *wher
 | `attention_measurability_dichotomy` | `Boundary/Location` | over a σ‑compact parameter space the bad event is Borel; there is a Polish, non‑σ‑compact router whose bad event is **not** Borel — uniform in depth |
 | `attention_architecture_produces_non_borel_bad_event` | `Strictness/NonBorelWitness` | an architecturally honest attention router with continuous scores over a Polish parameter space yields a non‑Borel bad event |
 | `cascadeNonInvariance` · `universalRepair` · `cascadeBadEvent_measurableSet_iff` | `Boundary/Cascade`, `UniversalRepair`, `CascadeTame` | a mixture‑of‑experts cascade is analytic‑but‑not‑Borel at every depth, yet null‑measurable at every depth; Borel iff the base score range is |
-| `soft_vs_hard_attention_separation` | `Bridge/SoftHardSeparation` | soft (softmax) attention is unconditionally well‑behaved; hard (argmax) attention admits the non‑Borel witness — softmax removes the pathology |
+| `soft_vs_hard_attention_separation` | `Bridge/SoftHardSeparation` | softmax attention's joint measurability makes its bad event Borel over *any* parameter space; argmax attention is well‑behaved over σ‑compact (e.g. finite‑dimensional) parameter spaces — `attentionRouting_wellBehaved`, `finiteCellRouter_wellBehaved` — but admits the non‑Borel witness over a non‑σ‑compact one. Softmax removes the pathology *unconditionally*; argmax removes it only on the tame side |
 | `singletonClassOn_wellBehavedVCMeasTarget` | `Tame/SingletonWellBehaved` | the measurable‑target well‑behavedness of [[Krapp–Wirth 2024]](https://arxiv.org/abs/2410.10243) (Def. 3.2), discharged at the strict Borel level |
 
 ---
@@ -105,7 +105,8 @@ The complementary pillar: a precise, machine‑checked characterization of *wher
 
 ## Status
 
-- **Machine‑checked:** everything in *Foundations* above. Full `lake build` is green; the headline results (`transformerForwardMap_executed_measurable`, `executed_risk_transfer`, `get2_layerNorm`, `fp32FoldlErrorBudget_closed_form`, `ie32_foldl_closed_envelope`, `execComp_envelope`/`execComp_risk_transfer`) reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `sorry`, no added axioms.
+- **Machine‑checked:** everything in *Foundations* above. The headline results (`transformerForwardMap_executed_measurable`, `executed_risk_transfer`, `get2_layerNorm`, `fp32FoldlErrorBudget_closed_form`, `ie32_foldl_closed_envelope`, `execComp_envelope`/`execComp_risk_transfer`) reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `sorry`, no added axioms.
+- **Two honesty caveats on that claim.** (i) The strictness/non‑Borel results (`attention_measurability_dichotomy`, `cascadeNonInvariance`, `soft_vs_hard_attention_separation`) are *conditional* theorems: they take the existence of an analytic non‑Borel subset of ℝ as an explicit hypothesis (a standard descriptive‑set‑theory fact), supplied as a theorem argument rather than re‑derived — so it is a hypothesis, not an axiom, but the results are conditional on it. (ii) The full build is green *locally*; the `Bridge/*` modules require the vendored TorchLean at a private local path and are therefore not CI‑buildable, so only the TorchLean‑independent measurability core can be independently green‑checked on CI.
 - **Open (the questions above):** machine‑checking that reduced precision preserves learnability, and that the rounding envelope is a non‑vacuous certificate against the statistical rate; certified Lipschitz constants for self‑attention.
 - **In progress:** per‑op `δ`/`Λ` instantiation on a concrete bounded domain for the full network; explicit Lipschitz constants for layer‑norm (`~1/√ε`) and attention (domain‑restricted, since dot‑product self‑attention is not globally Lipschitz).
 

@@ -207,7 +207,11 @@
     <p>
       Every headline result reduces to only <code>propext</code>,
       <code>Classical.choice</code>, and <code>Quot.sound</code> &mdash; no
-      <code>sorry</code>, no added axioms.
+      <code>sorry</code>, no added axioms. The strictness/non-Borel results are
+      <em>conditional</em>: they take the existence of an analytic non-Borel
+      subset of &#8477; as an explicit hypothesis (a standard descriptive-set-theory
+      fact), not an axiom. The full build is green locally; the TorchLean-dependent
+      <code>Bridge/*</code> modules are not CI-buildable (private local dependency).
     </p>
   </section>
 
