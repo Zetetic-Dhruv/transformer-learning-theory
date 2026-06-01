@@ -32,7 +32,10 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Bridge.TransformerForwardContinuous,
     `TLT_Proofs.Bridge.ExecutedForward,
     `TLT_Proofs.Bridge.Fp32Reduction,
-    `TLT_Proofs.Bridge.LayerNormSpec
+    `TLT_Proofs.Bridge.LayerNormSpec,
+    `TLT_Proofs.Bridge.ForwardEnvelope,
+    `TLT_Proofs.Bridge.ExecLayerInstances,
+    `TLT_Proofs.Bridge.SpecExecLayers
   ]
 
 require FLT from git
