@@ -90,7 +90,7 @@ theorem leastArgmax_is_maximizer {k : ℕ} (v : Fin k → ℝ) (hk : 0 < k) :
 theorem leastArgmax_is_least {k : ℕ} (v : Fin k → ℝ) (hk : 0 < k)
     (j : Fin k) (hj : j < leastArgmax v hk) :
     v j < v (leastArgmax v hk) := by
-  by_contra hge; push_neg at hge
+  by_contra hge; push Not at hge
   have hj_max : ∀ l, v l ≤ v j := fun l => le_trans (leastArgmax_is_maximizer v hk l) hge
   have hj_mem : j ∈ Finset.univ.filter (fun i => ∀ l, v l ≤ v i) :=
     Finset.mem_filter.mpr ⟨Finset.mem_univ _, hj_max⟩
@@ -297,9 +297,9 @@ theorem softmaxWeight_lt_iff {X : Type u} [MeasurableSpace X] {k : ℕ}
     (A : FiniteScoreRouterCode X k) (hk : 0 < k) (ρ : A.Ρ) (x : X) (i j : Fin k) :
     softmaxWeight A ρ x i < softmaxWeight A ρ x j ↔ A.score ρ x i < A.score ρ x j := by
   constructor
-  · intro h; by_contra hle; push_neg at hle
+  · intro h; by_contra hle; push Not at hle
     exact not_le.mpr h ((softmaxWeight_le_iff A hk ρ x j i).mpr hle)
-  · intro h; by_contra hle; push_neg at hle
+  · intro h; by_contra hle; push Not at hle
     exact not_le.mpr h ((softmaxWeight_le_iff A hk ρ x j i).mp hle)
 
 /-! ## Item 14: isLeastArgmax_softmax_iff + top1_softmax_eq_argmax -/
@@ -390,7 +390,7 @@ theorem binarySoftmaxThreshold_eq_binaryRoute
     · exact le_refl _
     · show s 1 ≤ s 0; simp [hs_def]; exact h
   · -- scoreL > scoreR: head 1 has max score, argmax = 1
-    push_neg at h
+    push Not at h
     simp only [show ¬(A.scoreL ρ x ≤ A.scoreR ρ x) from not_le.mpr h, ite_false]
     refine ⟨fun j => ?_, fun j hj => ?_⟩
     · fin_cases j
