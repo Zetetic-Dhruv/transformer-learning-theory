@@ -21,6 +21,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Boundary.Cascade,
     `TLT_Proofs.Boundary.CascadeTame,
     `TLT_Proofs.Boundary.UniversalRepair,
+    `TLT_Proofs.Boundary.CancellationRepair,
     `TLT_Proofs.Bridge.TorchLeanAttention,
     `TLT_Proofs.Bridge.SoftAttention,
     `TLT_Proofs.Bridge.SoftHardSeparation,
@@ -28,7 +29,13 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Bridge.TransformerRoot,
     `TLT_Proofs.Bridge.TransformerAttention,
     `TLT_Proofs.Bridge.ForwardContinuity,
-    `TLT_Proofs.Bridge.TransformerForwardContinuous
+    `TLT_Proofs.Bridge.TransformerForwardContinuous,
+    `TLT_Proofs.Bridge.ExecutedForward,
+    `TLT_Proofs.Bridge.Fp32Reduction,
+    `TLT_Proofs.Bridge.LayerNormSpec,
+    `TLT_Proofs.Bridge.ForwardEnvelope,
+    `TLT_Proofs.Bridge.ExecLayerInstances,
+    `TLT_Proofs.Bridge.SpecExecLayers
   ]
 
 require FLT from git
