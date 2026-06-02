@@ -43,7 +43,7 @@ The program targets *stated, citable* open problems at the seam between learning
 
 **Does low numerical precision preserve learnability?** Surveys of low‑precision training note that convergence guarantees "suffer from dimension‑dependent bounds" and that provable accuracy outside convex settings is open [[Hao et al. 2025]](https://arxiv.org/abs/2505.01043). *Traction here:* the kernel carries a *bit‑exact* float32 forward pass together with a machine‑checked envelope `|R_exec − R_ideal| ≤ L·envBound`, with `envBound` a closed form in the weights (`executed_risk_transfer`, `fp32FoldlErrorBudget_closed_form`, `execComp_risk_transfer`).
 
-**What is the Lipschitz constant of self‑attention?** Kim, Papamakarios and Mnih proved standard dot‑product self‑attention "is not Lipschitz for unbounded input domain" [[Kim et al. 2021]](https://arxiv.org/abs/2006.04710); tight, certified constants remain open. *Traction here:* the per‑layer `ExecLayer` records carry operator‑norm Lipschitz constants for the literal TorchLean operations on bounded domains (`matMulSpecExecLayer`, `reluSpecExecLayer`) — the building blocks of a certified network constant.
+**What is the Lipschitz constant of self‑attention?** Kim, Papamakarios and Mnih proved standard dot‑product self‑attention "is not Lipschitz for unbounded input domain" [[Kim et al. 2021]](https://arxiv.org/abs/2006.04710); tight, certified constants remain open. *Traction here:* the kernel now carries a **constructive on‑domain constant** — single‑query attention moves by at most `2·nK·bV·(dB/scale)·(‖ΔQ‖+‖ΔK‖) + ‖ΔV‖` on `‖Q‖,‖K‖ ≤ B` (`attnOut_lipschitz_on_ball`), with the non‑Lipschitzness isolated entirely to the bilinear score map and the softmax mixing globally Lipschitz — and it turns the Kim et al. boundary into a *layer instance*: although self‑attention has no global constant, it is a genuine certificate‑side `ExecLayer` over the metric subtype `↥(closedBall 0 B)` (`selfAttnExecLayer`, via `execLayerOfForwardInvariant`), the bounded‑input cap carried by the type. Together with the linear/ReLU operator‑norm constants (`matMulSpecExecLayer`, `reluSpecExecLayer`) and the global layer‑norm constant (`layerNormCoord_lipschitz`), these are the assembled building blocks of a certified network constant.
 
 The kernel proves the singleton‑class uniform‑convergence bad event is Borel over *any* σ‑compact parameter space (`Tame.singletonBadEvent_measurable_of_sigmaCompact`), and now **instantiates this end‑to‑end on the concrete transformer object**: for every `RealTransformer T`, the bad event of its scaled‑dot‑product attention scoring — taken over `T`'s *actual* key‑parameter space `Fin nK → Fin cfg.embedDim → ℝ`, which is finite‑dimensional hence σ‑compact, with `T`'s continuous score — is Borel (`transformerAttentionBadEvent_borel`, a discharged `Resolution`; axiom‑clean and unconditional). So "a finite transformer is on the tame side of the measurability boundary" is a theorem about the concrete transformer, not a prose step.
 
@@ -101,6 +101,21 @@ The complementary pillar: a precise, machine‑checked characterization of *wher
 | `soft_vs_hard_attention_separation` | `Bridge/SoftHardSeparation` | softmax attention's joint measurability makes its bad event Borel over *any* parameter space; argmax attention is well‑behaved over σ‑compact (e.g. finite‑dimensional) parameter spaces — `attentionRouting_wellBehaved`, `finiteCellRouter_wellBehaved` — but admits the non‑Borel witness over a non‑σ‑compact one. Softmax removes the pathology *unconditionally*; argmax removes it only on the tame side |
 | `singletonClassOn_wellBehavedVCMeasTarget` | `Tame/SingletonWellBehaved` | the measurable‑target well‑behavedness of [[Krapp–Wirth 2024]](https://arxiv.org/abs/2410.10243) (Def. 3.2), discharged at the strict Borel level |
 
+### 5 · The generalization bound — a certified, computable capacity‑and‑rounding budget
+
+The capstone the laboratory is built toward: a high‑probability bound on the *executed* (float32) true risk in terms of the executed empirical risk plus a budget **computable from the actual weights** — `R_true^exec ≤ R̂_emp^exec + 2·(12√2·B/√m) + ε + 2·L·envBound`, where `B` is the affine Dudley entropy integral and `envBound` is §3's rounding envelope. Every term is determinate in the weight‑ball radius, the parameter‑Lipschitz constant, the dimension, the loss bound and the sample size. The capacity side is the optimal‑constant (`12√2`) Dudley chaining bound; the rounding side is the float32 envelope; the boundary is the input cap `K = {‖x‖ ≤ B}` that self‑attention's non‑global Lipschitzness forces — the same cap appearing as a hypothesis, not a patch.
+
+| Result | Module | What it says |
+|---|---|---|
+| `certified_executed_generalization_dudley` | `Bridge/CertifiedTransformerBound` | the certified computable float32 bound — executed true risk ≤ executed empirical risk + closed capacity‑and‑rounding budget, except on a McDiarmid‑small sample event |
+| `certified_executed_generalization_computable` | `Bridge/CertifiedCapacityBound` | the capstone with an abstract per‑sample capacity budget: the bounded‑differences concentration [[McDiarmid 1989]](https://doi.org/10.1017/9781107359949.008) composed with the executed‑risk certificate |
+| `empiricalCapacityReal_le_computable` | `Capacity/CoveringDischarge` | the uniform Dudley capacity bound — the entropy integral [[Dudley 1967]](https://doi.org/10.1016/0022-1236(67)90017-1) discharged to a closed affine form via the Euclidean covering number, with the optimal `12√2` chaining constant |
+| `layerNormCoord_lipschitz` | `Bridge/LayerNormLipschitz` | layer‑norm is globally `Cγ·(2√d+2)/√ε`‑Lipschitz — `σ = √(var+ε)` is globally `2`‑Lipschitz, so the `1/√ε` enters only through the final quotient (cf. self‑attention, which has no global constant) |
+| `attnOut_lipschitz_on_ball` · `selfAttnExecLayer` | `Bridge/AttentionLipschitz`, `Bridge/BoundedExecLayer` | attention's on‑domain Lipschitz constant, and the bounded‑activation `ExecLayer` constructor (`execLayerOfForwardInvariant`) that makes self‑attention a certificate‑side layer over `↥(closedBall 0 B)` |
+| `minimalFFN_certified_generalization` | `Bridge/MinimalFFNCertificate` | the bound instantiated on a two‑layer ReLU network `x ↦ W₂·relu(W₁·x)` |
+
+The bound is *assembled* and axiom‑clean. Instantiating it end‑to‑end on the full `Spec.Transformer` — the per‑layer Lipschitz / forward‑invariance roster for every op over one bounded activation domain, then the TorchLean binding — is the active frontier.
+
 ---
 
 ## Using the laboratory
@@ -111,10 +126,10 @@ The complementary pillar: a precise, machine‑checked characterization of *wher
 
 ## Status
 
-- **Machine‑checked:** everything in *Foundations* above. The headline results (`transformerForwardMap_executed_measurable`, `executed_risk_transfer`, `get2_layerNorm`, `fp32FoldlErrorBudget_closed_form`, `ie32_foldl_closed_envelope`, `execComp_envelope`/`execComp_risk_transfer`) reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `sorry`, no added axioms.
+- **Machine‑checked:** everything in *Foundations* above. The headline results (`transformerForwardMap_executed_measurable`, `executed_risk_transfer`, `get2_layerNorm`, `fp32FoldlErrorBudget_closed_form`, `ie32_foldl_closed_envelope`, `execComp_envelope`/`execComp_risk_transfer`, the generalization capstone `certified_executed_generalization_dudley`, and the Lipschitz constants `layerNormCoord_lipschitz` / `attnOut_lipschitz_on_ball` / `selfAttnExecLayer`) reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `sorry`, no added axioms.
 - **Two honesty caveats on that claim.** (i) The strictness/non‑Borel results (`attention_measurability_dichotomy`, `cascadeNonInvariance`, `soft_vs_hard_attention_separation`) are *conditional* theorems: they take the existence of an analytic non‑Borel subset of ℝ as an explicit hypothesis (a standard descriptive‑set‑theory fact), supplied as a theorem argument rather than re‑derived — so it is a hypothesis, not an axiom, but the results are conditional on it. (ii) The full build is green *locally*; the `Bridge/*` modules require the vendored TorchLean at a private local path and are therefore not CI‑buildable, so only the TorchLean‑independent measurability core can be independently green‑checked on CI.
-- **Open (the questions above):** machine‑checking that reduced precision preserves learnability, and that the rounding envelope is a non‑vacuous certificate against the statistical rate; certified Lipschitz constants for self‑attention.
-- **In progress:** per‑op `δ`/`Λ` instantiation on a concrete bounded domain for the full network; explicit Lipschitz constants for layer‑norm (`~1/√ε`) and attention (domain‑restricted, since dot‑product self‑attention is not globally Lipschitz).
+- **Open (the questions above):** machine‑checking that reduced precision preserves learnability, and that the rounding envelope and capacity budget are non‑vacuous certificates against the statistical rate on a trained model.
+- **In progress:** instantiating the assembled generalization capstone end‑to‑end on the full `Spec.Transformer` — discharging its `hlip` (value‑vector weight‑Lipschitz) and certificate‑side `ExecLayer` list by assembling every op (attention, layer‑norm, linear, ReLU, residual) over **one** bounded activation domain, with forward‑invariance re‑established by layer‑norm, then binding to the literal TorchLean forward. The Lipschitz‑constant atoms (layer‑norm, attention) are done; the per‑op domain‑composition roster and the binding are the remaining work.
 
 ## Build
 
@@ -140,6 +155,8 @@ Full BibTeX is in [`references.bib`](references.bib). A source is listed only wh
 - J. L. Ba, J. R. Kiros, G. E. Hinton, *Layer Normalization*, arXiv:[1607.06450](https://arxiv.org/abs/1607.06450) (2016).
 - A. Vaswani et al., *Attention Is All You Need*, NeurIPS (2017), arXiv:[1706.03762](https://arxiv.org/abs/1706.03762).
 - L. S. Krapp and L. Wirth, *Measurability in the Fundamental Theorem of Statistical Learning*, arXiv:[2410.10243](https://arxiv.org/abs/2410.10243) (2024) — well‑behavedness (Def. 3.2) and cells‑are‑Borel (Lemma A.9).
+- R. M. Dudley, *The sizes of compact subsets of Hilbert space and continuity of Gaussian processes*, J. Funct. Anal. 1 (1967) — the metric‑entropy (chaining) bound on the suprema of the empirical process.
+- C. McDiarmid, *On the method of bounded differences*, Surveys in Combinatorics, LMS Lecture Note Ser. 141 (1989) — the bounded‑differences concentration inequality.
 
 **Open problems the program attacks**
 - S. Ben‑David, P. Hrubeš, S. Moran, A. Shpilka, A. Yehudayoff, *Learnability can be undecidable*, Nature Machine Intelligence 1 (2019), [doi:10.1038/s42256‑018‑0002‑3](https://doi.org/10.1038/s42256-018-0002-3).
@@ -150,6 +167,7 @@ Full BibTeX is in [`references.bib`](references.bib). A source is listed only wh
 - D. Gupta, *Null Measurability at the Symmetrization Interface in VC Learning*, arXiv:[2604.25028](https://arxiv.org/abs/2604.25028) (2026).
 - [TorchLean](https://github.com/lean-dojo/TorchLean) (lean‑dojo) — executable neural‑network semantics in Lean.
 - [formal‑learning‑theory‑kernel](https://github.com/Zetetic-Dhruv/formal-learning-theory-kernel) — the measurability infrastructure this repo depends on.
+- [lean‑stat‑learning‑theory](https://github.com/YuanheZ/lean-stat-learning-theory) (Zhang–Lee–Liu) — the vendored optimal‑constant (`12√2`) Dudley entropy‑integral chaining used by the capacity bound.
 
 ## Citation
 
