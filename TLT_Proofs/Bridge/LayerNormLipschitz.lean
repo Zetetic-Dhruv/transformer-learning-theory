@@ -220,4 +220,60 @@ theorem layerNormCoord_lipschitz (hd : 0 < d) (γ β : Fin d → ℝ) {Cγ : ℝ
         mul_le_mul hn (hCγ j) (abs_nonneg _) (by positivity)
     _ = Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon * dist X Y := by ring
 
+/-- **Layer normalization has bounded output.** Each normalized entry `(Xᵢⱼ − meanᵢ)/σᵢ` has magnitude
+at most `√d` (`abs_centered_le_sqrt_d_mul_std`), so every output coordinate is at most `√d·Cγ + Cβ` in
+absolute value, and the output supremum-norm is bounded *uniformly in the input*. This is the
+forward-invariance enabler: layer-norm maps the whole activation space into the ball of radius
+`√d·Cγ + Cβ`, re-establishing a bounded activation domain no matter how far upstream linear maps have
+grown the norm. -/
+lemma layerNormCoord_norm_le (hd : 0 < d) (γ β : Fin d → ℝ) {Cγ Cβ : ℝ}
+    (hCγ : ∀ j, |γ j| ≤ Cγ) (hCβ : ∀ j, |β j| ≤ Cβ) (X : Fin s → Fin d → ℝ) :
+    ‖layerNormCoord γ β X‖ ≤ Real.sqrt d * Cγ + Cβ := by
+  have hCγ0 : 0 ≤ Cγ := le_trans (abs_nonneg _) (hCγ ⟨0, hd⟩)
+  have hCβ0 : 0 ≤ Cβ := le_trans (abs_nonneg _) (hCβ ⟨0, hd⟩)
+  have hR0 : (0:ℝ) ≤ Real.sqrt d * Cγ + Cβ :=
+    add_nonneg (mul_nonneg (Real.sqrt_nonneg _) hCγ0) hCβ0
+  refine (pi_norm_le_iff_of_nonneg hR0).mpr (fun i => ?_)
+  refine (pi_norm_le_iff_of_nonneg hR0).mpr (fun j => ?_)
+  rw [Real.norm_eq_abs]
+  simp only [layerNormCoord]
+  have hσ : 0 < rowStdCoord i X := rowStdCoord_pos i X
+  have hnorm : |(X i j - rowMeanCoord i X) / rowStdCoord i X| ≤ Real.sqrt d := by
+    rw [abs_div, abs_of_pos hσ, div_le_iff₀ hσ]
+    exact abs_centered_le_sqrt_d_mul_std hd i j X
+  calc |(X i j - rowMeanCoord i X) / rowStdCoord i X * γ j + β j|
+      ≤ |(X i j - rowMeanCoord i X) / rowStdCoord i X * γ j| + |β j| := abs_add_le _ _
+    _ = |(X i j - rowMeanCoord i X) / rowStdCoord i X| * |γ j| + |β j| := by rw [abs_mul]
+    _ ≤ Real.sqrt d * Cγ + Cβ :=
+        add_le_add (mul_le_mul hnorm (hCγ j) (abs_nonneg _) (Real.sqrt_nonneg _)) (hCβ j)
+
+/-- **Layer normalization is Lipschitz in its affine weights.** For a fixed input, the map
+`(γ,β) ↦ layerNormCoord γ β X` moves by at most `√d·dist γ γ' + dist β β'`: the normalized entry
+(bounded by `√d`) multiplies the `γ` perturbation, and the `β` perturbation enters directly. This is
+the weight-Lipschitz atom layer-norm contributes to the parameter-Lipschitz composition (the affine
+`γ, β` are the layer's learnable weights). -/
+lemma layerNormCoord_param_lipschitz (hd : 0 < d) (γ β γ' β' : Fin d → ℝ) (X : Fin s → Fin d → ℝ) :
+    dist (layerNormCoord γ β X) (layerNormCoord γ' β' X)
+      ≤ Real.sqrt d * dist γ γ' + dist β β' := by
+  refine (dist_pi_le_iff (by positivity)).mpr (fun i => ?_)
+  refine (dist_pi_le_iff (by positivity)).mpr (fun j => ?_)
+  rw [Real.dist_eq]
+  simp only [layerNormCoord]
+  have hσ : 0 < rowStdCoord i X := rowStdCoord_pos i X
+  have hnorm : |(X i j - rowMeanCoord i X) / rowStdCoord i X| ≤ Real.sqrt d := by
+    rw [abs_div, abs_of_pos hσ, div_le_iff₀ hσ]
+    exact abs_centered_le_sqrt_d_mul_std hd i j X
+  have hγ : |γ j - γ' j| ≤ dist γ γ' := by rw [← Real.dist_eq]; exact dist_le_pi_dist γ γ' j
+  have hβ : |β j - β' j| ≤ dist β β' := by rw [← Real.dist_eq]; exact dist_le_pi_dist β β' j
+  calc |(X i j - rowMeanCoord i X) / rowStdCoord i X * γ j + β j
+          - ((X i j - rowMeanCoord i X) / rowStdCoord i X * γ' j + β' j)|
+      = |(X i j - rowMeanCoord i X) / rowStdCoord i X * (γ j - γ' j) + (β j - β' j)| := by
+        congr 1; ring
+    _ ≤ |(X i j - rowMeanCoord i X) / rowStdCoord i X * (γ j - γ' j)| + |β j - β' j| :=
+        abs_add_le _ _
+    _ = |(X i j - rowMeanCoord i X) / rowStdCoord i X| * |γ j - γ' j| + |β j - β' j| := by
+        rw [abs_mul]
+    _ ≤ Real.sqrt d * dist γ γ' + dist β β' :=
+        add_le_add (mul_le_mul hnorm hγ (abs_nonneg _) (Real.sqrt_nonneg _)) hβ
+
 end TLT

@@ -194,4 +194,18 @@ lemma attnVec_lipschitz_on_ball [NeZero nK] {scale B bV : ℝ} (hscale : 0 < sca
   exact attnOut_lipschitz_on_ball hscale hB hbV0 Q Q' K K' V V' c hQ' hK
     (fun j => le_trans (by rw [← Real.norm_eq_abs]; exact norm_le_pi_norm (V j) c) (hV j))
 
+/-- **Attention is `1`-Lipschitz in the value matrix (vector level), with the scores held fixed.** A
+convex combination of the value rows, so perturbing the values by `‖V − V'‖` moves the output by at
+most that — globally (no domain cap needed; the domain dependence lives only in the scores). This is
+the value-projection weight-Lipschitz atom: a learnable value projection enters attention only through
+the value matrix. -/
+lemma attnVec_values_lipschitz [NeZero nK] (s : Fin nK → ℝ) (V V' : Fin nK → Fin d → ℝ) :
+    dist (attnVec s V) (attnVec s V') ≤ ‖V - V'‖ := by
+  refine (dist_pi_le_iff (norm_nonneg _)).mpr (fun c => ?_)
+  rw [Real.dist_eq]
+  simp only [attnVec]
+  exact attnOut_values_bound s V V' c (fun j => le_trans
+    (by rw [show V j c - V' j c = (V - V') j c from rfl, ← Real.norm_eq_abs]; exact norm_le_pi_norm _ c)
+    (norm_le_pi_norm _ j))
+
 end TLT
