@@ -5,6 +5,7 @@ Authors: Dhruv Gupta
 -/
 import TLT_Proofs.Bridge.ForwardEnvelope
 import TLT_Proofs.Bridge.AttentionLipschitz
+import TLT_Proofs.Bridge.LayerNormLipschitz
 
 /-!
 # Bounded-activation executed layers
@@ -138,5 +139,96 @@ noncomputable def selfAttnExecLayer [NeZero n] {scale B : ℝ} (hscale : 0 < sca
     hrnd
 
 end SelfAttention
+
+/-! ### Layer normalization as a bounded-activation layer
+
+Layer normalization maps the whole activation space into the ball of radius `√d·Cγ + Cβ`
+(`layerNormCoord_norm_le`) and is globally Lipschitz there (`layerNormCoord_lipschitz`), so it is an
+`ExecLayer` over that ball — the *same* kind of bounded domain on which self-attention lives. This is
+what re-establishes a forward-invariant activation domain after norm-growing linear maps, and lets a
+layer-norm-terminated block be a self-map of one fixed activation ball. -/
+
+section LayerNorm
+
+variable {s d : ℕ}
+
+/-- **Layer normalization is a bounded-activation `ExecLayer`.** Over `↥(closedBall 0 (√d·Cγ+Cβ))` —
+forward-invariance from `layerNormCoord_norm_le`, the `Cγ·(2√d+2)/√ε` Lipschitz constant from
+`layerNormCoord_lipschitz`. The executed (rounded) map and its uniform rounding bound are supplied as
+data. -/
+noncomputable def layerNormExecLayer (hd : 0 < d) (γ β : Fin d → ℝ) {Cγ Cβ : ℝ}
+    (hCγ : ∀ j, |γ j| ≤ Cγ) (hCβ : ∀ j, |β j| ≤ Cβ)
+    (execMap : (Fin s → Fin d → ℝ) → (Fin s → Fin d → ℝ)) (rnd : ℝ)
+    (hexecinv : ∀ X ∈ Metric.closedBall (0 : Fin s → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+        execMap X ∈ Metric.closedBall 0 (Real.sqrt d * Cγ + Cβ))
+    (hrnd : ∀ X ∈ Metric.closedBall (0 : Fin s → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+        dist (execMap X) (layerNormCoord γ β X) ≤ rnd) :
+    ExecLayer (↥(Metric.closedBall (0 : Fin s → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ))) :=
+  execLayerOfForwardInvariant (Metric.closedBall 0 (Real.sqrt d * Cγ + Cβ)) (layerNormCoord γ β)
+    execMap (Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon) rnd
+    (by
+      have hCγ0 : 0 ≤ Cγ := le_trans (abs_nonneg _) (hCγ ⟨0, hd⟩)
+      exact div_nonneg (mul_nonneg hCγ0 (by positivity)) (Real.sqrt_nonneg _))
+    (fun X _ => by
+      rw [mem_closedBall_zero_iff]; exact layerNormCoord_norm_le hd γ β hCγ hCβ X)
+    hexecinv
+    (fun a _ b _ => layerNormCoord_lipschitz hd γ β hCγ a b)
+    hrnd
+
+end LayerNorm
+
+/-! ### The coordinatewise clamp onto the activation ball
+
+In the supremum norm the metric projection onto the ball `{‖x‖ ≤ B}` is the coordinatewise clamp onto
+`[-B, B]`. It is `1`-Lipschitz, lands in the ball, and is the identity on the ball — so a network that
+clamps its activations to the certified region `K = {‖x‖ ≤ B}` agrees with the unclamped network on
+all of `K`, while being globally bounded and (composed with attention) globally Lipschitz. This is
+what lets the bounded-domain attention estimates close the forward map over the *whole* space. -/
+
+section Clamp
+
+variable {s d : ℕ}
+
+/-- Coordinatewise clamp onto `[-B, B]`: the metric projection onto the supremum-norm ball of radius
+`B`. -/
+def clampCoord (B : ℝ) (X : Fin s → Fin d → ℝ) : Fin s → Fin d → ℝ :=
+  fun i j => max (min (X i j) B) (-B)
+
+/-- The scalar clamp `t ↦ max (min t B) (-B)` is `1`-Lipschitz. -/
+lemma lipschitzWith_scalar_clamp (B : ℝ) :
+    LipschitzWith 1 (fun t : ℝ => max (min t B) (-B)) :=
+  (LipschitzWith.id.min_const B).max_const (-B)
+
+/-- The clamp lands in the ball of radius `B`. -/
+lemma clampCoord_norm_le {B : ℝ} (hB : 0 ≤ B) (X : Fin s → Fin d → ℝ) : ‖clampCoord B X‖ ≤ B := by
+  refine (pi_norm_le_iff_of_nonneg hB).mpr (fun i => ?_)
+  refine (pi_norm_le_iff_of_nonneg hB).mpr (fun j => ?_)
+  rw [Real.norm_eq_abs]
+  simp only [clampCoord]
+  exact abs_le.mpr ⟨le_max_right _ _, max_le (min_le_right _ _) (neg_le_self hB)⟩
+
+/-- The clamp is `1`-Lipschitz (coordinatewise, hence in the supremum norm). -/
+lemma clampCoord_lipschitz (B : ℝ) (X Y : Fin s → Fin d → ℝ) :
+    dist (clampCoord B X) (clampCoord B Y) ≤ dist X Y := by
+  refine (dist_pi_le_iff dist_nonneg).mpr (fun i => ?_)
+  refine (dist_pi_le_iff dist_nonneg).mpr (fun j => ?_)
+  calc dist (clampCoord B X i j) (clampCoord B Y i j)
+      ≤ 1 * dist (X i j) (Y i j) := by
+        simpa [clampCoord] using (lipschitzWith_scalar_clamp B).dist_le_mul (X i j) (Y i j)
+    _ = dist (X i j) (Y i j) := one_mul _
+    _ ≤ dist X Y := le_trans (dist_le_pi_dist (X i) (Y i) j) (dist_le_pi_dist X Y i)
+
+/-- The clamp is the identity on the ball of radius `B`: clamping an activation already in the cap
+changes nothing. -/
+lemma clampCoord_eq_of_norm_le {B : ℝ} {X : Fin s → Fin d → ℝ} (hX : ‖X‖ ≤ B) :
+    clampCoord B X = X := by
+  funext i j
+  have hxij : |X i j| ≤ B :=
+    le_trans (le_trans (le_of_eq (Real.norm_eq_abs _).symm) (norm_le_pi_norm (X i) j))
+      (le_trans (norm_le_pi_norm X i) hX)
+  rw [abs_le] at hxij
+  simp only [clampCoord, min_eq_left hxij.2, max_eq_left hxij.1]
+
+end Clamp
 
 end TLT

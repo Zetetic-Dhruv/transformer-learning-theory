@@ -129,4 +129,62 @@ theorem paramComp_param_lipschitz_on {K : Set Θ} {D : Set V} (Ls : List (ParamL
                   mul_le_mul_of_nonneg_left (hloc L hLmem θ hθ θ' hθ' x hx) (linputLipProd_nonneg Ls)
         _ = lparamLipBound (L :: Ls) * dist θ θ' := by simp only [lparamLipBound]; ring
 
+/-- **Conditional input-Lipschitz of the composition (domain-restricted).** As
+`lparamComp_input_lip_on`, but the per-layer input-Lipschitz estimate need hold only on a
+forward-invariant activation domain `D` — admitting layers (such as attention) that are Lipschitz only
+on a bounded domain, while the globally-Lipschitz layers satisfy it by ignoring the membership. -/
+lemma lparamComp_input_lip_on' {K : Set Θ} {D : Set V} (Ls : List (ParamLayerLocal Θ V))
+    (hin : ∀ L ∈ Ls, ∀ θ ∈ K, ∀ a ∈ D, ∀ b ∈ D, dist (L.map θ a) (L.map θ b) ≤ L.lip * dist a b)
+    (hinv : ∀ L ∈ Ls, ∀ θ ∈ K, ∀ y ∈ D, L.map θ y ∈ D)
+    {θ : Θ} (hθ : θ ∈ K) {a b : V} (ha : a ∈ D) (hb : b ∈ D) :
+    dist (lparamComp Ls θ a) (lparamComp Ls θ b) ≤ linputLipProd Ls * dist a b := by
+  induction Ls generalizing a b with
+  | nil => simp [lparamComp, linputLipProd]
+  | cons L Ls ih =>
+      have hLmem : L ∈ L :: Ls := List.mem_cons_self
+      have hmapa : L.map θ a ∈ D := hinv L hLmem θ hθ a ha
+      have hmapb : L.map θ b ∈ D := hinv L hLmem θ hθ b hb
+      calc dist (lparamComp Ls θ (L.map θ a)) (lparamComp Ls θ (L.map θ b))
+          ≤ linputLipProd Ls * dist (L.map θ a) (L.map θ b) :=
+            ih (fun L' hL' => hin L' (List.mem_cons_of_mem L hL'))
+               (fun L' hL' => hinv L' (List.mem_cons_of_mem L hL')) hmapa hmapb
+        _ ≤ linputLipProd Ls * (L.lip * dist a b) :=
+            mul_le_mul_of_nonneg_left (hin L hLmem θ hθ a ha b hb) (linputLipProd_nonneg Ls)
+        _ = L.lip * linputLipProd Ls * dist a b := by ring
+
+/-- **Conditional weight-Lipschitz envelope (domain-restricted input-Lipschitz).** As
+`paramComp_param_lipschitz_on`, but the per-layer input-Lipschitz estimate need hold only on the
+forward-invariant domain `D` — so attention, Lipschitz only on a bounded activation ball, is admitted
+alongside the globally-Lipschitz linear and ReLU layers. The forward-invariance `hinv` keeps every
+intermediate activation in `D`, where the input-Lipschitz estimate applies. -/
+theorem paramComp_param_lipschitz_on' {K : Set Θ} {D : Set V} (Ls : List (ParamLayerLocal Θ V))
+    (hin : ∀ L ∈ Ls, ∀ θ ∈ K, ∀ a ∈ D, ∀ b ∈ D, dist (L.map θ a) (L.map θ b) ≤ L.lip * dist a b)
+    (hloc : ∀ L ∈ Ls, ∀ θ ∈ K, ∀ θ' ∈ K, ∀ y ∈ D,
+      dist (L.map θ y) (L.map θ' y) ≤ L.paramLip * dist θ θ')
+    (hinv : ∀ L ∈ Ls, ∀ θ ∈ K, ∀ y ∈ D, L.map θ y ∈ D)
+    {θ θ' : Θ} (hθ : θ ∈ K) (hθ' : θ' ∈ K) {x : V} (hx : x ∈ D) :
+    dist (lparamComp Ls θ x) (lparamComp Ls θ' x) ≤ lparamLipBound Ls * dist θ θ' := by
+  induction Ls generalizing x with
+  | nil => simp [lparamComp, lparamLipBound]
+  | cons L Ls ih =>
+      have hLmem : L ∈ L :: Ls := List.mem_cons_self
+      have hmap : L.map θ x ∈ D := hinv L hLmem θ hθ x hx
+      have hmap' : L.map θ' x ∈ D := hinv L hLmem θ' hθ' x hx
+      have ihtail := ih (fun L' hL' => hin L' (List.mem_cons_of_mem L hL'))
+        (fun L' hL' => hloc L' (List.mem_cons_of_mem L hL'))
+        (fun L' hL' => hinv L' (List.mem_cons_of_mem L hL')) hmap
+      calc dist (lparamComp (L :: Ls) θ x) (lparamComp (L :: Ls) θ' x)
+          ≤ dist (lparamComp Ls θ (L.map θ x)) (lparamComp Ls θ' (L.map θ x))
+              + dist (lparamComp Ls θ' (L.map θ x)) (lparamComp Ls θ' (L.map θ' x)) :=
+            dist_triangle _ _ _
+        _ ≤ lparamLipBound Ls * dist θ θ' + linputLipProd Ls * (L.paramLip * dist θ θ') := by
+            refine add_le_add ihtail ?_
+            calc dist (lparamComp Ls θ' (L.map θ x)) (lparamComp Ls θ' (L.map θ' x))
+                ≤ linputLipProd Ls * dist (L.map θ x) (L.map θ' x) :=
+                  lparamComp_input_lip_on' Ls (fun L' hL' => hin L' (List.mem_cons_of_mem L hL'))
+                    (fun L' hL' => hinv L' (List.mem_cons_of_mem L hL')) hθ' hmap hmap'
+              _ ≤ linputLipProd Ls * (L.paramLip * dist θ θ') :=
+                  mul_le_mul_of_nonneg_left (hloc L hLmem θ hθ θ' hθ' x hx) (linputLipProd_nonneg Ls)
+        _ = lparamLipBound (L :: Ls) * dist θ θ' := by simp only [lparamLipBound]; ring
+
 end TLT
