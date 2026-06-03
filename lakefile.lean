@@ -68,7 +68,8 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Bridge.ParamLipschitzLocal,
     `TLT_Proofs.Bridge.BoundedExecLayer,
     `TLT_Proofs.Bridge.AttentionTransformerCertificate,
-    `TLT_Proofs.Bridge.AttentionSpecBridge
+    `TLT_Proofs.Bridge.AttentionSpecBridge,
+    `TLT_Proofs.Bridge.AttentionExecutedCertificate
   ]
 
 -- SLT (lean-stat-learning-theory, Zhang–Lee–Liu): the 7-file Dudley entropy-integral cone
