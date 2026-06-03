@@ -14,9 +14,9 @@ For an executed (IEEE binary32) attention head with a learnable value projection
 R_true^exec  ≤  R̂_emp^exec  +  2·(12√2·B/√m)  +  ε  +  2·L·envBound
 ```
 
-Every term is computable from the actual weights: `B` is the affine Dudley entropy integral (with the optimal `12√2` chaining constant), `envBound` is the float32 rounding envelope, and the input cap `K = {‖x‖ ≤ B}` is the hypothesis that self‑attention's lack of a global Lipschitz constant (Kim et al. 2021) forces. The certified head is proven equal — in coordinates — to TorchLean's literal `Spec.scaledDotProductAttention`.
+Every term is computable from the actual weights: `B` is the affine Dudley entropy integral (with the optimal `12√2` chaining constant), `envBound` is the float32 rounding envelope, and the input cap `K = {‖x‖ ≤ B}` is the hypothesis that self‑attention's lack of a global Lipschitz constant (Kim et al. 2021) forces. The bound is stated about the executed operation: the ideal map is proven equal — in coordinates — to TorchLean's literal `Spec.scaledDotProductAttention`, and the executed op enters through its rounding envelope.
 
-`attnHead_certified_generalization` · `matCoords_scaledDotProductAttention`
+`attnHead_executed_certified_generalization` · `attnHead_certified_generalization` · `matCoords_scaledDotProductAttention`
 
 All results reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `sorry`, no added axioms. (The strictness/non‑Borel results below additionally take the existence of an analytic non‑Borel subset of ℝ as an explicit hypothesis — a standard descriptive‑set‑theory fact, supplied as an argument.)
 
@@ -26,6 +26,7 @@ All results reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `s
 
 | Result | Module | Statement |
 |---|---|---|
+| `attnHead_executed_certified_generalization` | `Bridge/AttentionExecutedCertificate` | the certified bound **about the executed IEEE32 attention op**: its ideal is the literal `scaledDotProductAttention` (the binding), its `exec` the executed op, its rounding envelope `rnd` the float32 correction `2·Lℓ·rnd` |
 | `attnHead_certified_generalization` | `Bridge/AttentionTransformerCertificate` | the certified float32 bound, instantiated on a dot‑product attention head with a learnable value projection (the learnable weight is an attention weight, so the capacity term measures the attention class) |
 | `certified_executed_generalization_dudley` | `Bridge/CertifiedTransformerBound` | the abstract capstone: executed true risk ≤ executed empirical risk + closed capacity‑and‑rounding budget, off a McDiarmid‑small sample event |
 | `matCoords_scaledDotProductAttention` | `Bridge/AttentionSpecBridge` | the certified head equals TorchLean's literal `Spec.scaledDotProductAttention`, read in coordinates |
