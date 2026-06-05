@@ -40,6 +40,8 @@ All results reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `s
 |---|---|---|
 | `normAttnStack_certified_generalization` | `Bridge/AttnStackCertificate` | the certified float32 bound for a depth‑`L` stack of post‑norm self‑attention blocks `layerNorm(X + selfAttn X)`; the capacity constant `lparamLipBound(replicate L block)` **grows with depth `L`** |
 | `transformerEncoderStack_certified_generalization` | `Bridge/TransformerStackCertificate` | the certified bound for a depth‑`L` stack of full encoder layers (attention block ∘ feed‑forward block, each layer‑norm‑terminated) — the full transformer, depth‑graded |
+| `normMultiHeadStack_certified_generalization` | `Bridge/MultiHeadAttnCertificate` | the certified bound for a depth‑`L` stack of **true multi‑head** attention blocks `layerNorm(X + ∑_{h<H} headQK^h(X))` — distinct learnable query/key/value projections per head; the capacity is **linear in the head count `H`** and **independent of the sequence length** |
+| `multiHeadAttn_weight_lip` · `multiHeadAttn_input_lip` | `Bridge/MultiHeadAttnCertificate` | multi‑head attention is Lipschitz in its weights and input — the constant linear in `H`, no cross‑head interaction, no sequence‑length factor (Edelman et al. 2022, App. A.6; Trauger–Tewari 2024, §4.2) |
 | `normAttnStack_weight_lip` · `transformerEncoderStack_weight_lip` | `Bridge/AttnStackCertificate`, `Bridge/TransformerStackCertificate` | the depth‑`L` stack is `lparamLipBound`‑Lipschitz in its weights on the forward‑invariant activation ball — the depth‑grading made a theorem |
 | `ffnCoord_input_lipschitz` | `Bridge/TransformerStackCertificate` | the feed‑forward block is *globally* `bW₁·bW₂`‑Lipschitz (no input cap — unlike self‑attention) |
 
@@ -47,7 +49,7 @@ All results reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `s
 
 | Result | Module | Statement |
 |---|---|---|
-| `attnOut_lipschitz_on_ball` | `Bridge/AttentionLipschitz` | attention moves by `≤ 2·nK·bV·(dB/scale)·(‖ΔQ‖+‖ΔK‖) + ‖ΔV‖` on `‖Q‖,‖K‖ ≤ B`; no global constant exists (Kim et al. 2021) |
+| `attnOut_lipschitz_on_ball` | `Bridge/AttentionLipschitz` | attention moves by `≤ 2·bV·(dB/scale)·(‖ΔQ‖+‖ΔK‖) + ‖ΔV‖` on `‖Q‖,‖K‖ ≤ B` — **sequence‑length‑free** (softmax rows are probability vectors, so the absolute softmax‑Jacobian constant is `2`, matching Edelman et al. 2022, Cor. A.7); no global constant exists (Kim et al. 2021) |
 | `selfAttnExecLayer` · `execLayerOfForwardInvariant` | `Bridge/BoundedExecLayer` | self‑attention as a certificate‑side `ExecLayer` over the metric subtype `↥(closedBall 0 B)` — the input cap carried by the type |
 | `layerNormCoord_lipschitz` | `Bridge/LayerNormLipschitz` | layer normalization is globally `Cγ·(2√d+2)/√ε`‑Lipschitz |
 | `matMulSpecExecLayer` · `reluSpecExecLayer` | `Bridge/SpecExecLayers` | the literal `matMulSpec`/`reluSpec`, in coordinates, as operator‑norm Lipschitz `ExecLayer`s |
