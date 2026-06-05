@@ -54,33 +54,57 @@ theorem attnOut_values_bound [NeZero nK] (s : Fin nK → ℝ) (V V' : Fin nK →
         Finset.sum_le_sum fun j _ => mul_le_mul_of_nonneg_left (hbd j) (softmax_nonneg s j)
     _ = bd := by rw [← Finset.sum_mul, softmax_sum_one s, one_mul]
 
-/-- **Attention is Lipschitz in the scores** with constant `2·nK·bV` (per output coordinate), where
-`bV` bounds the value entries. This is where the softmax Lipschitz constant enters; the constant is
-absolute in the score scale. -/
+/-- **Attention is Lipschitz in the scores** with the *absolute* constant `2·bV` (per output
+coordinate, `bV` bounding the value entries) — **independent of the number of keys**. The score map
+`z ↦ attnOut z V c = ∑ⱼ softmax(z)ⱼ Vⱼc` is the fixed linear readout `L ∘ softmax` with
+`L w = ∑ⱼ Vⱼc wⱼ`, so its score-gradient is the composition `L ∘ softmaxJac z`. The naïve product
+`‖L‖·‖softmaxJac z‖` would carry `∑ⱼ|Vⱼc| ≤ nK·bV`; but the composed operator has norm `≤ 2·bV`,
+because the softmax Jacobian centres by `⟨p,v⟩` (the probability-simplex constraint `∑ⱼ pⱼ = 1`):
+`∑ⱼ pⱼ|vⱼ − ⟨p,v⟩| ≤ 2‖v‖`, an `O(1)` quantity. The mean-value inequality on the bounded score
+segment then closes it. The constant being absolute in both the score scale (Kim et al.) and the key
+count is what keeps the downstream capacity polynomial in the weights and free of the sequence length. -/
 theorem attnOut_scores_bound [NeZero nK] (s s' : Fin nK → ℝ) (V : Fin nK → Fin d → ℝ) (c : Fin d)
     {bV : ℝ} (hbV0 : 0 ≤ bV) (hbV : ∀ j, |V j c| ≤ bV) :
-    |attnOut s V c - attnOut s' V c| ≤ 2 * nK * bV * ‖s - s'‖ := by
-  have h : attnOut s V c - attnOut s' V c = ∑ j, (softmax s j - softmax s' j) * V j c := by
-    unfold attnOut; rw [← Finset.sum_sub_distrib]; exact Finset.sum_congr rfl fun j _ => by ring
-  have hsm : ∀ j, |softmax s j - softmax s' j| ≤ 2 * ‖s - s'‖ := by
-    intro j
-    have h1 : |softmax s j - softmax s' j| ≤ ‖softmax s - softmax s'‖ := by
-      rw [← Pi.sub_apply, ← Real.norm_eq_abs]; exact norm_le_pi_norm _ j
-    have h2 : ‖softmax s - softmax s'‖ ≤ 2 * ‖s - s'‖ := by
-      have hl := softmax_lipschitz.dist_le_mul s s'
-      simp only [dist_eq_norm] at hl
-      push_cast at hl
-      linarith [hl]
-    linarith [h1, h2]
-  rw [h]
-  calc |∑ j, (softmax s j - softmax s' j) * V j c|
-      ≤ ∑ j, |(softmax s j - softmax s' j) * V j c| := Finset.abs_sum_le_sum_abs _ _
-    _ ≤ ∑ _j, 2 * ‖s - s'‖ * bV := by
-        refine Finset.sum_le_sum fun j _ => ?_
-        rw [abs_mul]
-        exact mul_le_mul (hsm j) (hbV j) (abs_nonneg _) (by positivity)
-    _ = 2 * nK * bV * ‖s - s'‖ := by
-        rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]; ring
+    |attnOut s V c - attnOut s' V c| ≤ 2 * bV * ‖s - s'‖ := by
+  set L : (Fin nK → ℝ) →L[ℝ] ℝ := ∑ j, (V j c) • ContinuousLinearMap.proj j with hL
+  have hLapp : ∀ w : Fin nK → ℝ, L w = ∑ j, V j c * w j := fun w => by
+    simp only [hL, ContinuousLinearMap.sum_apply, ContinuousLinearMap.smul_apply,
+      ContinuousLinearMap.proj_apply, smul_eq_mul]
+  have hfun : ∀ z, attnOut z V c = L (softmax z) := fun z => by
+    rw [attnOut, hLapp]; exact Finset.sum_congr rfl (fun j _ => mul_comm _ _)
+  have hderiv : ∀ z, HasFDerivAt (fun z => L (softmax z)) (L.comp (softmaxJac z)) z :=
+    fun z => (L.hasFDerivAt).comp z (softmax_hasFDerivAt z)
+  have hbound : ∀ z, ‖L.comp (softmaxJac z)‖ ≤ 2 * bV := fun z => by
+    refine ContinuousLinearMap.opNorm_le_bound _ (by positivity) (fun v => ?_)
+    rw [ContinuousLinearMap.comp_apply, hLapp, Real.norm_eq_abs]
+    have hinner : |∑ k, softmax z k * v k| ≤ ‖v‖ := by
+      calc |∑ k, softmax z k * v k| ≤ ∑ k, |softmax z k * v k| := Finset.abs_sum_le_sum_abs _ _
+        _ = ∑ k, softmax z k * |v k| := Finset.sum_congr rfl (fun k _ => by
+            rw [abs_mul, abs_of_nonneg (softmax_nonneg z k)])
+        _ ≤ ∑ k, softmax z k * ‖v‖ := Finset.sum_le_sum (fun k _ =>
+            mul_le_mul_of_nonneg_left (norm_le_pi_norm v k) (softmax_nonneg z k))
+        _ = ‖v‖ := by rw [← Finset.sum_mul, softmax_sum_one z, one_mul]
+    have habs : ∀ j, |v j - ∑ k, softmax z k * v k| ≤ ‖v‖ + ‖v‖ := fun j => by
+      have h1 : |v j - ∑ k, softmax z k * v k| ≤ |v j| + |∑ k, softmax z k * v k| := by
+        rw [sub_eq_add_neg]; exact (abs_add_le _ _).trans_eq (by rw [abs_neg])
+      have hvj : |v j| ≤ ‖v‖ := by rw [← Real.norm_eq_abs]; exact norm_le_pi_norm v j
+      linarith [h1, hvj, hinner]
+    calc |∑ j, V j c * softmaxJac z v j|
+        ≤ ∑ j, |V j c * softmaxJac z v j| := Finset.abs_sum_le_sum_abs _ _
+      _ = ∑ j, |V j c| * (softmax z j * |v j - ∑ k, softmax z k * v k|) :=
+          Finset.sum_congr rfl (fun j _ => by
+            rw [softmaxJac_apply, abs_mul, abs_mul, abs_of_nonneg (softmax_nonneg z j)])
+      _ ≤ ∑ j, bV * (softmax z j * (‖v‖ + ‖v‖)) := Finset.sum_le_sum (fun j _ =>
+          mul_le_mul (hbV j) (mul_le_mul_of_nonneg_left (habs j) (softmax_nonneg z j))
+            (mul_nonneg (softmax_nonneg z j) (abs_nonneg _)) hbV0)
+      _ = ∑ j, bV * (‖v‖ + ‖v‖) * softmax z j := Finset.sum_congr rfl (fun j _ => by ring)
+      _ = bV * (‖v‖ + ‖v‖) * ∑ j, softmax z j := (Finset.mul_sum _ _ _).symm
+      _ = 2 * bV * ‖v‖ := by rw [softmax_sum_one z]; ring
+  rw [show |attnOut s V c - attnOut s' V c| = ‖(fun z => L (softmax z)) s - (fun z => L (softmax z)) s'‖
+      from by rw [hfun s, hfun s', Real.norm_eq_abs]]
+  exact Convex.norm_image_sub_le_of_norm_hasFDerivWithin_le
+    (fun z _ => (hderiv z).hasFDerivWithinAt) (fun z _ => hbound z) convex_univ
+    (Set.mem_univ s') (Set.mem_univ s)
 
 /-- The single-query attention scores `s[k'] = ⟨Q, K_{k'}⟩ / scale` — bilinear in the query/key. -/
 noncomputable def attnScores (scale : ℝ) (Q : Fin d → ℝ) (K : Fin nK → Fin d → ℝ) :
@@ -128,7 +152,7 @@ theorem attnOut_lipschitz_on_ball [NeZero nK] {scale B bV : ℝ} (hscale : 0 < s
     (hbV0 : 0 ≤ bV) (Q Q' : Fin d → ℝ) (K K' : Fin nK → Fin d → ℝ) (V V' : Fin nK → Fin d → ℝ)
     (c : Fin d) (hQ' : ∀ e, |Q' e| ≤ B) (hK : ∀ k' e, |K k' e| ≤ B) (hV : ∀ j, |V j c| ≤ bV) :
     |attnOut (attnScores scale Q K) V c - attnOut (attnScores scale Q' K') V' c|
-      ≤ 2 * nK * bV * (d * B / scale) * (‖Q - Q'‖ + ‖K - K'‖) + ‖V - V'‖ := by
+      ≤ 2 * bV * (d * B / scale) * (‖Q - Q'‖ + ‖K - K'‖) + ‖V - V'‖ := by
   have hVterm : |attnOut (attnScores scale Q' K') V c - attnOut (attnScores scale Q' K') V' c|
       ≤ ‖V - V'‖ :=
     attnOut_values_bound _ V V' c (fun j => by
@@ -140,12 +164,12 @@ theorem attnOut_lipschitz_on_ball [NeZero nK] {scale B bV : ℝ} (hscale : 0 < s
       ≤ |attnOut (attnScores scale Q K) V c - attnOut (attnScores scale Q' K') V c|
         + |attnOut (attnScores scale Q' K') V c - attnOut (attnScores scale Q' K') V' c| :=
         abs_sub_le _ _ _
-    _ ≤ 2 * nK * bV * ‖attnScores scale Q K - attnScores scale Q' K'‖ + ‖V - V'‖ :=
+    _ ≤ 2 * bV * ‖attnScores scale Q K - attnScores scale Q' K'‖ + ‖V - V'‖ :=
         add_le_add (attnOut_scores_bound _ _ V c hbV0 hV) hVterm
-    _ ≤ 2 * nK * bV * ((d * B / scale) * (‖Q - Q'‖ + ‖K - K'‖)) + ‖V - V'‖ := by
+    _ ≤ 2 * bV * ((d * B / scale) * (‖Q - Q'‖ + ‖K - K'‖)) + ‖V - V'‖ := by
         gcongr
         exact attnScores_dist_le hscale hB Q Q' K K' hQ' hK
-    _ = 2 * nK * bV * (d * B / scale) * (‖Q - Q'‖ + ‖K - K'‖) + ‖V - V'‖ := by ring
+    _ = 2 * bV * (d * B / scale) * (‖Q - Q'‖ + ‖K - K'‖) + ‖V - V'‖ := by ring
 
 /-- The single-query attention output as a vector over the output coordinates. -/
 noncomputable def attnVec (s : Fin nK → ℝ) (V : Fin nK → Fin d → ℝ) : Fin d → ℝ :=
@@ -182,10 +206,10 @@ lemma attnVec_lipschitz_on_ball [NeZero nK] {scale B bV : ℝ} (hscale : 0 < sca
     (hbV0 : 0 ≤ bV) (Q Q' : Fin d → ℝ) (K K' V V' : Fin nK → Fin d → ℝ)
     (hQ' : ∀ e, |Q' e| ≤ B) (hK : ∀ k' e, |K k' e| ≤ B) (hV : ∀ j, ‖V j‖ ≤ bV) :
     ‖attnVec (attnScores scale Q K) V - attnVec (attnScores scale Q' K') V'‖
-      ≤ 2 * nK * bV * (d * B / scale) * (‖Q - Q'‖ + ‖K - K'‖) + ‖V - V'‖ := by
-  have hR0 : (0:ℝ) ≤ 2 * nK * bV * (d * B / scale) * (‖Q - Q'‖ + ‖K - K'‖) + ‖V - V'‖ := by
-    have h1 : (0:ℝ) ≤ 2 * nK * bV * (d * B / scale) :=
-      mul_nonneg (mul_nonneg (mul_nonneg (by norm_num) (Nat.cast_nonneg _)) hbV0)
+      ≤ 2 * bV * (d * B / scale) * (‖Q - Q'‖ + ‖K - K'‖) + ‖V - V'‖ := by
+  have hR0 : (0:ℝ) ≤ 2 * bV * (d * B / scale) * (‖Q - Q'‖ + ‖K - K'‖) + ‖V - V'‖ := by
+    have h1 : (0:ℝ) ≤ 2 * bV * (d * B / scale) :=
+      mul_nonneg (mul_nonneg (by norm_num) hbV0)
         (div_nonneg (mul_nonneg (Nat.cast_nonneg _) hB) hscale.le)
     exact add_nonneg (mul_nonneg h1 (by positivity)) (norm_nonneg _)
   refine (pi_norm_le_iff_of_nonneg hR0).mpr (fun c => ?_)

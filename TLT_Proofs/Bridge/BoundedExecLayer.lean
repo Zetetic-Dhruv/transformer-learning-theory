@@ -86,28 +86,28 @@ explicit constant `4·n·d·B²/scale + 1` — finite precisely because of the c
 lemma selfAttn_lipschitz_on_ball [NeZero n] {scale B : ℝ} (hscale : 0 < scale) (hB : 0 ≤ B)
     (X X' : Fin n → Fin d → ℝ) (hX : ∀ i, ‖X i‖ ≤ B) (hX' : ∀ i, ‖X' i‖ ≤ B) :
     ‖selfAttn scale X - selfAttn scale X'‖
-      ≤ (4 * n * (d * B ^ 2 / scale) + 1) * ‖X - X'‖ := by
-  have hL0 : (0:ℝ) ≤ 4 * n * (d * B ^ 2 / scale) + 1 := by
-    have : (0:ℝ) ≤ 4 * n * (d * B ^ 2 / scale) :=
+      ≤ (4 * (d * B ^ 2 / scale) + 1) * ‖X - X'‖ := by
+  have hL0 : (0:ℝ) ≤ 4 * (d * B ^ 2 / scale) + 1 := by
+    have : (0:ℝ) ≤ 4 * (d * B ^ 2 / scale) :=
       mul_nonneg (by positivity) (div_nonneg (by positivity) hscale.le)
     linarith
   refine (pi_norm_le_iff_of_nonneg (mul_nonneg hL0 (norm_nonneg _))).mpr (fun i => ?_)
   rw [Pi.sub_apply]
   have hrow : ‖X i - X' i‖ ≤ ‖X - X'‖ := by
     rw [show X i - X' i = (X - X') i from rfl]; exact norm_le_pi_norm (X - X') i
-  have hcoef : (0:ℝ) ≤ 2 * n * B * (d * B / scale) :=
-    mul_nonneg (mul_nonneg (mul_nonneg (by norm_num) (Nat.cast_nonneg _)) hB)
+  have hcoef : (0:ℝ) ≤ 2 * B * (d * B / scale) :=
+    mul_nonneg (mul_nonneg (by norm_num) hB)
       (div_nonneg (mul_nonneg (Nat.cast_nonneg _) hB) hscale.le)
   calc ‖selfAttn scale X i - selfAttn scale X' i‖
-      ≤ 2 * n * B * (d * B / scale) * (‖X i - X' i‖ + ‖X - X'‖) + ‖X - X'‖ :=
+      ≤ 2 * B * (d * B / scale) * (‖X i - X' i‖ + ‖X - X'‖) + ‖X - X'‖ :=
         attnVec_lipschitz_on_ball hscale hB hB (X i) (X' i) X X' X X'
           (fun e => le_trans (by rw [← Real.norm_eq_abs]; exact norm_le_pi_norm (X' i) e) (hX' i))
           (fun k' e => le_trans (by rw [← Real.norm_eq_abs]; exact norm_le_pi_norm (X k') e) (hX k'))
           hX
-    _ ≤ 2 * n * B * (d * B / scale) * (‖X - X'‖ + ‖X - X'‖) + ‖X - X'‖ := by
+    _ ≤ 2 * B * (d * B / scale) * (‖X - X'‖ + ‖X - X'‖) + ‖X - X'‖ := by
         have := mul_le_mul_of_nonneg_left (add_le_add_right hrow ‖X - X'‖) hcoef
         linarith
-    _ = (4 * n * (d * B ^ 2 / scale) + 1) * ‖X - X'‖ := by ring
+    _ = (4 * (d * B ^ 2 / scale) + 1) * ‖X - X'‖ := by ring
 
 /-- **Self-attention is a bounded-activation `ExecLayer`.** Dot-product self-attention has no global
 Lipschitz constant, yet on the radius-`B` ball it is forward-invariant (softmax-convexity) and
@@ -122,9 +122,9 @@ noncomputable def selfAttnExecLayer [NeZero n] {scale B : ℝ} (hscale : 0 < sca
         dist (execMap X) (selfAttn scale X) ≤ rnd) :
     ExecLayer (↥(Metric.closedBall (0 : Fin n → Fin d → ℝ) B)) :=
   execLayerOfForwardInvariant (Metric.closedBall 0 B) (selfAttn scale) execMap
-    (4 * n * (d * B ^ 2 / scale) + 1) rnd
+    (4 * (d * B ^ 2 / scale) + 1) rnd
     (by
-      have h : (0:ℝ) ≤ 4 * n * (d * B ^ 2 / scale) :=
+      have h : (0:ℝ) ≤ 4 * (d * B ^ 2 / scale) :=
         mul_nonneg (by positivity) (div_nonneg (by positivity) hscale.le)
       linarith)
     (fun X hX => by

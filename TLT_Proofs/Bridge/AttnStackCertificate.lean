@@ -39,18 +39,18 @@ lemma normAttnBlock_input_lip [NeZero n] (hd : 0 < d) {scale B : ℝ} (hscale : 
     (Xa Xb : Fin n → Fin d → ℝ) (hXa : ∀ i, ‖Xa i‖ ≤ B) (hXb : ∀ i, ‖Xb i‖ ≤ B) :
     dist (normAttnCoord γ β (selfAttn scale) Xa) (normAttnCoord γ β (selfAttn scale) Xb)
       ≤ Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon
-          * (1 + (4 * n * (d * B ^ 2 / scale) + 1)) * dist Xa Xb := by
-  have hsA : ‖selfAttn scale Xa - selfAttn scale Xb‖ ≤ (4 * n * (d * B ^ 2 / scale) + 1) * ‖Xa - Xb‖ :=
+          * (1 + (4 * (d * B ^ 2 / scale) + 1)) * dist Xa Xb := by
+  have hsA : ‖selfAttn scale Xa - selfAttn scale Xb‖ ≤ (4 * (d * B ^ 2 / scale) + 1) * ‖Xa - Xb‖ :=
     selfAttn_lipschitz_on_ball hscale hB Xa Xb hXa hXb
   have hCγ0 : 0 ≤ Cγ := le_trans (abs_nonneg _) (hCγ ⟨0, hd⟩)
-  have hLsA0 : (0:ℝ) ≤ 4 * n * (d * B ^ 2 / scale) + 1 := by
-    have : (0:ℝ) ≤ 4 * n * (d * B ^ 2 / scale) :=
+  have hLsA0 : (0:ℝ) ≤ 4 * (d * B ^ 2 / scale) + 1 := by
+    have : (0:ℝ) ≤ 4 * (d * B ^ 2 / scale) :=
       mul_nonneg (by positivity) (div_nonneg (by positivity) hscale.le)
     linarith
   -- the residual argument moves by at most `(1 + L_attn)·dist`
   have hresid : dist (fun i j => Xa i j + selfAttn scale Xa i j)
       (fun i j => Xb i j + selfAttn scale Xb i j : Fin n → Fin d → ℝ)
-      ≤ (1 + (4 * n * (d * B ^ 2 / scale) + 1)) * dist Xa Xb := by
+      ≤ (1 + (4 * (d * B ^ 2 / scale) + 1)) * dist Xa Xb := by
     refine (dist_pi_le_iff (by positivity)).mpr (fun i => ?_)
     refine (dist_pi_le_iff (by positivity)).mpr (fun j => ?_)
     rw [Real.dist_eq]
@@ -59,14 +59,14 @@ lemma normAttnBlock_input_lip [NeZero n] (hd : 0 < d) {scale B : ℝ} (hscale : 
           rw [show (Xa i j + selfAttn scale Xa i j) - (Xb i j + selfAttn scale Xb i j)
                 = (Xa i j - Xb i j) + (selfAttn scale Xa i j - selfAttn scale Xb i j) from by ring]
           exact abs_add_le _ _
-      _ ≤ dist Xa Xb + (4 * n * (d * B ^ 2 / scale) + 1) * dist Xa Xb := by
+      _ ≤ dist Xa Xb + (4 * (d * B ^ 2 / scale) + 1) * dist Xa Xb := by
           refine add_le_add ?_ ?_
           · exact le_trans (le_trans (le_of_eq (Real.dist_eq _ _).symm) (dist_le_pi_dist (Xa i) (Xb i) j))
               (dist_le_pi_dist Xa Xb i)
           · rw [show selfAttn scale Xa i j - selfAttn scale Xb i j
                   = (selfAttn scale Xa - selfAttn scale Xb) i j from rfl, ← Real.norm_eq_abs, dist_eq_norm]
             exact le_trans (le_trans (norm_le_pi_norm _ j) (norm_le_pi_norm _ i)) hsA
-      _ = (1 + (4 * n * (d * B ^ 2 / scale) + 1)) * dist Xa Xb := by ring
+      _ = (1 + (4 * (d * B ^ 2 / scale) + 1)) * dist Xa Xb := by ring
   calc dist (normAttnCoord γ β (selfAttn scale) Xa) (normAttnCoord γ β (selfAttn scale) Xb)
       = dist (layerNormCoord γ β (fun i j => Xa i j + selfAttn scale Xa i j))
              (layerNormCoord γ β (fun i j => Xb i j + selfAttn scale Xb i j)) := by
@@ -76,12 +76,12 @@ lemma normAttnBlock_input_lip [NeZero n] (hd : 0 < d) {scale B : ℝ} (hscale : 
                  (fun i j => Xb i j + selfAttn scale Xb i j) :=
         layerNormCoord_lipschitz hd γ β hCγ _ _
     _ ≤ Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon
-          * ((1 + (4 * n * (d * B ^ 2 / scale) + 1)) * dist Xa Xb) :=
+          * ((1 + (4 * (d * B ^ 2 / scale) + 1)) * dist Xa Xb) :=
         mul_le_mul_of_nonneg_left hresid
           (by have : 0 < Real.sqrt Numbers.epsilon := Real.sqrt_pos.mpr numbers_epsilon_real_pos
               exact div_nonneg (mul_nonneg hCγ0 (by positivity)) (Real.sqrt_nonneg _))
     _ = Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon
-          * (1 + (4 * n * (d * B ^ 2 / scale) + 1)) * dist Xa Xb := by ring
+          * (1 + (4 * (d * B ^ 2 / scale) + 1)) * dist Xa Xb := by ring
 
 /-- **The post-norm attention block is Lipschitz in its affine weights.** Only the final layer-norm
 carries `γ, β`; the residual self-attention is weight-free, so `layerNormCoord_param_lipschitz` applies
@@ -160,11 +160,11 @@ noncomputable def normAttnBlock {n d p : ℕ} [NeZero n] {scale Cγ Cβ Lγ Lβ 
   map θ X := normAttnCoord (γ θ) (β θ) (selfAttn scale) X
   paramLip := Real.sqrt d * Lγ + Lβ
   lip := Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon
-          * (1 + (4 * n * (d * (Real.sqrt d * Cγ + Cβ) ^ 2 / scale) + 1))
+          * (1 + (4 * (d * (Real.sqrt d * Cγ + Cβ) ^ 2 / scale) + 1))
   paramLip_nonneg := add_nonneg (mul_nonneg (Real.sqrt_nonneg _) hLγ0) hLβ0
   lip_nonneg := by
     have hε : 0 < Real.sqrt Numbers.epsilon := Real.sqrt_pos.mpr numbers_epsilon_real_pos
-    have h1 : (0:ℝ) ≤ 4 * n * (d * (Real.sqrt d * Cγ + Cβ) ^ 2 / scale) :=
+    have h1 : (0:ℝ) ≤ 4 * (d * (Real.sqrt d * Cγ + Cβ) ^ 2 / scale) :=
       mul_nonneg (by positivity) (div_nonneg (by positivity) hscale.le)
     exact mul_nonneg (div_nonneg (mul_nonneg hCγ0 (by positivity)) (Real.sqrt_nonneg _)) (by linarith)
 
