@@ -1,6 +1,6 @@
 # Transformer Learning Theory
 
-A Lean 4 formalization of a **certified, computable generalization bound for a transformer attention model that holds for the IEEE binary32 program it actually runs** — together with a proof that the certified model is TorchLean's literal `scaledDotProductAttention`. The same network is read two ways: as exact real arithmetic (for the theorems) and as bit‑exact float32 (for execution), with machine‑checked bridges between them.
+A Lean 4 formalization of a **certified, computable generalization bound for a transformer attention model that holds for the IEEE binary32 program it actually runs** — together with a proof that the certified model is TorchLean's literal `scaledDotProductAttention`. The same network is read two ways: as exact real arithmetic (for the theorems) and as bit‑exact float32 (for execution), with machine‑checked bridges between them. The bound extends from the single attention head to a **depth‑`L` transformer stack** (the capacity constant grows with depth), and the certified attention is bound to the **literal `MultiHeadAttention.forward`** that TorchLean's `TransformerEncoderLayer` runs.
 
 [![Documentation](https://img.shields.io/badge/docs-API%20reference-0b4f8b)](https://zetetic-dhruv.github.io/transformer-learning-theory/) [![Lean](https://img.shields.io/badge/Lean-v4.29.0-blue)](https://github.com/leanprover/lean4/releases/tag/v4.29.0) ![sorry 0](https://img.shields.io/badge/sorry-0-brightgreen) [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 
@@ -30,8 +30,18 @@ All results reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `s
 | `attnHead_certified_generalization` | `Bridge/AttentionTransformerCertificate` | the certified float32 bound, instantiated on a dot‑product attention head with a learnable value projection (the learnable weight is an attention weight, so the capacity term measures the attention class) |
 | `certified_executed_generalization_dudley` | `Bridge/CertifiedTransformerBound` | the abstract capstone: executed true risk ≤ executed empirical risk + closed capacity‑and‑rounding budget, off a McDiarmid‑small sample event |
 | `matCoords_scaledDotProductAttention` | `Bridge/AttentionSpecBridge` | the certified head equals TorchLean's literal `Spec.scaledDotProductAttention`, read in coordinates |
+| `multiHeadAttention_forward_one` | `Bridge/EncoderLayerSpecBridge` | TorchLean's literal `MultiHeadAttention.forward` (the op `TransformerEncoderLayer.forward` calls), at one head with identity projections, **is** a reshape of the certified `selfAttn` — the head‑split/combine reshape carries no pathology |
 | `empiricalCapacityReal_le_computable` | `Capacity/CoveringDischarge` | the optimal‑constant (`12√2`) Dudley entropy‑integral capacity bound, discharged to a closed affine form via the Euclidean covering number |
 | `minimalFFN_certified_generalization` | `Bridge/MinimalFFNCertificate` | the bound instantiated on a two‑layer ReLU network `x ↦ W₂·relu(W₁·x)` |
+
+### The depth‑graded transformer stack
+
+| Result | Module | Statement |
+|---|---|---|
+| `normAttnStack_certified_generalization` | `Bridge/AttnStackCertificate` | the certified float32 bound for a depth‑`L` stack of post‑norm self‑attention blocks `layerNorm(X + selfAttn X)`; the capacity constant `lparamLipBound(replicate L block)` **grows with depth `L`** |
+| `transformerEncoderStack_certified_generalization` | `Bridge/TransformerStackCertificate` | the certified bound for a depth‑`L` stack of full encoder layers (attention block ∘ feed‑forward block, each layer‑norm‑terminated) — the full transformer, depth‑graded |
+| `normAttnStack_weight_lip` · `transformerEncoderStack_weight_lip` | `Bridge/AttnStackCertificate`, `Bridge/TransformerStackCertificate` | the depth‑`L` stack is `lparamLipBound`‑Lipschitz in its weights on the forward‑invariant activation ball — the depth‑grading made a theorem |
+| `ffnCoord_input_lipschitz` | `Bridge/TransformerStackCertificate` | the feed‑forward block is *globally* `bW₁·bW₂`‑Lipschitz (no input cap — unlike self‑attention) |
 
 ### The Lipschitz constant of self‑attention
 
