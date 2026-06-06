@@ -43,15 +43,20 @@ All results reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `s
 | `normMultiHeadStack_certified_generalization` · `normMultiHeadStack_untied_certified_generalization` | `Bridge/MultiHeadAttnCertificate` | the certified bound for a depth‑`L` stack of **true multi‑head** attention blocks `layerNorm(X + ∑_{h<H} headQK^h(X))` — distinct learnable query/key/value projections per head; capacity **linear in the head count `H`** and **sequence‑length‑free**. Stated both **weight‑tied** (universal‑transformer, `replicate`) and **untied** (standard transformer, `ofFn` of `L` distinct blocks reading disjoint parameter coordinates) |
 | `transformerEncoderStackMH_certified_generalization` | `Bridge/MultiHeadEncoderStack` | the same with the **interleaved feed‑forward block** — the full true‑multi‑head encoder layer (multi‑head attention block ∘ FFN block), depth‑graded |
 | `multiHeadAttn_weight_lip` · `multiHeadAttn_input_lip` | `Bridge/MultiHeadAttnCertificate` | multi‑head attention is Lipschitz in its weights and input — the constant linear in `H`, no cross‑head interaction, no sequence‑length factor (Edelman et al. 2022, App. A.6; Trauger–Tewari 2024, §4.2) |
+| `normMultiHeadStack_executed_at_depth` · `idealComp_clampExecLayer_cons` | `Bridge/ExecutedStackAtDepth` | the executed forward **at depth, discharged by construction**: `idealComp (clampExecLayer ρ :: Es) = lparamComp St θ ∘ clampCoord ρ` (pre‑clamped blocks + forward‑invariance drops the inner clamps), so the certified bound holds with the depth‑composed rounding envelope and no abstract `hagree` |
 | `normAttnStack_weight_lip` · `transformerEncoderStack_weight_lip` | `Bridge/AttnStackCertificate`, `Bridge/TransformerStackCertificate` | the depth‑`L` stack is `lparamLipBound`‑Lipschitz in its weights on the forward‑invariant activation ball — the depth‑grading made a theorem |
 | `ffnCoord_input_lipschitz` | `Bridge/TransformerStackCertificate` | the feed‑forward block is *globally* `bW₁·bW₂`‑Lipschitz (no input cap — unlike self‑attention) |
 
 > **Scope of the multi‑head stack capstones.** Heads are full‑width (head‑dim = model‑dim `d`), so
 > standard split‑head attention (head‑dim `d/H`) is the rank‑restricted subfamily — covered, at the
-> full‑width constant. The stack capstones are stated modulo the executed layer list `Ls` (`hagree`):
-> the per‑layer IEEE binary32 **executed instantiation at depth** — composing the per‑layer rounding
-> envelopes — is the one remaining residual (the single‑layer executed discharge is done, in
-> `Bridge/AttentionExecutedCertificate`).
+> full‑width constant. The executed forward **at depth is discharged by construction**
+> (`normMultiHeadStack_executed_at_depth`, `Bridge/ExecutedStackAtDepth`): given the float32 executed
+> layers `Es` whose per‑layer ideals are the **pre‑clamped** blocks, `Ls = clampExecLayer ρ :: Es` has
+> `idealComp Ls = lparamComp St θ ∘ clampCoord ρ` — the bridge `idealComp_clampExecLayer_cons`, by a
+> forward‑invariance induction that drops the inner clamps — so the McDiarmid bound holds with the
+> depth‑composed rounding envelope `envBound Ls`, with **no abstract `hagree` hypothesis**. (Whether
+> that abstract envelope equals the literal `γₙ` IEEE‑binary32 forward error at depth, when the
+> per‑layer rounds are the fp32 layer envelopes, is the remaining binding.)
 
 ### The Lipschitz constant of self‑attention
 
