@@ -49,14 +49,16 @@ All results reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `s
 
 > **Scope of the multi‑head stack capstones.** Heads are full‑width (head‑dim = model‑dim `d`), so
 > standard split‑head attention (head‑dim `d/H`) is the rank‑restricted subfamily — covered, at the
-> full‑width constant. The executed forward **at depth is discharged by construction**
-> (`normMultiHeadStack_executed_at_depth`, `Bridge/ExecutedStackAtDepth`): given the float32 executed
-> layers `Es` whose per‑layer ideals are the **pre‑clamped** blocks, `Ls = clampExecLayer ρ :: Es` has
-> `idealComp Ls = lparamComp St θ ∘ clampCoord ρ` — the bridge `idealComp_clampExecLayer_cons`, by a
-> forward‑invariance induction that drops the inner clamps — so the McDiarmid bound holds with the
-> depth‑composed rounding envelope `envBound Ls`, with **no abstract `hagree` hypothesis**. (Whether
-> that abstract envelope equals the literal `γₙ` IEEE‑binary32 forward error at depth, when the
-> per‑layer rounds are the fp32 layer envelopes, is the remaining binding.)
+> full‑width constant. The executed forward **at depth is discharged by construction** for **all four**
+> stacks (tied + untied multi‑head, FFN‑union encoder): given float32 executed layers `Es` whose
+> per‑layer ideals are the **pre‑clamped** blocks, `Ls = clampExecLayer ρ :: Es` has
+> `idealComp Ls = lparamComp St θ ∘ clampCoord ρ` — the bridge `idealComp_clampExecLayer_cons`, a
+> forward‑invariance induction dropping the inner clamps — so each McDiarmid bound holds with the
+> **depth‑composed** rounding envelope `envBound Ls` and **no abstract `hagree`**, and
+> `executedForward_envelope_at_depth` bounds the IEEE‑binary32 forward by `envBound` of the clamped spec
+> stack at depth. The per‑layer `rnd` is supplied as data (as the single‑layer executed certificate
+> does); **deriving it as the literal fp32 block forward error** — composing the per‑operation `γₙ`
+> (`fp32Foldl_error_le`) through layerNorm + multi‑head + residual — is the genuine remaining fp32 node.
 
 ### The Lipschitz constant of self‑attention
 
