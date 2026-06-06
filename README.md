@@ -40,10 +40,18 @@ All results reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `s
 |---|---|---|
 | `normAttnStack_certified_generalization` | `Bridge/AttnStackCertificate` | the certified float32 bound for a depth‑`L` stack of post‑norm self‑attention blocks `layerNorm(X + selfAttn X)`; the capacity constant `lparamLipBound(replicate L block)` **grows with depth `L`** |
 | `transformerEncoderStack_certified_generalization` | `Bridge/TransformerStackCertificate` | the certified bound for a depth‑`L` stack of full encoder layers (attention block ∘ feed‑forward block, each layer‑norm‑terminated) — the full transformer, depth‑graded |
-| `normMultiHeadStack_certified_generalization` | `Bridge/MultiHeadAttnCertificate` | the certified bound for a depth‑`L` stack of **true multi‑head** attention blocks `layerNorm(X + ∑_{h<H} headQK^h(X))` — distinct learnable query/key/value projections per head; the capacity is **linear in the head count `H`** and **independent of the sequence length** |
+| `normMultiHeadStack_certified_generalization` · `normMultiHeadStack_untied_certified_generalization` | `Bridge/MultiHeadAttnCertificate` | the certified bound for a depth‑`L` stack of **true multi‑head** attention blocks `layerNorm(X + ∑_{h<H} headQK^h(X))` — distinct learnable query/key/value projections per head; capacity **linear in the head count `H`** and **sequence‑length‑free**. Stated both **weight‑tied** (universal‑transformer, `replicate`) and **untied** (standard transformer, `ofFn` of `L` distinct blocks reading disjoint parameter coordinates) |
+| `transformerEncoderStackMH_certified_generalization` | `Bridge/MultiHeadEncoderStack` | the same with the **interleaved feed‑forward block** — the full true‑multi‑head encoder layer (multi‑head attention block ∘ FFN block), depth‑graded |
 | `multiHeadAttn_weight_lip` · `multiHeadAttn_input_lip` | `Bridge/MultiHeadAttnCertificate` | multi‑head attention is Lipschitz in its weights and input — the constant linear in `H`, no cross‑head interaction, no sequence‑length factor (Edelman et al. 2022, App. A.6; Trauger–Tewari 2024, §4.2) |
 | `normAttnStack_weight_lip` · `transformerEncoderStack_weight_lip` | `Bridge/AttnStackCertificate`, `Bridge/TransformerStackCertificate` | the depth‑`L` stack is `lparamLipBound`‑Lipschitz in its weights on the forward‑invariant activation ball — the depth‑grading made a theorem |
 | `ffnCoord_input_lipschitz` | `Bridge/TransformerStackCertificate` | the feed‑forward block is *globally* `bW₁·bW₂`‑Lipschitz (no input cap — unlike self‑attention) |
+
+> **Scope of the multi‑head stack capstones.** Heads are full‑width (head‑dim = model‑dim `d`), so
+> standard split‑head attention (head‑dim `d/H`) is the rank‑restricted subfamily — covered, at the
+> full‑width constant. The stack capstones are stated modulo the executed layer list `Ls` (`hagree`):
+> the per‑layer IEEE binary32 **executed instantiation at depth** — composing the per‑layer rounding
+> envelopes — is the one remaining residual (the single‑layer executed discharge is done, in
+> `Bridge/AttentionExecutedCertificate`).
 
 ### The Lipschitz constant of self‑attention
 
