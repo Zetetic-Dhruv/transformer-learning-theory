@@ -59,6 +59,23 @@ All results reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `s
 > stack at depth. The per‑layer `rnd` is supplied as data (as the single‑layer executed certificate
 > does); **deriving it as the literal fp32 block forward error** — composing the per‑operation `γₙ`
 > (`fp32Foldl_error_le`) through layerNorm + multi‑head + residual — is the genuine remaining fp32 node.
+>
+> **Depth dependence of the envelope.** The generic `envBound` amplifies each layer's rounding by the
+> product of the downstream ideal Lipschitz constants, which is **exponential in depth** when the
+> per‑layer constant exceeds `1` — and layer normalization's `1/√ε` makes it exceed `1` for typical
+> regularizers `ε`. `execComp_envelope_linear` (`Bridge/NonExpansiveDepthEnvelope`) isolates the sharp
+> condition that removes this: on a **non‑expansive** stack (every `lip ≤ 1`) the envelope is at most
+> `(#layers)·ρ`, **linear** in depth, and the executed bound is non‑vacuous at every depth.
+> `normMultiHeadBlock_nonexpansive` identifies the regime in which the post‑norm block satisfies
+> `lip ≤ 1` — `Cγ(2√d+2)/√ε·(1+L_mha) ≤ 1`, achieved by small `‖γ‖`, residual scaling, or large `ε`,
+> the stabilization studied for deep transformers (Wang et al., *DeepNet*, 2022; signal‑propagation
+> analyses). Outside that regime the linear bound does not apply: non‑vacuity at depth is **conditional**
+> on certified non‑expansiveness, not automatic. The per‑layer scale is pinned by the post‑norm output
+> cap: `normMultiHeadBlock_image_le` bounds the block image by `R = √d·Cγ + Cβ` uniformly in the input,
+> so a relatively‑rounded executed block (`dist(exec, ideal) ≤ u·‖ideal‖`, `u` the unit roundoff) has
+> per‑layer rounding `≤ u·R` and the depth‑`L` envelope is `≤ L·u·R` (`replicate_boundedRelRound_envelope`)
+> — machine‑epsilon × depth. The relative‑rounding `u` is still supplied as a hypothesis; deriving it
+> (and the exact per‑operation `γₙ` telescoping) is the remaining concrete fp32 node.
 
 ### The Lipschitz constant of self‑attention
 
@@ -75,7 +92,11 @@ All results reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `s
 |---|---|---|
 | `transformerForwardMap_executed_measurable` | `Bridge/ExecutedForward` | IEEE round‑to‑nearest, and the whole executed forward, is measurable |
 | `executed_risk_transfer` · `execComp_risk_transfer` | `Bridge/ExecutedForward`, `Bridge/ForwardEnvelope` | for an `L`‑Lipschitz loss, `|R_exec − R_ideal| ≤ L·envBound`, with `envBound` a closed form in the weights |
+| `execComp_envelope_linear` · `execComp_risk_transfer_linear` | `Bridge/NonExpansiveDepthEnvelope` | when every layer is **non‑expansive** (`lip ≤ 1`) with uniform per‑layer rounding `ρ`, the envelope is `≤ (#layers)·ρ` — **linear, not exponential, in depth** (the amplifying `∏ lip` collapses to a sum); the sharp condition removing the depth blow‑up |
+| `normMultiHeadBlock_nonexpansive` | `Bridge/NonExpansiveDepthEnvelope` | the post‑norm multi‑head block contracts (`lip ≤ 1`) exactly when `Cγ(2√d+2)/√ε·(1+L_mha) ≤ 1` — the certified‑non‑expansive regime (small `‖γ‖` / residual scaling / large `ε`) under which the linear‑in‑depth envelope applies |
+| `replicate_boundedRelRound_envelope` · `normMultiHeadBlock_image_le` | `Bridge/NonExpansiveDepthEnvelope` | with the **post‑norm output cap** `‖block X‖ ≤ √d·Cγ + Cβ` (layer‑norm bounds the signal uniformly in the input), a relatively‑rounded (`u` = unit roundoff) non‑expansive depth‑`L` block stack has forward error `≤ L·u·(√d·Cγ + Cβ)` — **machine‑epsilon × depth**, non‑vacuous for any realistic `L ≲ 1/(u·R)` |
 | `fp32FoldlErrorBudget_closed_form` · `ie32_foldl_closed_envelope` | `Bridge/Fp32Reduction` | the γₙ recursive‑summation backward‑error bound, and the IEEE32 reduction sitting inside it |
+| `fp32Foldl_error_le_of_sum_bound` | `Bridge/Fp32DerivedRounding` | on the clamp (`∑ᵢ\|xᵢ\| ≤ S`), the fp32 reduction is within `u·(n+1)·S/(1−nu)` of the exact sum (`u=2⁻²⁴`) — the **derived** (not supplied) rounding atom every block reduction (matMul / scores / value‑mix / layer‑norm mean & variance) reduces to; the three non‑reduction ops (`exp`, `sqrt`, `÷`) are supplied by the IEEE‑754 standard model |
 | `get2_layerNorm` · `toReal_foldl_add` | `Bridge/LayerNormSpec`, `Bridge/Fp32Reduction` | TorchLean's literal `Spec.layerNorm` and the float fold equal their coordinate / rounding models |
 
 ### The measurability boundary
