@@ -533,6 +533,83 @@ theorem normMultiHeadStack_weight_lip {H p : ℕ} [NeZero n] (hd : 0 < d)
       (WQ θ₀) (WK θ₀) (WVO θ₀) y
 
 open Capacity in
+/-- **Untied (standard-transformer) depth-`L` multi-head weight-Lipschitz.** As
+`normMultiHeadStack_weight_lip`, but over `List.ofFn` of `L` *distinct* blocks — each layer `i` reading
+its own decoders `(WQ i, WK i, WVO i, γ i, β i)` (disjoint parameter coordinates). The constants are
+shared across layers, so the envelope is identical; only the weight-tying is dropped. Same machinery,
+`List.mem_ofFn` in place of `List.eq_of_mem_replicate`. -/
+theorem normMultiHeadStack_untied_weight_lip {H p L : ℕ} [NeZero n] (hd : 0 < d)
+    {scale R B bV βY γW Cγ Cβ Lγ Lβ LWQ LWK LWVO : ℝ} (hscale : 0 < scale) (hB : 0 ≤ B)
+    (hbV0 : 0 ≤ bV) (hβY0 : 0 ≤ βY) (hγW0 : 0 ≤ γW) (hCγ0 : 0 ≤ Cγ) (_hCβ0 : 0 ≤ Cβ) (hLγ0 : 0 ≤ Lγ)
+    (hLβ0 : 0 ≤ Lβ) (hLWQ0 : 0 ≤ LWQ) (hLWK0 : 0 ≤ LWK) (hLWVO0 : 0 ≤ LWVO)
+    (WQ WK WVO : Fin L → ParamSpace p → (Fin H → Fin d → Fin d → ℝ))
+    (γ β : Fin L → ParamSpace p → (Fin d → ℝ))
+    (hγB : ∀ i, ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))), ∀ j, |γ i θ j| ≤ Cγ)
+    (hβB : ∀ i, ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))), ∀ j, |β i θ j| ≤ Cβ)
+    (hβYD : ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ k, (∑ a, |y k a|) ≤ βY)
+    (hQB : ∀ i, ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))),
+      ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ h a e, |matMulCoord (WQ i θ h) y a e| ≤ B)
+    (hKB : ∀ i, ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))),
+      ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ h k' e, |matMulCoord (WK i θ h) y k' e| ≤ B)
+    (hVB : ∀ i, ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))),
+      ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ h j, ‖matMulCoord (WVO i θ h) y j‖ ≤ bV)
+    (hγWQ : ∀ i, ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))), ∀ h j,
+      (∑ k, |WQ i θ h k j|) ≤ γW)
+    (hγWK : ∀ i, ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))), ∀ h j,
+      (∑ k, |WK i θ h k j|) ≤ γW)
+    (hγWVO : ∀ i, ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))), ∀ h j,
+      (∑ k, |WVO i θ h k j|) ≤ γW)
+    (hγLip : ∀ i, ∀ θ θ', dist (γ i θ) (γ i θ') ≤ Lγ * dist θ θ')
+    (hβLip : ∀ i, ∀ θ θ', dist (β i θ) (β i θ') ≤ Lβ * dist θ θ')
+    (hWQLip : ∀ i, ∀ θ θ', dist (WQ i θ) (WQ i θ') ≤ LWQ * dist θ θ')
+    (hWKLip : ∀ i, ∀ θ θ', dist (WK i θ) (WK i θ') ≤ LWK * dist θ θ')
+    (hWVOLip : ∀ i, ∀ θ θ', dist (WVO i θ) (WVO i θ') ≤ LWVO * dist θ θ')
+    {θ θ' : ParamSpace p} (hθ : θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))))
+    (hθ' : θ' ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))))
+    {x : Fin n → Fin d → ℝ} (hx : x ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ)) :
+    dist (lparamComp (List.ofFn (fun i => normMultiHeadBlock (n := n) hscale hB hbV0 hβY0 hγW0 hCγ0
+            hLγ0 hLβ0 hLWQ0 hLWK0 hLWVO0 (WQ i) (WK i) (WVO i) (γ i) (β i))) θ x)
+         (lparamComp (List.ofFn (fun i => normMultiHeadBlock (n := n) hscale hB hbV0 hβY0 hγW0 hCγ0
+            hLγ0 hLβ0 hLWQ0 hLWK0 hLWVO0 (WQ i) (WK i) (WVO i) (γ i) (β i))) θ' x)
+      ≤ lparamLipBound (List.ofFn (fun i => normMultiHeadBlock (n := n) hscale hB hbV0 hβY0 hγW0 hCγ0
+          hLγ0 hLβ0 hLWQ0 hLWK0 hLWVO0 (WQ i) (WK i) (WVO i) (γ i) (β i))) * dist θ θ' := by
+  refine paramComp_param_lipschitz_on'
+    (K := (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))))
+    (D := Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ)) _ ?_ ?_ ?_ hθ hθ' hx
+  · intro Lb hLb θ₀ hθ₀ a ha b hb
+    obtain ⟨i, rfl⟩ := List.mem_ofFn.mp hLb
+    exact normMultiHeadBlock_input_lip hd hscale hB hbV0 hγW0 (WQ i θ₀) (WK i θ₀) (WVO i θ₀)
+      (hγWQ i θ₀ hθ₀) (hγWK i θ₀ hθ₀) (hγWVO i θ₀ hθ₀) (γ i θ₀) (β i θ₀) (hγB i θ₀ hθ₀) a b
+      (hQB i θ₀ hθ₀ b hb) (hKB i θ₀ hθ₀ a ha) (hVB i θ₀ hθ₀ a ha)
+  · intro Lb hLb θ₀ hθ₀ θ₁ hθ₁ y hy
+    obtain ⟨i, rfl⟩ := List.mem_ofFn.mp hLb
+    refine le_trans (normMultiHeadBlock_param_lip hd hscale hB hbV0 hβY0 (WQ i θ₀) (WK i θ₀) (WVO i θ₀)
+      (WQ i θ₁) (WK i θ₁) (WVO i θ₁) (γ i θ₀) (β i θ₀) (γ i θ₁) (β i θ₁) (hγB i θ₁ hθ₁) y (hβYD y hy)
+      (hQB i θ₁ hθ₁ y hy) (hKB i θ₀ hθ₀ y hy) (hVB i θ₀ hθ₀ y hy)) ?_
+    rw [show ((normMultiHeadBlock (n := n) hscale hB hbV0 hβY0 hγW0 hCγ0 hLγ0 hLβ0 hLWQ0 hLWK0 hLWVO0
+            (WQ i) (WK i) (WVO i) (γ i) (β i)).paramLip) * dist θ₀ θ₁
+        = (Real.sqrt d * (Lγ * dist θ₀ θ₁) + Lβ * dist θ₀ θ₁)
+          + Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon
+            * ((H : ℝ) * (2 * bV * ((d : ℝ) * B / scale)
+                * (βY * (LWQ * dist θ₀ θ₁) + βY * (LWK * dist θ₀ θ₁))
+              + βY * (LWVO * dist θ₀ θ₁))) from by simp only [normMultiHeadBlock]; ring]
+    gcongr
+    · exact hγLip i θ₀ θ₁
+    · exact hβLip i θ₀ θ₁
+    · exact hWQLip i θ₀ θ₁
+    · exact hWKLip i θ₀ θ₁
+    · exact hWVOLip i θ₀ θ₁
+  · intro Lb hLb θ₀ hθ₀ y _
+    obtain ⟨i, rfl⟩ := List.mem_ofFn.mp hLb
+    rw [mem_closedBall_zero_iff]
+    exact normMultiHeadBlock_forward_inv hd (γ i θ₀) (β i θ₀) (hγB i θ₀ hθ₀) (hβB i θ₀ hθ₀) scale
+      (WQ i θ₀) (WK i θ₀) (WVO i θ₀) y
+
+open Capacity in
 /-- **Depth-graded true-multi-head certified generalization bound.** For a depth-`L` stack of post-norm
 true-multi-head attention blocks `B_θ(X) = layerNorm_{γ θ, β θ}(X + ∑_{h<H} headQK^h(X))` — distinct
 learnable query/key/value projections per head — presented as the executed layer list `Ls` whose ideal
@@ -639,6 +716,115 @@ theorem normMultiHeadStack_certified_generalization {H p m : ℕ} [NeZero n] [No
               hLWK0 hLWVO0 WQ WK WVO γ β hγB hβB hβYD hQB hKB hVB hγWQ hγWK hγWVO hγLip hβLip hWQLip
               hWKLip hWVOLip L hθ hθ' hclampmem) hLℓ0
       _ = Lℓ * lparamLipBound (List.replicate L blk) * dist θ θ' := by ring
+  exact certified_executed_generalization_dudley hm hR F hb hFb hFmeas hFcont hε w_T Ls ℓ hLℓ0
+    hℓLip hbridge hintF hintG hLpos hlip
+
+open Capacity in
+/-- **Untied (standard-transformer) depth-`L` true-multi-head certified generalization bound.** As
+`normMultiHeadStack_certified_generalization`, but over `List.ofFn` of `L` distinct blocks — the
+standard (non-weight-tied) transformer regime, each layer reading its own parameter coordinates. -/
+theorem normMultiHeadStack_untied_certified_generalization {H p L m : ℕ} [NeZero n] [Nonempty (Fin p)]
+    [MeasurableSpace (Fin n → Fin d → ℝ)] [BorelSpace (Fin n → Fin d → ℝ)]
+    {P : Measure (Fin n → Fin d → ℝ)} [IsProbabilityMeasure P] (hm : 0 < m)
+    {R B bV βY γW scale Cγ Cβ Lγ Lβ LWQ LWK LWVO : ℝ} (hR : 0 ≤ R) (hscale : 0 < scale) (hd : 0 < d)
+    (hB : 0 ≤ B) (hbV0 : 0 ≤ bV) (hβY0 : 0 ≤ βY) (hγW0 : 0 ≤ γW) (hCγ0 : 0 ≤ Cγ) (hCβ0 : 0 ≤ Cβ)
+    (hLγ0 : 0 ≤ Lγ) (hLβ0 : 0 ≤ Lβ) (hLWQ0 : 0 ≤ LWQ) (hLWK0 : 0 ≤ LWK) (hLWVO0 : 0 ≤ LWVO)
+    (WQ WK WVO : Fin L → ParamSpace p → (Fin H → Fin d → Fin d → ℝ))
+    (γ β : Fin L → ParamSpace p → (Fin d → ℝ))
+    (hWQcont : ∀ i, Continuous (WQ i)) (hWKcont : ∀ i, Continuous (WK i))
+    (hWVOcont : ∀ i, Continuous (WVO i)) (hγcont : ∀ i, Continuous (γ i)) (hβcont : ∀ i, Continuous (β i))
+    (hγB : ∀ i, ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))), ∀ j, |γ i θ j| ≤ Cγ)
+    (hβB : ∀ i, ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))), ∀ j, |β i θ j| ≤ Cβ)
+    (hβYD : ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ k, (∑ a, |y k a|) ≤ βY)
+    (hQB : ∀ i, ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))),
+      ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ h a e, |matMulCoord (WQ i θ h) y a e| ≤ B)
+    (hKB : ∀ i, ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))),
+      ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ h k' e, |matMulCoord (WK i θ h) y k' e| ≤ B)
+    (hVB : ∀ i, ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))),
+      ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ h j, ‖matMulCoord (WVO i θ h) y j‖ ≤ bV)
+    (hγWQ : ∀ i, ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))), ∀ h j,
+      (∑ k, |WQ i θ h k j|) ≤ γW)
+    (hγWK : ∀ i, ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))), ∀ h j,
+      (∑ k, |WK i θ h k j|) ≤ γW)
+    (hγWVO : ∀ i, ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))), ∀ h j,
+      (∑ k, |WVO i θ h k j|) ≤ γW)
+    (hγLip : ∀ i, ∀ θ θ', dist (γ i θ) (γ i θ') ≤ Lγ * dist θ θ')
+    (hβLip : ∀ i, ∀ θ θ', dist (β i θ) (β i θ') ≤ Lβ * dist θ θ')
+    (hWQLip : ∀ i, ∀ θ θ', dist (WQ i θ) (WQ i θ') ≤ LWQ * dist θ θ')
+    (hWKLip : ∀ i, ∀ θ θ', dist (WK i θ) (WK i θ') ≤ LWK * dist θ θ')
+    (hWVOLip : ∀ i, ∀ θ θ', dist (WVO i θ) (WVO i θ') ≤ LWVO * dist θ θ')
+    (ℓ : (Fin n → Fin d → ℝ) → ℝ) {b : ℝ} (hb : 0 < b) (hℓb : ∀ v, |ℓ v| ≤ b)
+    (hℓcont : Continuous ℓ) {Lℓ : ℝ} (hLℓ0 : 0 ≤ Lℓ) (hℓLip : ∀ u v, |ℓ u - ℓ v| ≤ Lℓ * dist u v)
+    {ε : ℝ} (hε : 0 ≤ ε) (w_T : BaseWeightPreimage Capacity.Dyadic R)
+    (Ls : List (ExecLayer (Fin n → Fin d → ℝ)))
+    (hagree : ∀ x, idealComp Ls x
+        = lparamComp (List.ofFn (fun i => normMultiHeadBlock (n := n) hscale hB hbV0 hβY0 hγW0 hCγ0
+            hLγ0 hLβ0 hLWQ0 hLWK0 hLWVO0 (WQ i) (WK i) (WVO i) (γ i) (β i)))
+            (embedBase Capacity.Dyadic w_T.1) (clampCoord (Real.sqrt d * Cγ + Cβ) x))
+    (hintG : Integrable (fun x => ℓ (execComp Ls x)) P)
+    (hLpos : 0 < Lℓ * lparamLipBound (List.ofFn (fun i => normMultiHeadBlock (n := n) hscale hB hbV0
+        hβY0 hγW0 hCγ0 hLγ0 hLβ0 hLWQ0 hLWK0 hLWVO0 (WQ i) (WK i) (WVO i) (γ i) (β i)))) :
+    (Measure.pi fun _ : Fin m => P).real
+        {S | ¬ ((∫ x, ℓ (execComp Ls x) ∂P)
+              ≤ (1 / (m : ℝ)) * ∑ i, ℓ (execComp Ls (S i))
+                + (2 * ((12 * Real.sqrt 2) * (1 / Real.sqrt m)
+                    * (∫⁻ ε in Set.Ioc (0 : ℝ) (2 * b),
+                        ENNReal.ofReal (Real.sqrt (Real.log 2)
+                          + Real.sqrt ((p : ℝ) * (4 * R * (Lℓ * lparamLipBound
+                              (List.ofFn (fun i => normMultiHeadBlock (n := n) hscale hB hbV0 hβY0 hγW0
+                                hCγ0 hLγ0 hLβ0 hLWQ0 hLWK0 hLWVO0 (WQ i) (WK i) (WVO i) (γ i) (β i))))))
+                            * ε ^ (-(1 / 2) : ℝ))).toReal) + ε)
+                + 2 * (Lℓ * envBound Ls))}
+      ≤ Real.exp (-2 * ε ^ 2 / ((m : ℝ) * (2 * b / m) ^ 2)) := by
+  set blks := fun i => normMultiHeadBlock (n := n) hscale hB hbV0 hβY0 hγW0 hCγ0 hLγ0 hLβ0 hLWQ0 hLWK0
+    hLWVO0 (WQ i) (WK i) (WVO i) (γ i) (β i) with hblks
+  set ρ := Real.sqrt d * Cγ + Cβ with hρ
+  have hρ0 : (0 : ℝ) ≤ ρ := add_nonneg (mul_nonneg (Real.sqrt_nonneg _) hCγ0) hCβ0
+  set F : ParamSpace p → (Fin n → Fin d → ℝ) → ℝ :=
+    fun θ x => ℓ (lparamComp (List.ofFn blks) θ (clampCoord ρ x)) with hF
+  have hblkcont : ∀ Lb ∈ List.ofFn blks,
+      Continuous (fun pq : ParamSpace p × (Fin n → Fin d → ℝ) => Lb.map pq.1 pq.2) := by
+    intro Lb hLb
+    obtain ⟨i, rfl⟩ := List.mem_ofFn.mp hLb
+    exact continuous_normMultiHeadBlock_weight (hWQcont i) (hWKcont i) (hWVOcont i) (hγcont i) (hβcont i)
+  have hstackcont : Continuous (fun pq : ParamSpace p × (Fin n → Fin d → ℝ) =>
+      lparamComp (List.ofFn blks) pq.1 pq.2) := continuous_lparamComp_uncurry _ hblkcont
+  have hFb : ∀ θ x, |F θ x| ≤ b := fun θ x => hℓb _
+  have hFcont : ∀ x, Continuous fun θ : ParamSpace p => F θ x := fun x =>
+    hℓcont.comp (hstackcont.comp (continuous_id.prodMk continuous_const))
+  have hFmeas : ∀ θ, Measurable (F θ) := fun θ =>
+    (hℓcont.comp ((hstackcont.comp (continuous_const.prodMk continuous_id)).comp
+      (continuous_clampCoord ρ))).measurable
+  have hbridge : ∀ x, F (embedBase Capacity.Dyadic w_T.1) x = ℓ (idealComp Ls x) :=
+    fun x => by simp only [hF]; rw [hagree x]
+  have hintF : Integrable (fun x => ℓ (idealComp Ls x)) P := by
+    have heq : (fun x => ℓ (idealComp Ls x)) = F (embedBase Capacity.Dyadic w_T.1) :=
+      funext fun x => (hbridge x).symm
+    rw [heq]; exact integrable_of_bound_of_measurable (hFmeas _) (fun x => hFb _ x)
+  have hlip : ∀ S : Fin m → (Fin n → Fin d → ℝ),
+      ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))),
+      ∀ θ' ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p))),
+      dist (valueVec F S θ) (valueVec F S θ')
+        ≤ Lℓ * lparamLipBound (List.ofFn blks) * dist θ θ' := by
+    intro S θ hθ θ' hθ'
+    refine (dist_pi_le_iff (mul_nonneg hLpos.le dist_nonneg)).mpr (fun j => ?_)
+    rw [Real.dist_eq]; simp only [valueVec, hF]
+    have hclampmem : clampCoord ρ (S j) ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) ρ := by
+      rw [mem_closedBall_zero_iff]; exact clampCoord_norm_le hρ0 (S j)
+    calc |ℓ (lparamComp (List.ofFn blks) θ (clampCoord ρ (S j)))
+            - ℓ (lparamComp (List.ofFn blks) θ' (clampCoord ρ (S j)))|
+        ≤ Lℓ * dist (lparamComp (List.ofFn blks) θ (clampCoord ρ (S j)))
+              (lparamComp (List.ofFn blks) θ' (clampCoord ρ (S j))) := hℓLip _ _
+      _ ≤ Lℓ * (lparamLipBound (List.ofFn blks) * dist θ θ') :=
+          mul_le_mul_of_nonneg_left
+            (normMultiHeadStack_untied_weight_lip hd hscale hB hbV0 hβY0 hγW0 hCγ0 hCβ0 hLγ0 hLβ0
+              hLWQ0 hLWK0 hLWVO0 WQ WK WVO γ β hγB hβB hβYD hQB hKB hVB hγWQ hγWK hγWVO hγLip hβLip
+              hWQLip hWKLip hWVOLip hθ hθ' hclampmem) hLℓ0
+      _ = Lℓ * lparamLipBound (List.ofFn blks) * dist θ θ' := by ring
   exact certified_executed_generalization_dudley hm hR F hb hFb hFmeas hFcont hε w_T Ls ℓ hLℓ0
     hℓLip hbridge hintF hintG hLpos hlip
 
