@@ -77,7 +77,8 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Bridge.MultiHeadEncoderStack,
     `TLT_Proofs.Bridge.ExecutedStackAtDepth,
     `TLT_Proofs.Bridge.NonExpansiveDepthEnvelope,
-    `TLT_Proofs.Bridge.Fp32DerivedRounding
+    `TLT_Proofs.Bridge.Fp32DerivedRounding,
+    `TLT_Proofs.Bridge.Fp32ExpError
   ]
 
 -- SLT (lean-stat-learning-theory, Zhang–Lee–Liu): the 7-file Dudley entropy-integral cone
