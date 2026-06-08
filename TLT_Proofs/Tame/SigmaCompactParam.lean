@@ -27,6 +27,12 @@ an Fσ detour we route directly through `IsCompact.measurableSet`
 cover supplied by `isSigmaCompact_range`.  The conclusion is identical.
 -/
 
+/-!
+## References
+- [4][6] continuous image of a σ-compact space is Fσ, hence Borel; [7] the dichotomy frame.
+- Provenance: Classical-instantiation (textbook descriptive-topology composition).
+-/
+
 namespace TLT.Tame
 
 open Set
@@ -41,7 +47,7 @@ This is the exact contrapositive of the non-Borel witness: the witness needs
 *non*-σ-compact (e.g. Baire `ℕ → ℕ`) parameter space — never over `ℝ^d` or any
 σ-compact space.  No measurability assumption on `g` beyond continuity is
 needed; σ-compactness of the *domain* alone does the work. -/
-theorem measurableSet_range_of_continuous_of_sigmaCompact
+theorem measurableSet_range_of_continuous_of_sigmaCompactSpace
     {β : Type*} [TopologicalSpace β] [SigmaCompactSpace β]
     {g : β → ℝ} (hg : Continuous g) :
     MeasurableSet (Set.range g) := by

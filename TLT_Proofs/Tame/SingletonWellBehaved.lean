@@ -20,6 +20,16 @@ uncountable `∃ h ∈ singletonClassOn A` to the `2m` sample-matching singleton
 `zeroConcept` residual.
 -/
 
+/-!
+## References
+- [7] Def. 3.2 well-behavedness (V/U maps); [12] the singleton class; [9][10] permissibility /
+  image-admissible-Suslin (here bypassed by an explicit finite reduction); [57] FLT
+  `WellBehavedVCMeasTarget`, `EmpiricalError`, `oneSidedGhostGap`.
+- Provenance: Innovation — the finite-sample reduction identity replacing the separability
+  machinery; the m-general Borel upgrade is its Classical-instantiation application.
+- TLT contribution (Dhruv Gupta), `singletonClass_badEvent_eq`: a finite-sample reduction collapsing an uncountable existential over singletonClassOn A to zeroConcept plus 2m coordinate-matched singletons, replacing the separability / image-admissible-Suslin machinery. Method: ext on the ghost pair with an on/off-sample split.
+-/
+
 namespace TLT.Tame
 
 open MeasureTheory Set

@@ -15,7 +15,7 @@ converse**: when `A` is Borel, `singletonBadEvent A` is Borel — closing the sh
 characterization `MeasurableSet (singletonBadEvent A) ↔ MeasurableSet A`.
 
 Composed with the σ-compact range reflection
-(`measurableSet_range_of_continuous_of_sigmaCompact`), this upgrades the tame side of the
+(`measurableSet_range_of_continuous_of_sigmaCompactSpace`), this upgrades the tame side of the
 measurability dichotomy from a *score-range* statement to the genuine *bad-event* statement:
 **over a σ-compact parameter space the singleton-class empirical-process bad event is Borel**
 (`singletonBadEvent_measurable_of_sigmaCompact`).  The wild pathology therefore strictly
@@ -49,6 +49,15 @@ Borel** (their Lemma A.9).  The proof is an induction on dimension — points `{
 argmax router partitions inputs into finitely many such cells, so its routing — and hence its
 bad event — is Borel; this is the proof template for `FiniteCellScoreRouter` tame Borelness
 (their Thm 4.7 covers ReLU/sigmoid networks over o-minimal expansions of ℝ).
+-/
+
+/-!
+## References
+- [7] Def. 2.4 / §A.2 well-behaved bad-event measurability; [12] the singleton/initial-segment
+  class tamed here; standard product-σ-algebra measurability.
+- Provenance: Innovation — the sharp `Borel bad event ⟺ Borel target` biconditional sharpening
+  [7]; otherwise Classical-instantiation.
+- TLT contribution (Dhruv Gupta), `singletonBadEvent_measurableSet_iff`: the sharp biconditional 'Borel bad event ⟺ Borel target', sharpening Krapp–Wirth's qualitative well-behavedness into an iff. Method: forward by a product-σ-algebra computation; reverse by contrapositive through the imported wild witness.
 -/
 
 namespace TLT.Tame
@@ -96,6 +105,6 @@ theorem singletonBadEvent_measurable_of_sigmaCompact
     {β : Type*} [TopologicalSpace β] [SigmaCompactSpace β] {g : β → ℝ} (hg : Continuous g) :
     MeasurableSet (singletonBadEvent (Set.range g)) :=
   singletonBadEvent_measurable (Set.range g)
-    (measurableSet_range_of_continuous_of_sigmaCompact hg)
+    (measurableSet_range_of_continuous_of_sigmaCompactSpace hg)
 
 end TLT.Tame

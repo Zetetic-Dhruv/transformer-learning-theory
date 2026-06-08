@@ -3,7 +3,7 @@ Copyright (c) 2026 Dhruv Gupta. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dhruv Gupta
 -/
-import TLT_Proofs.Attention.FiniteRouting
+import TLT_Proofs.Routing.MeasurableScoreRouting
 
 /-!
 # The finite-cell argmax router: an explicit Borel-cell partition
@@ -45,6 +45,15 @@ the argument here.  The full model-theoretic apparatus (o-minimal structures, th
 Decomposition Theorem, and Lemma A.9 in its definability-derives-measurability form) is a
 separate development, absent from Mathlib, and is deliberately **out of scope**; this file takes
 no new axioms.
+-/
+
+/-!
+## References
+- [7] §A.3 cells / Lemma A.9 (every cell is Borel), Thm 4.7; [11] measurable selection
+  (piecewise-constant on Borel cells); [14] finite-cell joint-measurability (cousin); standard
+  product-σ-algebra measurability.
+- Provenance: Classical-instantiation (measurable-score realization of [7] §A.3; weakens the
+  hypothesis from o-minimal definability to measurability).
 -/
 
 universe u
