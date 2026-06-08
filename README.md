@@ -118,8 +118,27 @@ The capstone of the measurability strand: a **strict** descriptive‑complexity 
 | `measurabilityCliff` | `Boundary/MeasurabilityCliff` | **the cliff.** The library's most general transformer (the full multi‑head encoder stack) satisfies the strong **Borel ghost‑gap condition** (KW: the ghost‑gap supremum is measurable); the hard argmax MoE cascade strictly does *not* — **no** measurable function has its bad event as a `½`‑superlevel set — while remaining **learnable** (null‑measurable under every finite measure). The strict separation `KW ⊊ WB_meas`, located at the softmax/argmax boundary. The third conjunct is *proven* (a measurable supremum would Borel‑ify the bad event, contradicting `cascadeNonInvariance`), so the theorem is the strict separation, not a juxtaposition |
 | `transformerFunctional_isKW` | `Boundary/MeasurabilityCliff` | the **soft endpoint**: the general transformer weight‑functional `F` (continuous in the weights) has a measurable ghost‑gap supremum — KW — from the *same* `hFcont`/`hFmeas` the certified‑generalization framework discharges, so it covers `transformerEncoderStackMH` and every instance below it |
 | `measurable_iSup_gap_of_continuous` | `Boundary/MeasurabilityCliff` | the **engine**: parameter‑continuity over a separable parameter space collapses the uncountable supremum to a countable dense one, so the supremum ghost‑gap is Borel — continuity alone, no σ‑compactness or measurable selection |
+| `temperatureCliff` | `Boundary/TemperatureCliff` | the cliff made **concrete in the routing temperature**: for the non‑Borel witness, the soft (finite‑τ) margin ghost‑gap is measurable (Borel) while the argmax (τ = ∞) cascade is non‑Borel at every depth and null‑measurable, the argmax route identified as the softmax top‑1. Temperature is the toggle |
+| `depthTemperatureCliff` | `Boundary/TemperatureCliffDepth` | the temperature cliff **depth‑uniform on the same tree object**: the soft cascade margin (softmax‑blending the subtree margins over the MoE tree parameter) is Borel at every depth `L`, while the argmax cascade over that same tree is non‑Borel — continuity‑of‑the‑blend ⊕ separability of the tree at every depth |
 
 > **Non‑triviality.** The drop is genuine, not folklore. It is **not** a route‑measurability artifact — the routing is measurable; the non‑Borelness is the parameter *projection* (a Suslin operation), which does not preserve Borelness and so survives the closure of Borel functions under pointwise limits. It is **not** ill‑posedness — analytic ⇒ universally measurable (Luzin), so the hard model stays learnable via the weakened symmetrization interface (Gupta, arXiv:2604.25028, Prop. 2.3). The cliff is a Borel→analytic complexity drop forced by the smooth‑to‑discrete argmax limit — the **temperature instance** of Gupta, arXiv:2604.25028, Theorem 4.1, located for the first time at attention's regularization boundary.
+
+### Measurability is the certificate's precondition
+
+The two strands meet. The executed generalization certificate carries a measurability hypothesis, and the cliff is exactly where it fails.
+
+| Result | Module | Statement |
+|---|---|---|
+| `executedCertificate_precondition_satisfied_and_violated` | `Bridge/Certificate/MeasurabilityPrecondition` | measurability is the hinge: the executed (IEEE‑rounded) transformer forward **is** measurable — the certificate's `hFmeas` holds and the bound applies — while for the argmax cascade **no** measurable functional represents the bad event, so `hFmeas` is *unsatisfiable* there. The positive certificate and the negative cliff are the satisfied and the violated face of one assumption |
+
+### The architecture design law
+
+The certified capacity bound, indexed by the backend‑independent architecture shape `TransformerConfig` (four `Nat`s).
+
+| Result | Module | Statement |
+|---|---|---|
+| `config_capacity_law` | `Bridge/Certificate/ConfigDesignLaw` | the capacity leg as a map **out of configuration space**: every `TransformerConfig` admits a certified generalization budget, the four architecture Nats flowing through the parameter‑perturbation envelope into the Dudley capacity term (the budget grows with depth and head count) |
+| `TransformerDesignLaw` | `Bridge/Certificate/ConfigDesignLaw` | the design law at a config, assembled from its legs: capacity (`config_capacity_law`) ⊕ measurability (the spine) ⊕ **expressivity** — the config‑indexed expressivity lower bound, supplied as an *explicit open hypothesis*. The record is honest that the full law is two‑of‑three legs proved, with the expressivity floor the open obligation |
 
 ## Build
 
