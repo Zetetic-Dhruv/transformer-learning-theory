@@ -137,4 +137,16 @@ theorem evalExp2Poly_pos_of_reduced (x : IEEE32Exec) (hx : isFinite x = true) :
     rw [heq]; exact mul_pos hpos_real (by positivity)
   exact_mod_cast hpos_int
 
+/-- The `1/ln2` fixed-point anchor error, folded with `ln2` (`fixedInvLn2_approx_inv_log_two ≤ 1/10⁸`). -/
+noncomputable def δinv : ℝ := Real.log 2 / 10 ^ 8
+
+/-- **C0 — the closed-form range-reduction envelope.** `T·δinv` (anchor) + `ln2/2⁴⁸` (split) + `2⁻⁴⁹`
+(quant). A definition, not data. -/
+noncomputable def rrρ (T : ℝ) : ℝ := T * δinv + Real.log 2 / 2 ^ 48 + 2 ^ (-49 : ℤ)
+
+/-- **C0 — the closed-form `exp`-on-cone error.** `3u` (round) + `2·10⁻⁶` (polynomial) +
+`2·e^η·rrρ T` (range reduction through the MVT). The `δ_exp` that retires `hδ`. -/
+noncomputable def δexpCone (T η : ℝ) : ℝ :=
+  3 * (2 : ℝ) ^ (-24 : ℤ) + 2 * (1 / 10 ^ 6) + 2 * Real.exp η * rrρ T
+
 end TLT.ExpError
