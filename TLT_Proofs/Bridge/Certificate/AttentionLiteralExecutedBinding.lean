@@ -945,6 +945,104 @@ theorem attnHead_literal_certified_generalization
     (gridExec_exec_close B c (Wdec (embedBase Capacity.Dyadic w_T.1)) inputs ctxOf hrnd hfwd hinj)
     hintG hLpos
 
+/-- **The literal capstone with the forward-error premise discharged.** `attnHead_literal_certified_generalization`
+takes the per-input forward error `hfwd` as a premise; it is exactly the conclusion of `attnLiteralForwardError`.
+Given instead the per-input operating-regime bundle (`ExecAttnLitNormal`), the `exp`-atom bound `hδ`, the
+context shape, and the fp32 weights `Wt` decoding the head's value projection (`hWdec`), the certificate
+holds with **no** forward-error premise — the forward error is derived internally, per regime input. The
+scale `c` is the executed `toReal (litScaleFactor d)`. -/
+theorem attnHead_literal_certified_generalization_of_bundle
+    {n d p m : ℕ} [Nonempty (Fin p)]
+    [MeasurableSpace (Fin (n + 1) → Fin d → ℝ)] [BorelSpace (Fin (n + 1) → Fin d → ℝ)]
+    {P : Measure (Fin (n + 1) → Fin d → ℝ)} [IsProbabilityMeasure P]
+    {h1 h2 : (n + 1) ≠ 0}
+    (hm : 0 < m) {R B c : ℝ} (hR : 0 ≤ R) (hB : 0 ≤ B)
+    (hcdef : c = toReal (litScaleFactor d : IEEE32Exec)) (hc : 0 < c)
+    (Wdec : ParamSpace p → (Fin d → Fin d → ℝ)) (hWcont : Continuous Wdec)
+    {Lw : ℝ} (hWLip : ∀ θ θ', dist (Wdec θ) (Wdec θ') ≤ Lw * dist θ θ')
+    (ℓ : (Fin (n + 1) → Fin d → ℝ) → ℝ) {b : ℝ} (hb : 0 < b) (hℓb : ∀ v, |ℓ v| ≤ b)
+    (hℓcont : Continuous ℓ) {Lℓ : ℝ} (hLℓ0 : 0 ≤ Lℓ)
+    (hℓLip : ∀ u v, |ℓ u - ℓ v| ≤ Lℓ * dist u v)
+    {ε : ℝ} (hε : 0 ≤ ε) (w_T : BaseWeightPreimage Capacity.Dyadic R)
+    {Λ Dlo δ_exp E_lit : ℝ} {lip : ℝ} (hlip0 : 0 ≤ lip)
+    (hideal_lip : ∀ a b : Fin (n + 1) → Fin d → ℝ,
+        dist (attnHead (1 / c) (Wdec (embedBase Capacity.Dyadic w_T.1)) (clampCoord B a))
+             (attnHead (1 / c) (Wdec (embedBase Capacity.Dyadic w_T.1)) (clampCoord B b)) ≤ lip * dist a b)
+    (inputs : Finset (Fin (n + 1) → Fin d → IEEE32Exec))
+    (ctxOf : (Fin (n + 1) → Fin d → IEEE32Exec) →
+      Spec.AttentionContext IEEE32Exec (n + 1) (n + 1) d h1 h2)
+    (hinj : ∀ Yt ∈ inputs, ∀ Yt' ∈ inputs,
+        (fun a b => toReal (Yt a b)) = (fun (a : Fin (n + 1)) (b : Fin d) => toReal (Yt' a b)) → Yt = Yt')
+    (Wt : Fin d → Fin d → IEEE32Exec)
+    (hWdec : Wdec (embedBase Capacity.Dyadic w_T.1) = fun a b => toReal (Wt a b))
+    (hΛ0 : 0 ≤ Λ) (hδ0 : 0 ≤ δ_exp) (hW : ∀ j, ∑ k, |toReal (Wt k j)| ≤ Λ)
+    (hnu : ((n + 1 : ℕ) : ℝ) * u < 1) (hdu : (d : ℝ) * u < 1) (hE : 0 ≤ E_lit)
+    (F : (Fin (n + 1) → Fin d → IEEE32Exec) → Fin (n + 1) → Tensor IEEE32Exec (.dim (n + 1) .scalar))
+    (hQ : ∀ Yt ∈ inputs, (ctxOf Yt).Q = Spec.matrixTensor Yt)
+    (hK : ∀ Yt ∈ inputs, (ctxOf Yt).K = Spec.matrixTensor Yt)
+    (hV : ∀ Yt ∈ inputs, (ctxOf Yt).V = matMulSpec (Spec.matrixTensor Yt) (Spec.matrixTensor Wt))
+    (hmask : ∀ Yt ∈ inputs, (ctxOf Yt).mask = none)
+    (hN : ∀ Yt ∈ inputs, ExecAttnLitNormal (ctxOf Yt) Yt Wt (F Yt) Dlo E_lit)
+    (hX : ∀ Yt ∈ inputs, ∀ a k, |toReal (Yt a k)| ≤ B)
+    (hδ : ∀ Yt ∈ inputs, ∀ i k,
+        |litExp (F Yt i) k - Real.exp (toReal (softmaxShiftedIE (F Yt i) k))| ≤ δ_exp)
+    (hrnd : 0 ≤ rndLit n d B Λ (1 / c) Dlo δ_exp E_lit)
+    (hintG : Integrable
+        (fun x => ℓ (gridExec B c (Wdec (embedBase Capacity.Dyadic w_T.1)) inputs ctxOf x)) P)
+    (hLpos : 0 < Lℓ * ((d : ℝ) * B) * Lw) :
+    (Measure.pi fun _ : Fin m => P).real
+        {S | ¬ ((∫ x, ℓ (gridExec B c (Wdec (embedBase Capacity.Dyadic w_T.1)) inputs ctxOf x) ∂P)
+              ≤ (1 / (m : ℝ)) * ∑ i,
+                  ℓ (gridExec B c (Wdec (embedBase Capacity.Dyadic w_T.1)) inputs ctxOf (S i))
+                + (2 * ((12 * Real.sqrt 2) * (1 / Real.sqrt m)
+                    * (∫⁻ ε in Set.Ioc (0 : ℝ) (2 * b),
+                        ENNReal.ofReal (Real.sqrt (Real.log 2)
+                          + Real.sqrt ((p : ℝ) * (4 * R * (Lℓ * ((d : ℝ) * B) * Lw)))
+                            * ε ^ (-(1 / 2) : ℝ))).toReal) + ε)
+                + 2 * (Lℓ * rndLit n d B Λ (1 / c) Dlo δ_exp E_lit))}
+      ≤ Real.exp (-2 * ε ^ 2 / ((m : ℝ) * (2 * b / m) ^ 2)) := by
+  refine attnHead_literal_certified_generalization hm hR hB Wdec hWcont hWLip ℓ hb hℓb hℓcont hLℓ0
+    hℓLip hε w_T hlip0 hideal_lip inputs ctxOf hinj ?_ hrnd hintG hLpos
+  intro Yt hYt
+  have hc' : 0 < toReal (litScaleFactor d : IEEE32Exec) := hcdef ▸ hc
+  have hfe := attnLiteralForwardError (ctxOf Yt) Yt Wt (hQ Yt hYt) (hK Yt hYt) (hV Yt hYt)
+    (hmask Yt hYt) (F Yt) (hN Yt hYt) hB hΛ0 hδ0 hc' (hX Yt hYt) hW hnu hdu hE (hδ Yt hYt)
+  rw [hWdec, hcdef]
+  exact hfe
+
+/-- **Grid support: under `P(regime) = 1`, `gridExec` IS the literal kernel `P`-almost-everywhere.** The
+capstone is silent on grid support, so under an atomless `P` the finite regime is `P`-null and the bound
+degenerates to the ideal head plus slack. With `hP` the executed map agrees `P`-a.e. with the literal
+kernel `execAttnLit (ctxOf Yt)` on the matching fp32 input — `hP` is load-bearing here, and this a.e.
+identity is the exact "program it actually runs" semantics the capstone's bound then inherits. -/
+theorem gridExec_ae_eq_kernel {n d : ℕ} {h1 h2 : (n + 1) ≠ 0} (B c : ℝ) (W : Fin d → Fin d → ℝ)
+    [MeasurableSpace (Fin (n + 1) → Fin d → ℝ)] [BorelSpace (Fin (n + 1) → Fin d → ℝ)]
+    {P : Measure (Fin (n + 1) → Fin d → ℝ)} [IsProbabilityMeasure P]
+    (inputs : Finset (Fin (n + 1) → Fin d → IEEE32Exec))
+    (ctxOf : (Fin (n + 1) → Fin d → IEEE32Exec) →
+      Spec.AttentionContext IEEE32Exec (n + 1) (n + 1) d h1 h2)
+    (hinj : ∀ Yt ∈ inputs, ∀ Yt' ∈ inputs,
+        (fun a b => toReal (Yt a b)) = (fun (a : Fin (n + 1)) (b : Fin d) => toReal (Yt' a b)) → Yt = Yt')
+    (hP : P {y | ∃ Yt ∈ inputs, (fun a b => toReal (Yt a b)) = clampCoord B y} = 1) :
+    ∀ᵐ y ∂P, ∃ Yt ∈ inputs, (fun a b => toReal (Yt a b)) = clampCoord B y
+      ∧ gridExec B c W inputs ctxOf y = execAttnLit (ctxOf Yt) := by
+  have hSmeas : MeasurableSet
+      {y : Fin (n + 1) → Fin d → ℝ | ∃ Yt ∈ inputs, (fun a b => toReal (Yt a b)) = clampCoord B y} := by
+    have heq : {y : Fin (n + 1) → Fin d → ℝ | ∃ Yt ∈ inputs, (fun a b => toReal (Yt a b)) = clampCoord B y}
+        = ⋃ Yt ∈ inputs, (clampCoord B) ⁻¹' {fun a b => toReal (Yt a b)} := by
+      ext y
+      simp only [Set.mem_setOf_eq, Set.mem_iUnion, Set.mem_preimage, Set.mem_singleton_iff, eq_comm,
+        exists_prop]
+    rw [heq]
+    exact Finset.measurableSet_biUnion inputs
+      (fun Yt _ => (continuous_clampCoord B).measurable (measurableSet_singleton _))
+  have hae : ∀ᵐ y ∂P, ∃ Yt ∈ inputs, (fun a b => toReal (Yt a b)) = clampCoord B y := by
+    rw [Filter.eventually_iff, mem_ae_iff,
+      measure_compl hSmeas (measure_ne_top P _), measure_univ, hP, tsub_self]
+  filter_upwards [hae] with y hy
+  obtain ⟨Yt, hYt, heq⟩ := hy
+  exact ⟨Yt, hYt, heq, gridExec_eq_kernel_of_mem B c W inputs ctxOf hinj hYt heq⟩
+
 -- SOFTMAX STRUCTURAL READ — DONE (axiom-clean), now imported from the staged TorchLean module
 -- `TorchLean.Staged.SoftmaxCoord` (file `NN/Spec/Layers/SoftmaxVecCoordReadStaged.lean`, quarantined for
 -- an upstream PR). It provides `vecGet_softmaxVecSpec_ie : vecGet (softmaxVecSpec t) i =

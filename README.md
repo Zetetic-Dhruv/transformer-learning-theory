@@ -36,14 +36,23 @@ All results reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `s
 
 ### The literal float32 attention head
 
-The sharpest form of the head bound: stated not about a real‑arithmetic model of the executed op but about TorchLean's **literal `IEEE32Exec scaledDotProductAttention`** read back over ℝ, with the rounding correction **derived** down to a single named atom rather than supplied as data.
+The sharpest form of the head bound: stated not about a real‑arithmetic model of the executed op but about TorchLean's **literal `IEEE32Exec scaledDotProductAttention`** read back over ℝ, with the rounding correction **derived** down to one conditionally‑discharged `exp` atom rather than supplied as data.
 
 | Result | Module | Statement |
 |---|---|---|
 | `attnHead_literal_certified_generalization` | `Bridge/Certificate/AttentionLiteralExecutedBinding` | the certified float32 bound for the **literal** kernel `execAttnLit` (TorchLean's `IEEE32Exec scaledDotProductAttention`, read over ℝ), run on its finite fp32 input grid; the rounding correction `2·Lℓ·rndLit` is **derived**, not supplied |
-| `attnLiteralForwardError` | `Bridge/Certificate/AttentionLiteralExecutedBinding` | the literal kernel is within the closed form `rndLit` of `attnHead` at the executed scale `1/√d`; the softmax, score, and value‑mix roundings are derived, leaving a **single named atom** `δ_exp` (the binary32 `exp` error bound) as the only irreducible ground |
+| `attnHead_literal_certified_generalization_of_bundle` | `Bridge/Certificate/AttentionLiteralExecutedBinding` | the capstone with the **forward‑error premise discharged**: from the per‑input operating‑regime bundle `ExecAttnLitNormal` (finiteness of every intermediate, the denominator floor `Dlo`, the exp‑sum cap `E_lit`, channel normality) and the `exp`‑atom bound, the certificate holds with no `hfwd` hypothesis. `Dlo`/`E_lit` bound executed intermediates, so a numerical instantiation certifies them per input — a regime hypothesis, Higham‑standard |
+| `attnLiteralForwardError` | `Bridge/Certificate/AttentionLiteralExecutedBinding` | the literal kernel is within the closed form `rndLit` of `attnHead` at the executed scale `1/√d`; the softmax, score, and value‑mix roundings are derived, leaving one **conditionally‑discharged** atom `δ_exp` — its analytic content (Taylor remainder, Horner fixed‑point error, the log‑2 anchor, the IEEE round, the dyadic decode) is proven in `exec32_exp_error` / `ExpPolynomialError`, with only the main‑branch and range‑reduction code‑unfolding (`hbranch`/`hval`) outstanding |
 | `gridExec_exec_close` · `gridExec_eq_kernel_of_mem` | `Bridge/Certificate/AttentionLiteralExecutedBinding` | `IEEE32Exec` is finite, so the fp32 input grid is finite: `gridExec` is the literal kernel on the grid and the ideal head off it, carrying the per‑input forward error with **no input‑quantization slack** — and on the grid, where the input law lives, `gridExec` *is* the kernel |
+| `gridExec_ae_eq_kernel` | `Bridge/Certificate/AttentionLiteralExecutedBinding` | the grid‑support hypothesis made exact: under `P(regime) = 1`, `gridExec` equals the literal kernel `execAttnLit` **`P`‑almost‑everywhere**. Without it, an atomless `P` makes the finite regime `P`‑null and the bound degenerates to the ideal head plus slack; with it, the "program it runs" reading is exact |
 | `genSoftmaxTV` | `Bridge/Fp32/GenSoftmaxForwardError` | the stabilized (max‑subtracted) float32 softmax is within a closed total‑variation bound of the exact softmax — the softmax leg of the derived forward error |
+
+> **Scope.** Single head. The four depth‑stack capstones below still take per‑layer `rnd` as supplied
+> data — lifting this literal forward error through the full block (layerNorm + multi‑head + residual, at
+> depth) is the remaining fp32 node. The head bound is conditional on two explicit hypotheses: the
+> per‑input operating‑regime bundle (`Dlo`/`E_lit` are bounds on executed intermediates, certified per
+> input when instantiating numerically) and the conditionally‑discharged `exp` atom — both stated,
+> neither a hidden error budget.
 
 ### The depth‑graded transformer stack
 
