@@ -273,4 +273,29 @@ theorem rrError_le (x : IEEE32Exec) {dx : IEEE32Exec.Dyadic} (hx : toDyadic? x =
   have hbig : (1 : ℝ) / 2 / 2 ^ 48 + 1 / 2 / 2 ^ 48 / 10 ^ 8 ≤ 1 / 2 ^ 48 := by norm_num
   nlinarith [mul_le_mul_of_nonneg_left hbig (le_of_lt hln2pos), hln2pos]
 
+/-- **C3 — the integer part stays in `{…,0,1}` on the cone.** For a post-shift logit `≤ ½`, the rounded
+`k = rrK x` satisfies `k ≤ 1`: `k·ln2 = reduced·ln2 − (f/2⁴⁸)·ln2 ≤ (½ + rrρ T) + ½·ln2 < 2·ln2` via C2,
+the half-ulp `|f| ≤ 2⁴⁷`, and `ln2 > 0.693`. Feeds `bpow k ≤ 2` in the assembly. -/
+theorem rrK_le_one_on_cone (x : IEEE32Exec) (hfin : isFinite x = true)
+    (T : ℝ) (hT : |toReal x| ≤ T) (hub : toReal x ≤ 1 / 2) (hρ : rrρ T ≤ 1 / 8) :
+    rrK x ≤ 1 := by
+  obtain ⟨dx, hdx⟩ : ∃ dx, toDyadic? x = some dx := by
+    rcases Option.eq_none_or_eq_some (toDyadic? x) with h | h
+    · exact absurd (isFinite_eq_false_of_toDyadic?_eq_none x h) (by simp [hfin])
+    · exact h
+  have hln2pos : 0 < Real.log 2 := Real.log_pos (by norm_num)
+  have hln2gt : 0.6931471803 < Real.log 2 := Real.log_two_gt_d9
+  have hC2 := rrError_le x hdx T hT
+  have hf := abs_rrF_le x hfin
+  have hrF : -(1 / 2 : ℝ) ≤ (rrF x : ℝ) / 2 ^ 48 := by
+    rw [le_div_iff₀ (by positivity : (0 : ℝ) < 2 ^ 48)]
+    nlinarith [hf, neg_abs_le (rrF x : ℝ)]
+  have hub2 := (abs_le.mp hC2).2
+  have hkey : (rrK x : ℝ) * Real.log 2 < 2 * Real.log 2 := by
+    nlinarith [hub2, hrF, hρ, hub, hln2pos, hln2gt,
+               mul_le_mul_of_nonneg_right hrF (le_of_lt hln2pos)]
+  have hlt2 : (rrK x : ℝ) < 2 := lt_of_mul_lt_mul_right hkey hln2pos.le
+  have hI : (rrK x : ℤ) < 2 := by exact_mod_cast hlt2
+  omega
+
 end TLT.ExpError
