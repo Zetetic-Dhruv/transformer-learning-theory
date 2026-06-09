@@ -41,10 +41,10 @@ lemma two_mul_abs_roundQuotEvenInt_residual_le (n d : ℤ) (hd : 0 < d) :
   unfold roundQuotEvenInt
   simp only [hqdef.symm, hrdef.symm]
   split_ifs with h1 h2 h3
-  · rw [key, abs_of_nonneg hr0]; omega
-  · rw [key2, abs_of_nonpos (by omega), neg_sub]; omega
-  · rw [key, abs_of_nonneg hr0]; omega
-  · rw [key2, abs_of_nonpos (by omega), neg_sub]; omega
+  · rw [key, abs_of_nonneg hr0]; lia
+  · rw [key2, abs_of_nonpos (by lia), neg_sub]; lia
+  · rw [key, abs_of_nonneg hr0]; lia
+  · rw [key2, abs_of_nonpos (by lia), neg_sub]; lia
 
 /-- The range reduction's integer part `k`, copied verbatim from `IEEE32Exec.exp`'s `let`-bindings. -/
 def rrK (x : IEEE32Exec) : ℤ :=
@@ -102,7 +102,7 @@ theorem abs_rrF_le (x : IEEE32Exec) (hx : isFinite x = true) : |(rrF x : ℝ)| �
   rw [← hconv, ← hrrF, hp48] at hb
   have hZ : |rrF x| ≤ (2 : ℤ) ^ 47 := by
     have h2 : (2 : ℤ) ^ 48 = 2 * 2 ^ 47 := by ring
-    rw [h2] at hb; omega
+    rw [h2] at hb; lia
   rw [← Int.cast_abs]
   calc ((|rrF x| : ℤ) : ℝ) ≤ (((2 : ℤ) ^ 47 : ℤ) : ℝ) := by exact_mod_cast hZ
     _ = 2 ^ 47 := by norm_num
@@ -177,7 +177,7 @@ private lemma shiftPow2_div_error (n e : ℤ) :
   rcases hk : e + fixedScaleInt with sh | sh
   · -- left shift: exact, error 0
     have he : e = (sh : ℤ) - 48 := by
-      simp only [fixedScaleInt, fixedScale, Int.ofNat_eq_natCast] at hk; omega
+      simp only [fixedScaleInt, fixedScale, Int.ofNat_eq_natCast] at hk; lia
     have hpow : (2 : ℝ) ^ sh / 2 ^ 48 = (2 : ℝ) ^ e := by
       rw [he, ← zpow_natCast (2 : ℝ) sh, ← zpow_natCast (2 : ℝ) 48,
           ← zpow_sub₀ (by norm_num : (2 : ℝ) ≠ 0)]
@@ -190,7 +190,7 @@ private lemma shiftPow2_div_error (n e : ℤ) :
   · -- right shift: one ties-to-even half-step
     have herr := roundDivPow2EvenInt_abs_error n (sh + 1) (Nat.succ_ne_zero sh)
     have he : e = -((sh : ℤ) + 1) - 48 := by
-      simp only [fixedScaleInt, fixedScale, Int.ofNat_eq_natCast, Int.negSucc_eq] at hk; omega
+      simp only [fixedScaleInt, fixedScale, Int.ofNat_eq_natCast, Int.negSucc_eq] at hk; lia
     have hpow2 : ((pow2Int (sh + 1) : ℤ) : ℝ) = (2 : ℝ) ^ (sh + 1) := by
       simp only [pow2Int, pow2_eq_two_pow, Int.ofNat_eq_natCast]; push_cast; ring
     have hpow : (2 : ℝ) ^ e = 1 / (2 : ℝ) ^ (sh + 1) / 2 ^ 48 := by
@@ -296,7 +296,7 @@ theorem rrK_le_one_on_cone (x : IEEE32Exec) (hfin : isFinite x = true)
                mul_le_mul_of_nonneg_right hrF (le_of_lt hln2pos)]
   have hlt2 : (rrK x : ℝ) < 2 := lt_of_mul_lt_mul_right hkey hln2pos.le
   have hI : (rrK x : ℤ) < 2 := by exact_mod_cast hlt2
-  omega
+  lia
 
 /-- **C1 (subnormal regime).** For a value below the normal threshold (`mag ≤ -126`), the half-ulp is the
 flat floor `2⁻¹⁵⁰ ≤ 3·2⁻²⁴`. The cone's cold tail (`exp` of a very negative shift) lands here. -/
@@ -304,7 +304,7 @@ theorem eps32_le_three_u_of_subnormal {v : ℝ} (hv0 : v ≠ 0)
     (hsub : neuralMagnitude binaryRadix v ≤ -126) :
     eps₃₂ v ≤ 3 * (2 : ℝ) ^ (-24 : ℤ) := by
   have hcexp : neuralCexp binaryRadix fexp32 v = -149 := by
-    rw [neuralCexp, fexp32, FLTExp]; exact max_eq_right (by omega)
+    rw [neuralCexp, fexp32, FLTExp]; exact max_eq_right (by lia)
   have heps : eps₃₂ v = (2 : ℝ) ^ (-150 : ℤ) := by
     simp only [eps₃₂, eps32, ulp32, neuralUlp, if_neg hv0,
       TrainingPhase.requires_high_precision_forward, if_false]
@@ -323,7 +323,7 @@ theorem eps32_le_three_u {v : ℝ} (hv0 : v ≠ 0) (hv : |v| ≤ 3) :
     eps₃₂ v ≤ 3 * (2 : ℝ) ^ (-24 : ℤ) := by
   by_cases hn : (-125 : ℤ) ≤ neuralMagnitude binaryRadix v
   · exact eps32_le_three_u_of_normal hv0 hn hv
-  · exact eps32_le_three_u_of_subnormal hv0 (by omega)
+  · exact eps32_le_three_u_of_subnormal hv0 (by lia)
 
 /-- **C4 core (abstract MVT).** `exp` is `2·e^η`-Lipschitz on the band below `η` over short intervals:
 `|e^A − e^B| = e^B·|e^(A−B) − 1| ≤ e^η·2|A−B|` when `|A−B| ≤ ρ ≤ 1`. -/
