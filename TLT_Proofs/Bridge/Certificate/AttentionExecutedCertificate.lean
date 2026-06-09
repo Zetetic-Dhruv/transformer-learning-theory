@@ -86,7 +86,7 @@ theorem attnHead_executed_certified_generalization {n d p m : ℕ} [NeZero n] [N
                 + 2 * (Lℓ * rnd))}
       ≤ Real.exp (-2 * ε ^ 2 / ((m : ℝ) * (2 * b / m) ^ 2)) := by
   have hbound := attnHead_certified_generalization hm hR hB Wdec hWcont hWLip ℓ hb hℓb hℓcont hLℓ0
-    hℓLip hε w_T
+    hℓLip hε w_T (clampCoord B) (continuous_clampCoord B).measurable (clampCoord_row_l1_le hB)
     [({ ideal := fun x => attnHead scale (Wdec (embedBase Capacity.Dyadic w_T.1)) (clampCoord B x)
         exec := execAttn
         lip := lip

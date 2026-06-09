@@ -152,9 +152,11 @@ theorem attnHead_certified_generalization {n d p m : ℕ} [NeZero n] [Nonempty (
     (hℓcont : Continuous ℓ) {Lℓ : ℝ} (hLℓ0 : 0 ≤ Lℓ)
     (hℓLip : ∀ u v, |ℓ u - ℓ v| ≤ Lℓ * dist u v)
     {ε : ℝ} (hε : 0 ≤ ε) (w_T : BaseWeightPreimage Capacity.Dyadic R)
+    (prep : (Fin n → Fin d → ℝ) → (Fin n → Fin d → ℝ)) (hprep_meas : Measurable prep)
+    (hprep_bound : ∀ x i, (∑ k, |prep x i k|) ≤ (d : ℝ) * B)
     (Ls : List (ExecLayer (Fin n → Fin d → ℝ)))
     (hagree : ∀ x, idealComp Ls x
-        = attnHead scale (Wdec (embedBase Capacity.Dyadic w_T.1)) (clampCoord B x))
+        = attnHead scale (Wdec (embedBase Capacity.Dyadic w_T.1)) (prep x))
     (hintG : Integrable (fun x => ℓ (execComp Ls x)) P)
     (hLpos : 0 < Lℓ * ((d : ℝ) * B) * Lw) :
     (Measure.pi fun _ : Fin m => P).real
@@ -168,13 +170,13 @@ theorem attnHead_certified_generalization {n d p m : ℕ} [NeZero n] [Nonempty (
                 + 2 * (Lℓ * envBound Ls))}
       ≤ Real.exp (-2 * ε ^ 2 / ((m : ℝ) * (2 * b / m) ^ 2)) := by
   set F : ParamSpace p → (Fin n → Fin d → ℝ) → ℝ :=
-    fun θ x => ℓ (attnHead scale (Wdec θ) (clampCoord B x)) with hF
+    fun θ x => ℓ (attnHead scale (Wdec θ) (prep x)) with hF
   have hdB0 : (0 : ℝ) ≤ (d : ℝ) * B := mul_nonneg (Nat.cast_nonneg d) hB
   have hFb : ∀ θ x, |F θ x| ≤ b := fun θ x => hℓb _
   have hFcont : ∀ x, Continuous fun θ : ParamSpace p => F θ x := fun x =>
-    hℓcont.comp ((continuous_attnHead_weight (clampCoord B x)).comp hWcont)
+    hℓcont.comp ((continuous_attnHead_weight (prep x)).comp hWcont)
   have hFmeas : ∀ θ, Measurable (F θ) := fun θ =>
-    (hℓcont.comp ((continuous_attnHead_input (Wdec θ)).comp (continuous_clampCoord B))).measurable
+    hℓcont.measurable.comp ((continuous_attnHead_input (Wdec θ)).measurable.comp hprep_meas)
   have hbridge : ∀ x, F (embedBase Capacity.Dyadic w_T.1) x = ℓ (idealComp Ls x) :=
     fun x => by simp only [hF]; rw [hagree x]
   have hintF : Integrable (fun x => ℓ (idealComp Ls x)) P := by
@@ -189,13 +191,13 @@ theorem attnHead_certified_generalization {n d p m : ℕ} [NeZero n] [Nonempty (
     refine (dist_pi_le_iff (mul_nonneg hLpos.le dist_nonneg)).mpr (fun j => ?_)
     rw [Real.dist_eq]
     simp only [valueVec, hF]
-    calc |ℓ (attnHead scale (Wdec θ) (clampCoord B (S j)))
-            - ℓ (attnHead scale (Wdec θ') (clampCoord B (S j)))|
-        ≤ Lℓ * dist (attnHead scale (Wdec θ) (clampCoord B (S j)))
-              (attnHead scale (Wdec θ') (clampCoord B (S j))) := hℓLip _ _
+    calc |ℓ (attnHead scale (Wdec θ) (prep (S j)))
+            - ℓ (attnHead scale (Wdec θ') (prep (S j)))|
+        ≤ Lℓ * dist (attnHead scale (Wdec θ) (prep (S j)))
+              (attnHead scale (Wdec θ') (prep (S j))) := hℓLip _ _
       _ ≤ Lℓ * ((d : ℝ) * B * dist (Wdec θ) (Wdec θ')) :=
           mul_le_mul_of_nonneg_left
-            (attnHead_weight_lip (clampCoord B (S j)) hdB0 (clampCoord_row_l1_le hB (S j))
+            (attnHead_weight_lip (prep (S j)) hdB0 (hprep_bound (S j))
               (Wdec θ) (Wdec θ')) hLℓ0
       _ ≤ Lℓ * ((d : ℝ) * B * (Lw * dist θ θ')) :=
           mul_le_mul_of_nonneg_left

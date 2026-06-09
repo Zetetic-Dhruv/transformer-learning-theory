@@ -102,6 +102,23 @@ theorem fp32_addBound_on_normal (a b : ℝ) (hab : a + b ≠ 0)
     _ ≤ neuralBpow binaryRadix (-24) * (|a| + |b|) :=
         mul_le_mul_of_nonneg_left (abs_add_le a b) (neuralBpow.nonneg binaryRadix (-24))
 
+/-- **General relative round-to-nearest bound on the normal range.** For any normal `x`, fp32-rounding
+`x` is within `2⁻²⁴·|x|` of `x`. This is the standard-model relative bound `|fl(x) − x| ≤ u·|x|`,
+`u = 2⁻²⁴`, valid wherever `x` is in the binary32 normal range — the foundation that turns *every*
+round-to-nearest operation (add, multiply, divide, reciprocal) into a relative error envelope, not only
+the summation channel of `fp32_addBound_on_normal`. -/
+theorem fp32Round_rel_on_normal (x : ℝ) (hx : x ≠ 0)
+    (hnorm : (-125 : ℤ) ≤ neuralMagnitude binaryRadix x) :
+    |fp32Round x - x| ≤ neuralBpow binaryRadix (-24) * |x| := by
+  calc |fp32Round x - x|
+      ≤ eps₃₂ x := fp32Round_abs_error x
+    _ = neuralUlp binaryRadix fexp32 x TrainingPhase.forward / 2 := by
+        simp only [eps₃₂, eps32, ulp32]
+    _ ≤ neuralBpow binaryRadix (-23) * |x| / 2 := by
+        gcongr
+        exact neuralUlp_le_rel_on_normal x hx hnorm
+    _ = neuralBpow binaryRadix (-24) * |x| := by rw [neuralBpow_half]; ring
+
 /-- The fp32 (round-to-nearest) right-fold sum of a list of reals: each partial sum is rounded. -/
 noncomputable def fp32Sum : List ℝ → ℝ
   | [] => 0
