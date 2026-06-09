@@ -169,4 +169,55 @@ theorem eps32_le_three_u_of_normal {v : ℝ} (hv0 : v ≠ 0)
     _ ≤ (2 : ℝ) ^ (-23 : ℤ) * 3 / 2 := by gcongr
     _ = 3 * (2 : ℝ) ^ (-24 : ℤ) := by rw [h2]; ring
 
+/-- **E3 core (sign-free).** `shiftPow2EvenInt n (e+48)`, read at scale `2⁴⁸`, is within a half-ulp
+`2⁻⁴⁹` of `n·2^e`: exact on a left shift (`e ≥ -48`), one ties-to-even half-step on a right shift. -/
+private lemma shiftPow2_div_error (n e : ℤ) :
+    |(n : ℝ) * (2 : ℝ) ^ e - (shiftPow2EvenInt n (e + fixedScaleInt) : ℝ) / 2 ^ 48|
+      ≤ (2 : ℝ) ^ (-49 : ℤ) := by
+  rcases hk : e + fixedScaleInt with sh | sh
+  · -- left shift: exact, error 0
+    have he : e = (sh : ℤ) - 48 := by
+      simp only [fixedScaleInt, fixedScale, Int.ofNat_eq_natCast] at hk; omega
+    have hpow : (2 : ℝ) ^ sh / 2 ^ 48 = (2 : ℝ) ^ e := by
+      rw [he, ← zpow_natCast (2 : ℝ) sh, ← zpow_natCast (2 : ℝ) 48,
+          ← zpow_sub₀ (by norm_num : (2 : ℝ) ≠ 0)]
+      congr 1
+    have hval : (shiftPow2EvenInt n (Int.ofNat sh) : ℝ) / 2 ^ 48 = (n : ℝ) * (2 : ℝ) ^ e := by
+      simp only [shiftPow2EvenInt, pow2Int, pow2_eq_two_pow, Int.ofNat_eq_natCast]
+      push_cast
+      rw [mul_div_assoc, hpow]
+    rw [hval, sub_self, abs_zero]; positivity
+  · -- right shift: one ties-to-even half-step
+    have herr := roundDivPow2EvenInt_abs_error n (sh + 1) (Nat.succ_ne_zero sh)
+    have he : e = -((sh : ℤ) + 1) - 48 := by
+      simp only [fixedScaleInt, fixedScale, Int.ofNat_eq_natCast, Int.negSucc_eq] at hk; omega
+    have hpow2 : ((pow2Int (sh + 1) : ℤ) : ℝ) = (2 : ℝ) ^ (sh + 1) := by
+      simp only [pow2Int, pow2_eq_two_pow, Int.ofNat_eq_natCast]; push_cast; ring
+    have hpow : (2 : ℝ) ^ e = 1 / (2 : ℝ) ^ (sh + 1) / 2 ^ 48 := by
+      rw [he, ← zpow_natCast (2 : ℝ) (sh + 1), ← zpow_natCast (2 : ℝ) 48, div_div, one_div,
+          ← zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0), ← zpow_neg]
+      congr 1
+    have hval : (n : ℝ) * (2 : ℝ) ^ e = (n : ℝ) / ((pow2Int (sh + 1) : ℤ) : ℝ) / 2 ^ 48 := by
+      rw [hpow2, hpow]; ring
+    rw [hval]
+    simp only [shiftPow2EvenInt]
+    rw [div_sub_div_same, abs_div, abs_of_pos (by positivity : (0 : ℝ) < 2 ^ 48)]
+    rw [abs_sub_comm] at herr
+    calc |(n : ℝ) / ((pow2Int (sh + 1) : ℤ) : ℝ) - (roundDivPow2EvenInt n (sh + 1) : ℝ)| / 2 ^ 48
+        ≤ (1 / 2) / 2 ^ 48 := by gcongr
+      _ = (2 : ℝ) ^ (-49 : ℤ) := by norm_num [zpow_neg, zpow_natCast]
+
+/-- **E3 — range-reduction quantization.** The fixed-point conversion `fixedOfDyadic` of a finite
+input, read at scale `2⁴⁸`, sits within `2⁻⁴⁹` of the exact value. -/
+theorem rr_quant (x : IEEE32Exec) {dx : IEEE32Exec.Dyadic} (hx : toDyadic? x = some dx) :
+    |toReal x - (fixedOfDyadic dx : ℝ) / 2 ^ 48| ≤ (2 : ℝ) ^ (-49 : ℤ) := by
+  have hdy : toReal x = ((if dx.sign then -(Int.ofNat dx.mant) else (Int.ofNat dx.mant) : ℤ) : ℝ)
+      * (2 : ℝ) ^ dx.exp := by
+    rw [toReal_eq, hx]
+    simp only [dyadicToReal, TLT.Capacity.neuralBpow_binaryRadix_eq]
+    split_ifs <;> push_cast [Int.ofNat_eq_natCast] <;> ring
+  rw [hdy]
+  simp only [fixedOfDyadic]
+  exact shiftPow2_div_error _ dx.exp
+
 end TLT.ExpError
