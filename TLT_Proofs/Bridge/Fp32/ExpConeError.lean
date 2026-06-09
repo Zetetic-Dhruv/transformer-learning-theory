@@ -325,4 +325,18 @@ theorem eps32_le_three_u {v : ℝ} (hv0 : v ≠ 0) (hv : |v| ≤ 3) :
   · exact eps32_le_three_u_of_normal hv0 hn hv
   · exact eps32_le_three_u_of_subnormal hv0 (by omega)
 
+/-- **C4 core (abstract MVT).** `exp` is `2·e^η`-Lipschitz on the band below `η` over short intervals:
+`|e^A − e^B| = e^B·|e^(A−B) − 1| ≤ e^η·2|A−B|` when `|A−B| ≤ ρ ≤ 1`. -/
+private lemma exp_diff_le (A B η ρ : ℝ) (hAB : |A - B| ≤ ρ) (hB : B ≤ η) (hρ1 : ρ ≤ 1) :
+    |Real.exp A - Real.exp B| ≤ 2 * Real.exp η * ρ := by
+  have hρ0 : 0 ≤ ρ := le_trans (abs_nonneg _) hAB
+  have hid : Real.exp A - Real.exp B = Real.exp B * (Real.exp (A - B) - 1) := by
+    rw [Real.exp_sub]; field_simp
+  rw [hid, abs_mul, abs_of_pos (Real.exp_pos _)]
+  calc Real.exp B * |Real.exp (A - B) - 1|
+      ≤ Real.exp η * (2 * ρ) := by
+        gcongr
+        exact le_trans (Real.abs_exp_sub_one_le (le_trans hAB hρ1)) (by linarith [hAB])
+    _ = 2 * Real.exp η * ρ := by ring
+
 end TLT.ExpError
