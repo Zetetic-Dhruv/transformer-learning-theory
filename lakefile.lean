@@ -43,6 +43,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Bridge.Forward.TransformerForwardRegularity,
     `TLT_Proofs.Bridge.Fp32.AttentionForwardError,
     `TLT_Proofs.Bridge.Fp32.ClampedReductionRounding,
+    `TLT_Proofs.Bridge.Fp32.ExpConeError,
     `TLT_Proofs.Bridge.Fp32.ExpExecutedValue,
     `TLT_Proofs.Bridge.Fp32.ExpPolynomialError,
     `TLT_Proofs.Bridge.Fp32.GenSoftmaxForwardError,
