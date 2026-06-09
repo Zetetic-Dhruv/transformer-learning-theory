@@ -298,4 +298,31 @@ theorem rrK_le_one_on_cone (x : IEEE32Exec) (hfin : isFinite x = true)
   have hI : (rrK x : ℤ) < 2 := by exact_mod_cast hlt2
   omega
 
+/-- **C1 (subnormal regime).** For a value below the normal threshold (`mag ≤ -126`), the half-ulp is the
+flat floor `2⁻¹⁵⁰ ≤ 3·2⁻²⁴`. The cone's cold tail (`exp` of a very negative shift) lands here. -/
+theorem eps32_le_three_u_of_subnormal {v : ℝ} (hv0 : v ≠ 0)
+    (hsub : neuralMagnitude binaryRadix v ≤ -126) :
+    eps₃₂ v ≤ 3 * (2 : ℝ) ^ (-24 : ℤ) := by
+  have hcexp : neuralCexp binaryRadix fexp32 v = -149 := by
+    rw [neuralCexp, fexp32, FLTExp]; exact max_eq_right (by omega)
+  have heps : eps₃₂ v = (2 : ℝ) ^ (-150 : ℤ) := by
+    simp only [eps₃₂, eps32, ulp32, neuralUlp, if_neg hv0,
+      TrainingPhase.requires_high_precision_forward, if_false]
+    rw [hcexp, TLT.Capacity.neuralBpow_binaryRadix_eq,
+      show (-150 : ℤ) = -149 + -1 by ring, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
+    norm_num
+  rw [heps]
+  calc (2 : ℝ) ^ (-150 : ℤ) ≤ (2 : ℝ) ^ (-24 : ℤ) :=
+        zpow_le_zpow_right₀ (by norm_num) (by norm_num)
+    _ ≤ 3 * (2 : ℝ) ^ (-24 : ℤ) := by nlinarith [zpow_pos (show (0 : ℝ) < 2 by norm_num) (-24 : ℤ)]
+
+/-- **C1 (unified).** For any nonzero `v` with `|v| ≤ 3`, the half-ulp is `≤ 3·2⁻²⁴` — normal regime via
+the relative bound, subnormal via the `2⁻¹⁵⁰` floor. This is the `eps₃₂` cap the assembly applies to the
+`exp` output. -/
+theorem eps32_le_three_u {v : ℝ} (hv0 : v ≠ 0) (hv : |v| ≤ 3) :
+    eps₃₂ v ≤ 3 * (2 : ℝ) ^ (-24 : ℤ) := by
+  by_cases hn : (-125 : ℤ) ≤ neuralMagnitude binaryRadix v
+  · exact eps32_le_three_u_of_normal hv0 hn hv
+  · exact eps32_le_three_u_of_subnormal hv0 (by omega)
+
 end TLT.ExpError
