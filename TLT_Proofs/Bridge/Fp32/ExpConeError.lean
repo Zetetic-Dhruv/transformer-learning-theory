@@ -220,4 +220,57 @@ theorem rr_quant (x : IEEE32Exec) {dx : IEEE32Exec.Dyadic} (hx : toDyadic? x = s
   simp only [fixedOfDyadic]
   exact shiftPow2_div_error _ dx.exp
 
+/-- **C2 core (abstract telescope).** For a reconstructed product `u·L` against a target `x`, the error
+splits across three independent perturbations — the multiply `|u - p·q| ≤ a`, the reciprocal anchor
+`|q - 1/L| ≤ b`, and the input quantization `|p - x| ≤ c` — bounded uniformly on `|x| ≤ T`. -/
+private lemma rr_telescope (u p q x L T a b c : ℝ) (hL : 0 < L)
+    (ha : |u - p * q| ≤ a) (hb : |q - 1 / L| ≤ b) (hc : |p - x| ≤ c) (hxT : |x| ≤ T) :
+    |u * L - x| ≤ a * L + (T + c) * L * b + c := by
+  have hT0 : 0 ≤ T := le_trans (abs_nonneg x) hxT
+  have hc0 : 0 ≤ c := le_trans (abs_nonneg _) hc
+  have hb0 : 0 ≤ b := le_trans (abs_nonneg _) hb
+  have hp : |p| ≤ T + c := by
+    have h1 := abs_sub_le p x 0
+    simp only [sub_zero] at h1
+    linarith
+  have hid : u * L - x = (u - p * q) * L + p * L * (q - 1 / L) + (p - x) := by
+    field_simp
+    ring
+  rw [hid]
+  calc |(u - p * q) * L + p * L * (q - 1 / L) + (p - x)|
+      ≤ |(u - p * q) * L| + |p * L * (q - 1 / L)| + |p - x| := abs_add_three _ _ _
+    _ = |u - p * q| * L + |p| * L * |q - 1 / L| + |p - x| := by
+        simp only [abs_mul, abs_of_pos hL]
+    _ ≤ a * L + (T + c) * L * b + c := by
+        gcongr <;> first | assumption | positivity
+
+/-- **C2 — range-reduction envelope.** The reconstructed argument `(k + f/2⁴⁸)·ln2` of the main branch is
+within `rrρ T` of the true input whenever `|toReal x| ≤ T`: the telescope through the `fixedMul` rounding
+(`a = 2⁻⁴⁹`), the `1/ln2` anchor (`b = 10⁻⁸`), and the input quantization (`c = 2⁻⁴⁹`). -/
+theorem rrError_le (x : IEEE32Exec) {dx : IEEE32Exec.Dyadic} (hx : toDyadic? x = some dx)
+    (T : ℝ) (hT : |toReal x| ≤ T) :
+    |((rrK x : ℝ) + (rrF x : ℝ) / 2 ^ 48) * Real.log 2 - toReal x| ≤ rrρ T := by
+  have hp48 : ((pow2Int fixedScale : ℤ) : ℝ) = 2 ^ 48 := by
+    simp only [pow2Int, fixedScale, pow2_eq_two_pow, Int.ofNat_eq_natCast]; push_cast; ring
+  have hred : (rrK x : ℝ) + (rrF x : ℝ) / 2 ^ 48
+      = (fixedMul (fixedOfDyadic dx) fixedInvLn2 : ℝ) / 2 ^ 48 := by
+    simp only [rrK, rrF, hx]
+    push_cast [hp48]
+    field_simp
+    ring
+  rw [hred]
+  have hln2pos : 0 < Real.log 2 := Real.log_pos (by norm_num)
+  have hmul := fixedMul_div_error (fixedOfDyadic dx) fixedInvLn2
+  have hquant := rr_quant x hx
+  have hanchor := fixedInvLn2_approx_inv_log_two
+  rw [hp48] at hanchor
+  refine (rr_telescope _ ((fixedOfDyadic dx : ℝ) / 2 ^ 48) _ (toReal x) (Real.log 2) T
+    (1 / 2 / 2 ^ 48) (1 / 10 ^ 8) ((2 : ℝ) ^ (-49 : ℤ)) hln2pos hmul hanchor
+    (by rw [abs_sub_comm]; exact hquant) hT).trans ?_
+  simp only [rrρ, δinv]
+  have h49 : (2 : ℝ) ^ (-49 : ℤ) = 1 / 2 / 2 ^ 48 := by norm_num [zpow_neg, zpow_natCast]
+  rw [h49]
+  have hbig : (1 : ℝ) / 2 / 2 ^ 48 + 1 / 2 / 2 ^ 48 / 10 ^ 8 ≤ 1 / 2 ^ 48 := by norm_num
+  nlinarith [mul_le_mul_of_nonneg_left hbig (le_of_lt hln2pos), hln2pos]
+
 end TLT.ExpError
