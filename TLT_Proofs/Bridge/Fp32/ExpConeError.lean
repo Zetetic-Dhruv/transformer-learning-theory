@@ -58,4 +58,26 @@ def rrF (x : IEEE32Exec) : ℤ :=
       let yFixed := fixedMul (fixedOfDyadic dx) fixedInvLn2
       yFixed - roundDivPow2EvenInt yFixed fixedScale * pow2Int fixedScale
 
+/-- **E1 — the branch-equation gate (unfolding decoupled from positivity).** On a finite input with
+`pFixed = evalExp2Poly (rrF x) > 0`, the literal `IEEE32Exec.exp` is the main-branch round with the named
+reduction `rrK`/`rrF`. Conclusion verbatim = `hbranch` of the shipped `exec32_exp_error`. The proof is the
+`add_eq_roundDyadicToIEEE32_of_toDyadic?` idiom (`Exec32:675`) instantiated for `exp`: kill the
+finiteness guards, supply `toDyadic? = some`, `simp` with `zeta` to crush the `let`s, close the final
+`if` with `hpos`. -/
+theorem exp_eq_round_of_finite (x : IEEE32Exec) (hx : isFinite x = true)
+    (hpos : ¬ (evalExp2Poly (rrF x) ≤ 0)) :
+    IEEE32Exec.exp x
+      = roundDyadicToIEEE32 ⟨false, (evalExp2Poly (rrF x)).natAbs, rrK x - fixedScaleInt⟩ := by
+  obtain ⟨dx, hd⟩ : ∃ dx, toDyadic? x = some dx := by
+    rcases Option.eq_none_or_eq_some (toDyadic? x) with h | h
+    · exact absurd (isFinite_eq_false_of_toDyadic?_eq_none x h) (by simp [hx])
+    · exact h
+  have hNaN : isNaN x = false := isNaN_eq_false_of_isFinite_eq_true x hx
+  have hInf : isInf x = false := isInf_eq_false_of_isFinite_eq_true x hx
+  have hposF : ¬ (evalExp2Poly (fixedMul (fixedOfDyadic dx) fixedInvLn2
+      - roundDivPow2EvenInt (fixedMul (fixedOfDyadic dx) fixedInvLn2) fixedScale * pow2Int fixedScale)
+      ≤ 0) := by simpa only [rrF, hd] using hpos
+  unfold IEEE32Exec.exp
+  simp only [rrK, rrF, hd, hNaN, hInf, Bool.false_eq_true, if_false, hposF, not_le, not_lt]
+
 end TLT.ExpError
