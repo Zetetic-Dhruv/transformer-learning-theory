@@ -14,9 +14,9 @@ For an executed (IEEE binary32) attention head with a learnable value projection
 R_true^exec  ≤  R̂_emp^exec  +  2·(12√2·B/√m)  +  ε  +  2·L·envBound
 ```
 
-Every term is computable from the actual weights: `B` is the affine Dudley entropy integral (with the optimal `12√2` chaining constant), `envBound` is the float32 rounding envelope, and the input cap `K = {‖x‖ ≤ B}` is the hypothesis that self‑attention's lack of a global Lipschitz constant (Kim et al. 2021) forces. The bound is stated about the executed operation: the ideal map is proven equal — in coordinates — to TorchLean's literal `Spec.scaledDotProductAttention`, and the executed op enters through its rounding envelope.
+Every term is computable from the actual weights: `B` is the affine Dudley entropy integral (with the optimal `12√2` chaining constant), `envBound` is the float32 rounding envelope, and the input cap `K = {‖x‖ ≤ B}` is the hypothesis that self‑attention's lack of a global Lipschitz constant (Kim et al. 2021) forces. The bound is stated about the executed operation: the ideal map is proven equal — in coordinates — to TorchLean's literal `Spec.scaledDotProductAttention`, and the executed op enters through its rounding envelope. For the single attention head this is sharpened to the **literal kernel itself**: `attnHead_literal_certified_generalization` certifies TorchLean's `IEEE32Exec scaledDotProductAttention` read over ℝ, run on its finite fp32 input grid, with the rounding correction **derived** — the softmax, score, and value‑mix roundings composed down to a single named atom (the binary32 `exp` bound), with no input‑quantization slack.
 
-`attnHead_executed_certified_generalization` · `attnHead_certified_generalization` · `matCoords_scaledDotProductAttention`
+`attnHead_executed_certified_generalization` · `attnHead_literal_certified_generalization` · `attnHead_certified_generalization` · `matCoords_scaledDotProductAttention`
 
 All results reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `sorry`, no added axioms. (The strictness/non‑Borel results below additionally take the existence of an analytic non‑Borel subset of ℝ as an explicit hypothesis — a standard descriptive‑set‑theory fact, supplied as an argument.)
 
@@ -33,6 +33,17 @@ All results reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `s
 | `multiHeadAttention_forward_one` | `Bridge/Spec/MultiHeadAttentionSingleHeadReduction` | TorchLean's literal `MultiHeadAttention.forward` (the op `TransformerEncoderLayer.forward` calls), at one head with identity projections, **is** a reshape of the certified `selfAttn` — the head‑split/combine reshape carries no pathology |
 | `empiricalCapacityReal_le_computable` | `Capacity/Chaining/LipschitzCoveringDischarge` | the optimal‑constant (`12√2`) Dudley entropy‑integral capacity bound, discharged to a closed affine form via the Euclidean covering number |
 | `minimalFFN_certified_generalization` | `Bridge/Certificate/MinimalFFNCertificate` | the bound instantiated on a two‑layer ReLU network `x ↦ W₂·relu(W₁·x)` |
+
+### The literal float32 attention head
+
+The sharpest form of the head bound: stated not about a real‑arithmetic model of the executed op but about TorchLean's **literal `IEEE32Exec scaledDotProductAttention`** read back over ℝ, with the rounding correction **derived** down to a single named atom rather than supplied as data.
+
+| Result | Module | Statement |
+|---|---|---|
+| `attnHead_literal_certified_generalization` | `Bridge/Certificate/AttentionLiteralExecutedBinding` | the certified float32 bound for the **literal** kernel `execAttnLit` (TorchLean's `IEEE32Exec scaledDotProductAttention`, read over ℝ), run on its finite fp32 input grid; the rounding correction `2·Lℓ·rndLit` is **derived**, not supplied |
+| `attnLiteralForwardError` | `Bridge/Certificate/AttentionLiteralExecutedBinding` | the literal kernel is within the closed form `rndLit` of `attnHead` at the executed scale `1/√d`; the softmax, score, and value‑mix roundings are derived, leaving a **single named atom** `δ_exp` (the binary32 `exp` error bound) as the only irreducible ground |
+| `gridExec_exec_close` · `gridExec_eq_kernel_of_mem` | `Bridge/Certificate/AttentionLiteralExecutedBinding` | `IEEE32Exec` is finite, so the fp32 input grid is finite: `gridExec` is the literal kernel on the grid and the ideal head off it, carrying the per‑input forward error with **no input‑quantization slack** — and on the grid, where the input law lives, `gridExec` *is* the kernel |
+| `genSoftmaxTV` | `Bridge/Fp32/GenSoftmaxForwardError` | the stabilized (max‑subtracted) float32 softmax is within a closed total‑variation bound of the exact softmax — the softmax leg of the derived forward error |
 
 ### The depth‑graded transformer stack
 
@@ -57,7 +68,7 @@ All results reduce to only `propext`, `Classical.choice`, `Quot.sound` — no `s
 > **depth‑composed** rounding envelope `envBound Ls` and **no abstract `hagree`**, and
 > `executedForward_envelope_at_depth` bounds the IEEE‑binary32 forward by `envBound` of the clamped spec
 > stack at depth. The per‑layer `rnd` is supplied as data (as the single‑layer executed certificate
-> does); **deriving it as the literal fp32 block forward error** — composing the per‑operation `γₙ`
+> does); the **single attention head's** literal fp32 forward error is now **derived** (`attnLiteralForwardError`, in *The literal float32 attention head* above); lifting it — composing the per‑operation `γₙ`
 > (`fp32Foldl_error_le`) through layerNorm + multi‑head + residual — is the genuine remaining fp32 node.
 >
 > **Depth dependence of the envelope.** The generic `envBound` amplifies each layer's rounding by the
