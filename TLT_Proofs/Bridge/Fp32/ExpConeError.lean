@@ -339,4 +339,66 @@ private lemma exp_diff_le (A B η ρ : ℝ) (hAB : |A - B| ≤ ρ) (hB : B ≤ �
         exact le_trans (Real.abs_exp_sub_one_le (le_trans hAB hρ1)) (by linarith [hAB])
     _ = 2 * Real.exp η * ρ := by ring
 
+/-- **C4 — the closed-form `exp`-on-cone error.** On the softmax cone (`toReal x ≤ η ≤ ½`, `|toReal x| ≤ T`,
+`rrρ T ≤ 1/8`), the literal `IEEE32Exec.exp` matches the ideal `Real.exp` of the input within the closed
+form `δexpCone T η = 3·2⁻²⁴ + 2·10⁻⁶ + 2·e^η·rrρ T`. This discharges the `δ_exp` premise (`hδ`) of the
+head-level certificate. `hfinexp` (output finiteness) is the only remaining analytic input. -/
+theorem exec32_exp_error_on_cone (x : IEEE32Exec) (hfin : isFinite x = true)
+    (hfinexp : isFinite (IEEE32Exec.exp x) = true) (η T : ℝ)
+    (hη2 : η ≤ 1 / 2) (hub : toReal x ≤ η) (hT : |toReal x| ≤ T) (hρ : rrρ T ≤ 1 / 8) :
+    |toReal (IEEE32Exec.exp x) - Real.exp (toReal x)| ≤ δexpCone T η := by
+  obtain ⟨dx, hdx⟩ : ∃ dx, toDyadic? x = some dx := by
+    rcases Option.eq_none_or_eq_some (toDyadic? x) with h | h
+    · exact absurd (isFinite_eq_false_of_toDyadic?_eq_none x h) (by simp [hfin])
+    · exact h
+  have hf := abs_rrF_le x hfin
+  have hp := evalExp2Poly_pos_of_reduced x hfin
+  have hpR : (0 : ℝ) < (evalExp2Poly (rrF x) : ℝ) := by exact_mod_cast hp
+  have hbranch := exp_eq_round_of_finite x hfin (not_le.mpr hp)
+  have hrK := rrK_le_one_on_cone x hfin T hT (hub.trans hη2) hρ
+  have hrKR : (rrK x : ℝ) ≤ 1 := by exact_mod_cast hrK
+  have hln2pos : 0 < Real.log 2 := Real.log_pos (by norm_num)
+  have hbpowpos : 0 < bpow (rrK x) := bpow_pos _
+  -- (A) reconstructed-argument error → the `δ` slot
+  have hval : |Real.exp (((rrK x : ℝ) + (rrF x : ℝ) / 2 ^ 48) * Real.log 2) - Real.exp (toReal x)|
+      ≤ 2 * Real.exp η * rrρ T :=
+    exp_diff_le _ _ η _ (rrError_le x hdx T hT) hub (le_trans hρ (by norm_num))
+  -- (B) the output value, factored as `(poly/2⁴⁸)·bpow k`, is positive and `≤ 3`
+  have hvalue_eq : dyadicToReal ⟨false, (evalExp2Poly (rrF x)).natAbs, rrK x - fixedScaleInt⟩
+      = (evalExp2Poly (rrF x) : ℝ) / 2 ^ 48 * bpow (rrK x) := by
+    rw [dyadicToReal_exp_output _ _ hp]
+    have h48 : bpow fixedScaleInt = (2 : ℝ) ^ 48 := by
+      rw [show fixedScaleInt = Int.ofNat 48 from rfl, bpow_ofNat, pow2_eq_two_pow]
+      push_cast; ring
+    have hsplit : bpow (rrK x - fixedScaleInt) = bpow (rrK x) / bpow fixedScaleInt := by
+      rw [eq_div_iff (ne_of_gt (bpow_pos _)), ← bpow_add]; congr 1; ring
+    rw [hsplit, h48]; ring
+  have hbpowK : bpow (rrK x) ≤ 2 := by
+    calc bpow (rrK x) = Real.exp ((rrK x : ℝ) * Real.log 2) := bpow_eq_exp _
+      _ ≤ Real.exp (Real.log 2) := Real.exp_le_exp.mpr (by nlinarith [hrKR, hln2pos])
+      _ = 2 := Real.exp_log (by norm_num)
+  have hpoly_ub : (evalExp2Poly (rrF x) : ℝ) / 2 ^ 48 ≤ 3 / 2 := by
+    have he := (abs_le.mp (evalExp2Poly_error (rrF x) hf)).2
+    have hrFhalf : (rrF x : ℝ) / 2 ^ 48 ≤ 1 / 2 := by
+      rw [div_le_iff₀ (by positivity)]; nlinarith [hf, le_abs_self (rrF x : ℝ)]
+    have hexp_ub : Real.exp ((rrF x : ℝ) / 2 ^ 48 * Real.log 2) ≤ 1.42 := by
+      have hmono : Real.exp ((rrF x : ℝ) / 2 ^ 48 * Real.log 2) ≤ Real.exp (1 / 2 * Real.log 2) :=
+        Real.exp_le_exp.mpr (by nlinarith [hrFhalf, hln2pos])
+      have hsq : Real.exp (1 / 2 * Real.log 2) * Real.exp (1 / 2 * Real.log 2) = 2 := by
+        rw [← Real.exp_add, show 1 / 2 * Real.log 2 + 1 / 2 * Real.log 2 = Real.log 2 by ring,
+          Real.exp_log (by norm_num)]
+      nlinarith [hmono, hsq, Real.exp_pos (1 / 2 * Real.log 2)]
+    linarith [he, hexp_ub]
+  have hvalue_le3 : |dyadicToReal ⟨false, (evalExp2Poly (rrF x)).natAbs, rrK x - fixedScaleInt⟩| ≤ 3 := by
+    rw [hvalue_eq, abs_of_pos (mul_pos (by positivity) hbpowpos)]
+    calc (evalExp2Poly (rrF x) : ℝ) / 2 ^ 48 * bpow (rrK x) ≤ 3 / 2 * 2 := by gcongr
+      _ = 3 := by norm_num
+  have hvalue_ne : dyadicToReal ⟨false, (evalExp2Poly (rrF x)).natAbs, rrK x - fixedScaleInt⟩ ≠ 0 := by
+    rw [hvalue_eq]; positivity
+  -- (C) the contract, then cap each term into `δexpCone`
+  refine (exec32_exp_error x (rrF x) (rrK x) hf hp hbranch hfinexp hval).trans ?_
+  rw [δexpCone]
+  gcongr
+  exact eps32_le_three_u hvalue_ne hvalue_le3
+
 end TLT.ExpError
