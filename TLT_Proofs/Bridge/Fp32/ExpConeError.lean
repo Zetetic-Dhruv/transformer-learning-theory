@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dhruv Gupta
 -/
 import TLT_Proofs.Bridge.Fp32.ExpExecutedValue
+import TLT_Proofs.Bridge.Fp32.RelativeUlpAndSummation
+import TLT_Proofs.Capacity.Discretization.Float32IsDyadic
 
 /-!
 # Executed `Exec32.exp` on the softmax cone — discharging `hδ` to a closed-form theorem
@@ -148,5 +150,23 @@ noncomputable def rrρ (T : ℝ) : ℝ := T * δinv + Real.log 2 / 2 ^ 48 + 2 ^ 
 `2·e^η·rrρ T` (range reduction through the MVT). The `δ_exp` that retires `hδ`. -/
 noncomputable def δexpCone (T η : ℝ) : ℝ :=
   3 * (2 : ℝ) ^ (-24 : ℤ) + 2 * (1 / 10 ^ 6) + 2 * Real.exp η * rrρ T
+
+/-- **C1 (normal regime) — the `eps₃₂` cap.** For a normal value of magnitude `≤ 3`, the half-ulp is at
+most `2^(-24)·|v| ≤ 3·2^(-24)`. The chain is the one inside `fp32Round_rel_on_normal`. (Subnormal/underflow
+values are the benign cold tail — handled by the flush-to-zero argument, not this cap.) -/
+theorem eps32_le_three_u_of_normal {v : ℝ} (hv0 : v ≠ 0)
+    (hnorm : (-125 : ℤ) ≤ neuralMagnitude binaryRadix v) (hv : |v| ≤ 3) :
+    eps₃₂ v ≤ 3 * (2 : ℝ) ^ (-24 : ℤ) := by
+  have hb23 : neuralBpow binaryRadix (-23) = (2 : ℝ) ^ (-23 : ℤ) :=
+    TLT.Capacity.neuralBpow_binaryRadix_eq (-23)
+  have h2 : (2 : ℝ) ^ (-23 : ℤ) = 2 * (2 : ℝ) ^ (-24 : ℤ) := by
+    rw [show (-23 : ℤ) = 1 + (-24) by ring, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]; norm_num
+  calc eps₃₂ v = neuralUlp binaryRadix fexp32 v TrainingPhase.forward / 2 := by
+        simp only [eps₃₂, eps32, ulp32]
+    _ ≤ neuralBpow binaryRadix (-23) * |v| / 2 := by
+        gcongr; exact neuralUlp_le_rel_on_normal v hv0 hnorm
+    _ = (2 : ℝ) ^ (-23 : ℤ) * |v| / 2 := by rw [hb23]
+    _ ≤ (2 : ℝ) ^ (-23 : ℤ) * 3 / 2 := by gcongr
+    _ = 3 * (2 : ℝ) ^ (-24 : ℤ) := by rw [h2]; ring
 
 end TLT.ExpError
