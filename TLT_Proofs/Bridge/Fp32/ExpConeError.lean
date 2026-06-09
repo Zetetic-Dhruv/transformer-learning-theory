@@ -78,6 +78,63 @@ theorem exp_eq_round_of_finite (x : IEEE32Exec) (hx : isFinite x = true)
       - roundDivPow2EvenInt (fixedMul (fixedOfDyadic dx) fixedInvLn2) fixedScale * pow2Int fixedScale)
       ≤ 0) := by simpa only [rrF, hd] using hpos
   unfold IEEE32Exec.exp
-  simp only [rrK, rrF, hd, hNaN, hInf, Bool.false_eq_true, if_false, hposF, not_le, not_lt]
+  simp only [rrK, rrF, hd, hNaN, hInf, Bool.false_eq_true, if_false, hposF]
+
+/-- `|rrF x| ≤ 2⁴⁷` on a finite input — the range-reduction residual bound at `d = 2⁴⁸`, the `hf`
+premise of `exec32_exp_error`. -/
+theorem abs_rrF_le (x : IEEE32Exec) (hx : isFinite x = true) : |(rrF x : ℝ)| ≤ 2 ^ 47 := by
+  obtain ⟨dx, hd⟩ : ∃ dx, toDyadic? x = some dx := by
+    rcases Option.eq_none_or_eq_some (toDyadic? x) with h | h
+    · exact absurd (isFinite_eq_false_of_toDyadic?_eq_none x h) (by simp [hx])
+    · exact h
+  have hrrF : rrF x = fixedMul (fixedOfDyadic dx) fixedInvLn2
+      - roundDivPow2EvenInt (fixedMul (fixedOfDyadic dx) fixedInvLn2) fixedScale * pow2Int fixedScale := by
+    simp only [rrF, hd]
+  have hconv : roundDivPow2EvenInt (fixedMul (fixedOfDyadic dx) fixedInvLn2) fixedScale
+      = roundQuotEvenInt (fixedMul (fixedOfDyadic dx) fixedInvLn2) (pow2Int fixedScale) := rfl
+  have hp48 : pow2Int fixedScale = (2 : ℤ) ^ 48 := by
+    simp only [pow2Int, fixedScale, pow2_eq_two_pow]; norm_num
+  have hp : 0 < pow2Int fixedScale := by rw [hp48]; positivity
+  have hb := two_mul_abs_roundQuotEvenInt_residual_le (fixedMul (fixedOfDyadic dx) fixedInvLn2)
+      (pow2Int fixedScale) hp
+  rw [← hconv, ← hrrF, hp48] at hb
+  have hZ : |rrF x| ≤ (2 : ℤ) ^ 47 := by
+    have h2 : (2 : ℤ) ^ 48 = 2 * 2 ^ 47 := by ring
+    rw [h2] at hb; omega
+  rw [← Int.cast_abs]
+  calc ((|rrF x| : ℤ) : ℝ) ≤ (((2 : ℤ) ^ 47 : ℤ) : ℝ) := by exact_mod_cast hZ
+    _ = 2 ^ 47 := by norm_num
+
+/-- **E2 — positivity of the reduced polynomial.** On a finite input, `evalExp2Poly (rrF x) > 0`:
+`|rrF x| ≤ 2⁴⁷` (above) ⇒ via `evalExp2Poly_error`, `poly/2⁴⁸ ≥ e^(reduced·ln2) − 10⁻⁶ ≥ 7/10 − 10⁻⁶ > 0`,
+using `e^(reduced·ln2) ≥ e^(−ln2/2) = 2^(−½) ≥ 7/10` (via `(e^(−ln2/2))² = ½` and `(7/10)² = 49/100 < ½`). -/
+theorem evalExp2Poly_pos_of_reduced (x : IEEE32Exec) (hx : isFinite x = true) :
+    0 < evalExp2Poly (rrF x) := by
+  have hf := abs_rrF_le x hx
+  have hL3 := evalExp2Poly_error (rrF x) hf
+  have hlog2 : (0 : ℝ) < Real.log 2 := Real.log_pos (by norm_num)
+  -- e^(reduced·ln2) ≥ e^(−ln2/2)
+  have hge : -(Real.log 2) / 2 ≤ (rrF x : ℝ) / 2 ^ 48 * Real.log 2 := by
+    have hlb : -(1 : ℝ) / 2 ≤ (rrF x : ℝ) / 2 ^ 48 := by
+      rw [le_div_iff₀ (by positivity)]
+      have := (abs_le.mp hf).1
+      nlinarith [this]
+    nlinarith [hlb, hlog2]
+  -- e^(−ln2/2) ≥ 7/10  via  (e^(−ln2/2))² = ½
+  have hsq : Real.exp (-(Real.log 2) / 2) ^ 2 = 1 / 2 := by
+    rw [sq, ← Real.exp_add, show -(Real.log 2) / 2 + -(Real.log 2) / 2 = -Real.log 2 by ring,
+      Real.exp_neg, Real.exp_log (by norm_num : (0 : ℝ) < 2)]; norm_num
+  have hlow : (7 : ℝ) / 10 ≤ Real.exp (-(Real.log 2) / 2) :=
+    by nlinarith [hsq, (Real.exp_pos (-(Real.log 2) / 2)).le]
+  have hmono : Real.exp (-(Real.log 2) / 2) ≤ Real.exp ((rrF x : ℝ) / 2 ^ 48 * Real.log 2) :=
+    Real.exp_le_exp.mpr hge
+  have hpos_real : (0 : ℝ) < (evalExp2Poly (rrF x) : ℝ) / 2 ^ 48 := by
+    have := (abs_le.mp hL3).1
+    nlinarith [this, hlow, hmono]
+  have hpos_int : (0 : ℝ) < (evalExp2Poly (rrF x) : ℝ) := by
+    have heq : (evalExp2Poly (rrF x) : ℝ) = (evalExp2Poly (rrF x) : ℝ) / 2 ^ 48 * 2 ^ 48 := by
+      field_simp
+    rw [heq]; exact mul_pos hpos_real (by positivity)
+  exact_mod_cast hpos_int
 
 end TLT.ExpError
