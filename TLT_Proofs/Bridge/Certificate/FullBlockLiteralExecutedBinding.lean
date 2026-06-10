@@ -10,6 +10,7 @@ import TLT_Proofs.Bridge.Forward.LiteralBlockComposition
 import TLT_Proofs.Bridge.Certificate.TransformerStackLiteralExecutedBinding
 import TLT_Proofs.Bridge.Lipschitz.MultiHeadAttnCertificate
 import TLT_Proofs.Bridge.Certificate.TransformerStackCertificate
+import TLT_Proofs.Bridge.Forward.ExecutedStackAtDepth
 
 /-!
 # The full literal transformer-block certificate — assembly toward closed-form, grounded bounds
@@ -31,6 +32,7 @@ namespace TLT.FullBlockLit
 open TLT TLT.Fp32AttnLit TLT.Fp32Attn TLT.Fp32FFN TLT.Fp32LN TLT.LitCompose TLT.StackLit
 open TorchLean.Floats.IEEE754.IEEE32Exec
 open TorchLean.Floats (neuralMagnitude neuralBpow binaryRadix)
+open MeasureTheory Capacity
 
 /-- **The ideal attention head output is bounded by `B·Λ`.** The head `attnHead scale W Y i` is a
 softmax-convex combination (`attnVec_norm_le`: nonnegative weights summing to one) of the value rows
@@ -595,5 +597,211 @@ noncomputable def clampedFFNBlockExecLayer {n d h : ℕ} (hd : 0 < d) {Cγ Cβ L
       (hffnlip _ hca _ hcb)) ?_
     exact mul_le_mul_of_nonneg_left (clampCoord_lipschitz _ a b) hLip0
   exec_close := hrnd
+
+/-- A `Forall₂` over two depth-`L` block towers `flatten (replicate L ·)` follows from the per-layer
+`Forall₂` on the (two-block) layer, by induction on the depth. The idiom for discharging the capstone's
+`hForall2` from the single-layer `[MH-block ↔ clampedMH, FFN-block ↔ clampedFFN]` match. -/
+private lemma forall₂_flatten_replicate {α β : Type*} {P : α → β → Prop} {l1 : List α} {l2 : List β}
+    (h : List.Forall₂ P l1 l2) (L : ℕ) :
+    List.Forall₂ P (List.flatten (List.replicate L l1)) (List.flatten (List.replicate L l2)) := by
+  induction L with
+  | zero => simp
+  | succ k ih =>
+    rw [List.replicate_succ, List.flatten_cons, List.replicate_succ, List.flatten_cons]
+    exact List.rel_append h ih
+
+/-- Row-sum of the constant identity head projection is `1`, hence `≤ γW` whenever `1 ≤ γW`. The
+`hγWQ`/`hγWK` discharge for the identity query/key weights at `H=1`. -/
+private lemma identity_rowSum_le {d : ℕ} {γW : ℝ} (hγWid : (1 : ℝ) ≤ γW) (j : Fin d) :
+    (∑ k, |(if k = j then (1 : ℝ) else 0)|) ≤ γW := by
+  have hfun : (fun k => |(if k = j then (1 : ℝ) else 0)|) = fun k : Fin d => if k = j then (1 : ℝ) else 0 := by
+    funext k; split <;> simp
+  have h1 : (∑ k, |(if k = j then (1 : ℝ) else 0)|) = 1 := by rw [hfun]; simp
+  rw [h1]; exact hγWid
+
+/-- **The literal depth-`L`, `H=1` executed encoder stack** `Es` — `L` copies of the multi-head block
+carrier followed by the FFN block carrier, each the ambient `clampedMHBlockExecLayer` /
+`clampedFFNBlockExecLayer` with constant identity query/key projections and value weight `W`. This is the
+`Es` the capstone consumes; the literal IEEE residual blocks enter as the `execMap`/`rnd` data. The two
+`matMulCoord_id` discharges turn the `hQB`/`hKB` projected-bound obligations into the single ball-entry
+bound `hidB` (identity projection ⇒ `matMulCoord I y = y`). -/
+noncomputable def litStackEs {n d hdim : ℕ} [NeZero n] {scale B bV γW Cγ Cβ Lf : ℝ}
+    (hd : 0 < d) (hscale : 0 < scale) (hB : 0 ≤ B) (hbV0 : 0 ≤ bV) (hγW0 : 0 ≤ γW)
+    (W : Fin 1 → Fin d → Fin d → ℝ) (hγWVO : ∀ h j, (∑ k, |W h k j|) ≤ γW) (hγWid : (1 : ℝ) ≤ γW)
+    (γ1 β1 : Fin d → ℝ) (hγ1B : ∀ j, |γ1 j| ≤ Cγ) (hβ1B : ∀ j, |β1 j| ≤ Cβ)
+    (hidB : ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ), ∀ i e, |y i e| ≤ B)
+    (hVB : ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ h j, ‖matMulCoord (W h) y j‖ ≤ bV)
+    (W1 : Fin d → Fin hdim → ℝ) (b1 : Fin hdim → ℝ) (W2 : Fin hdim → Fin d → ℝ) (b2 : Fin d → ℝ)
+    (γ2 β2 : Fin d → ℝ) (hγ2B : ∀ j, |γ2 j| ≤ Cγ) (hβ2B : ∀ j, |β2 j| ≤ Cβ) (hLf0 : 0 ≤ Lf)
+    (hffnlip : ∀ a ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ bb ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      dist (ffnCoord W1 b1 W2 b2 a) (ffnCoord W1 b1 W2 b2 bb) ≤ Lf * dist a bb)
+    (execMapMH execMapFFN : (Fin n → Fin d → ℝ) → (Fin n → Fin d → ℝ)) (rndMH rndFFN : ℝ)
+    (hrndMH : ∀ x, dist (execMapMH x)
+      (normAttnCoord γ1 β1 (multiHeadAttn scale (fun _ k j => if k = j then 1 else 0)
+        (fun _ k j => if k = j then 1 else 0) W) (clampCoord (Real.sqrt d * Cγ + Cβ) x)) ≤ rndMH)
+    (hrndFFN : ∀ x, dist (execMapFFN x)
+      (normAttnCoord γ2 β2 (ffnCoord W1 b1 W2 b2) (clampCoord (Real.sqrt d * Cγ + Cβ) x)) ≤ rndFFN)
+    (L : ℕ) : List (ExecLayer (Fin n → Fin d → ℝ)) :=
+  List.flatten (List.replicate L
+    [clampedMHBlockExecLayer hd hscale hB hbV0 hγW0 (fun _ k j => if k = j then 1 else 0)
+        (fun _ k j => if k = j then 1 else 0) W (fun _ j => identity_rowSum_le hγWid j)
+        (fun _ j => identity_rowSum_le hγWid j) hγWVO γ1 β1 hγ1B hβ1B
+        (fun y hy _ i e => by simpa only [matMulCoord_id] using hidB y hy i e)
+        (fun y hy _ k' e => by simpa only [matMulCoord_id] using hidB y hy k' e) hVB
+        execMapMH rndMH hrndMH,
+     clampedFFNBlockExecLayer hd hLf0 W1 b1 W2 b2 γ2 β2 hγ2B hβ2B hffnlip execMapFFN rndFFN hrndFFN])
+
+/-- **KU-A (MH).** The multi-head carrier's `.ideal` is *definitionally* `normMultiHeadBlock.map θ`
+precomposed with `clampCoord`, at the constant identity weights. Verified `rfl` (the const-θ weight
+functions beta-reduce; the carrier `.ideal` is θ-independent). -/
+private lemma litMH_ideal_rfl {n d p : ℕ} [NeZero n] {scale B bV βY γW Cγ Cβ Lγ Lβ : ℝ}
+    (hd : 0 < d) (hscale : 0 < scale) (hB : 0 ≤ B) (hbV0 : 0 ≤ bV) (hβY0 : 0 ≤ βY) (hγW0 : 0 ≤ γW)
+    (hCγ0 : 0 ≤ Cγ) (hLγ0 : 0 ≤ Lγ) (hLβ0 : 0 ≤ Lβ)
+    (W : Fin 1 → Fin d → Fin d → ℝ) (hγWVO : ∀ h j, (∑ k, |W h k j|) ≤ γW) (hγWid : (1 : ℝ) ≤ γW)
+    (γ1 β1 : Fin d → ℝ) (hγ1B : ∀ j, |γ1 j| ≤ Cγ) (hβ1B : ∀ j, |β1 j| ≤ Cβ)
+    (hidB : ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ), ∀ i e, |y i e| ≤ B)
+    (hVB : ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ h j, ‖matMulCoord (W h) y j‖ ≤ bV)
+    (execMapMH : (Fin n → Fin d → ℝ) → (Fin n → Fin d → ℝ)) (rndMH : ℝ)
+    (hrndMH : ∀ x, dist (execMapMH x)
+      (normAttnCoord γ1 β1 (multiHeadAttn scale (fun _ k j => if k = j then 1 else 0)
+        (fun _ k j => if k = j then 1 else 0) W) (clampCoord (Real.sqrt d * Cγ + Cβ) x)) ≤ rndMH)
+    (θ : ParamSpace p) :
+    (clampedMHBlockExecLayer hd hscale hB hbV0 hγW0 (fun _ k j => if k = j then 1 else 0)
+        (fun _ k j => if k = j then 1 else 0) W (fun _ j => identity_rowSum_le hγWid j)
+        (fun _ j => identity_rowSum_le hγWid j) hγWVO γ1 β1 hγ1B hβ1B
+        (fun y hy _ i e => by simpa only [matMulCoord_id] using hidB y hy i e)
+        (fun y hy _ k' e => by simpa only [matMulCoord_id] using hidB y hy k' e) hVB
+        execMapMH rndMH hrndMH).ideal
+      = fun x => (normMultiHeadBlock (n := n) (p := p) (H := 1) hscale hB hbV0 hβY0 hγW0 hCγ0 hLγ0 hLβ0
+          (le_refl (0 : ℝ)) (le_refl (0 : ℝ)) (le_refl (0 : ℝ)) (fun _ _ k j => if k = j then 1 else 0)
+          (fun _ _ k j => if k = j then 1 else 0) (fun _ => W) (fun _ => γ1) (fun _ => β1)).map θ
+        (clampCoord (Real.sqrt d * Cγ + Cβ) x) := rfl
+
+/-- **KU-A (FFN).** The FFN carrier's `.ideal` is `normFFNBlock.map θ ∘ clampCoord`. Verified `rfl`. -/
+private lemma litFFN_ideal_rfl {n d hdim p : ℕ} {Cγ Cβ Lγ Lβ bW1 bW2 Lf : ℝ} (hd : 0 < d)
+    (hCγ0 : 0 ≤ Cγ) (hCβ0 : 0 ≤ Cβ) (hLγ0 : 0 ≤ Lγ) (hLβ0 : 0 ≤ Lβ) (hbW1 : 0 ≤ bW1) (hbW2 : 0 ≤ bW2)
+    (hLf0 : 0 ≤ Lf) (W1 : Fin d → Fin hdim → ℝ) (b1 : Fin hdim → ℝ) (W2 : Fin hdim → Fin d → ℝ)
+    (b2 : Fin d → ℝ) (γ2 β2 : Fin d → ℝ) (hγ2B : ∀ j, |γ2 j| ≤ Cγ) (hβ2B : ∀ j, |β2 j| ≤ Cβ)
+    (hffnlip : ∀ a ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ bb ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      dist (ffnCoord W1 b1 W2 b2 a) (ffnCoord W1 b1 W2 b2 bb) ≤ Lf * dist a bb)
+    (execMapFFN : (Fin n → Fin d → ℝ) → (Fin n → Fin d → ℝ)) (rndFFN : ℝ)
+    (hrndFFN : ∀ x, dist (execMapFFN x)
+      (normAttnCoord γ2 β2 (ffnCoord W1 b1 W2 b2) (clampCoord (Real.sqrt d * Cγ + Cβ) x)) ≤ rndFFN)
+    (θ : ParamSpace p) :
+    (clampedFFNBlockExecLayer (n := n) hd hLf0 W1 b1 W2 b2 γ2 β2 hγ2B hβ2B hffnlip execMapFFN rndFFN
+        hrndFFN).ideal
+      = fun x => (normFFNBlock (s := n) (p := p) hCγ0 hCβ0 hLγ0 hLβ0 hbW1 hbW2 W1 b1 W2 b2
+          (fun _ => γ2) (fun _ => β2)).map θ (clampCoord (Real.sqrt d * Cγ + Cβ) x) := rfl
+
+/-- **The literal multi-head transformer encoder STACK certificate — the capstone, closed.** At head
+count `H=1` with constant identity query/key projections and value projection `W`, depth `L`, the executed
+literal encoder stack `execComp (clampExecLayer ρ :: Es)` (`Es := litStackEs …`, `ρ = √d·Cγ+Cβ`) satisfies
+the shipped Dudley generalization bound — an instance of `transformerEncoderStackMH_executed_at_depth`. The
+carriers' `.ideal` is `normMultiHeadBlock`/`normFFNBlock.map θ ∘ clampCoord` at the constant weights
+(`litMH_ideal_rfl`/`litFFN_ideal_rfl`), so `hForall2` is the per-layer two-block correspondence lifted over
+depth by `forall₂_flatten_replicate`. The constant weights collapse the weight-Lipschitz constants to `0`
+(`continuous_const`, `dist_self`); the identity query/key projections collapse `hQB`/`hKB` to the single
+ball bound `hidB` (`matMulCoord_id`). The literal IEEE residual blocks enter only as the `execMap`/`rnd`
+data; every per-op rounding budget inside `rnd` is closed-form (the floor-driving). `hintG`/`hLpos` carried
+honestly. -/
+theorem litMHEncoderStack_certified_generalization
+    {n d p hdim m : ℕ} [NeZero n] [Nonempty (Fin p)]
+    [MeasurableSpace (Fin n → Fin d → ℝ)] [BorelSpace (Fin n → Fin d → ℝ)]
+    {P : MeasureTheory.Measure (Fin n → Fin d → ℝ)} [MeasureTheory.IsProbabilityMeasure P] (hm : 0 < m)
+    {R B bV βY γW scale Cγ Cβ Lγ Lβ bW1 bW2 : ℝ} (hR : 0 ≤ R) (hscale : 0 < scale) (hd : 0 < d)
+    (hB : 0 ≤ B) (hbV0 : 0 ≤ bV) (hβY0 : 0 ≤ βY) (hγW0 : 0 ≤ γW) (hCγ0 : 0 ≤ Cγ) (hCβ0 : 0 ≤ Cβ)
+    (hLγ0 : 0 ≤ Lγ) (hLβ0 : 0 ≤ Lβ) (hbW1 : 0 ≤ bW1) (hbW2 : 0 ≤ bW2)
+    (W : Fin 1 → Fin d → Fin d → ℝ)
+    (W1 : Fin d → Fin hdim → ℝ) (b1 : Fin hdim → ℝ) (W2 : Fin hdim → Fin d → ℝ) (b2 : Fin d → ℝ)
+    (hW1c : ∀ l, (∑ k, |W1 k l|) ≤ bW1) (hW2c : ∀ j, (∑ l, |W2 l j|) ≤ bW2)
+    (γ1 β1 γ2 β2 : Fin d → ℝ)
+    (hγ1B : ∀ j, |γ1 j| ≤ Cγ) (hβ1B : ∀ j, |β1 j| ≤ Cβ) (hγ2B : ∀ j, |γ2 j| ≤ Cγ)
+    (hβ2B : ∀ j, |β2 j| ≤ Cβ)
+    (hβYD : ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ i, (∑ a, |y i a|) ≤ βY)
+    (hidB : ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ i e, |y i e| ≤ B)
+    (hVB : ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ h j, ‖matMulCoord (W h) y j‖ ≤ bV)
+    (hγWVO : ∀ h j, (∑ k, |W h k j|) ≤ γW) (hγWid : (1 : ℝ) ≤ γW)
+    (ℓ : (Fin n → Fin d → ℝ) → ℝ) {b : ℝ} (hb : 0 < b) (hℓb : ∀ v, |ℓ v| ≤ b)
+    (hℓcont : Continuous ℓ) {Lℓ : ℝ} (hLℓ0 : 0 ≤ Lℓ) (hℓLip : ∀ u v, |ℓ u - ℓ v| ≤ Lℓ * dist u v)
+    {ε : ℝ} (hε : 0 ≤ ε) (w_T : BaseWeightPreimage Capacity.Dyadic R)
+    (hwT : embedBase Capacity.Dyadic w_T.1 ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin p)))) (L : ℕ)
+    {Lf : ℝ} (hLf0 : 0 ≤ Lf)
+    (hffnlip : ∀ a ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ bb ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      dist (ffnCoord W1 b1 W2 b2 a) (ffnCoord W1 b1 W2 b2 bb) ≤ Lf * dist a bb)
+    (execMapMH execMapFFN : (Fin n → Fin d → ℝ) → (Fin n → Fin d → ℝ)) (rndMH rndFFN : ℝ)
+    (hrndMH : ∀ x, dist (execMapMH x)
+      (normAttnCoord γ1 β1 (multiHeadAttn scale (fun _ k j => if k = j then 1 else 0)
+        (fun _ k j => if k = j then 1 else 0) W) (clampCoord (Real.sqrt d * Cγ + Cβ) x)) ≤ rndMH)
+    (hrndFFN : ∀ x, dist (execMapFFN x)
+      (normAttnCoord γ2 β2 (ffnCoord W1 b1 W2 b2) (clampCoord (Real.sqrt d * Cγ + Cβ) x)) ≤ rndFFN)
+    (Es : List (ExecLayer (Fin n → Fin d → ℝ)))
+    (hEs : Es = litStackEs hd hscale hB hbV0 hγW0 W hγWVO hγWid γ1 β1 hγ1B hβ1B hidB hVB
+      W1 b1 W2 b2 γ2 β2 hγ2B hβ2B hLf0 hffnlip execMapMH execMapFFN rndMH rndFFN hrndMH hrndFFN L)
+    (hintG : MeasureTheory.Integrable
+      (fun x => ℓ (execComp (clampExecLayer (Real.sqrt d * Cγ + Cβ) :: Es) x)) P)
+    (hLpos : 0 < Lℓ * lparamLipBound (List.flatten (List.replicate L
+      [normMultiHeadBlock (n := n) (p := p) hscale hB hbV0 hβY0 hγW0 hCγ0 hLγ0 hLβ0 (le_refl 0)
+          (le_refl 0) (le_refl 0) (fun _ _ k j => if k = j then 1 else 0)
+          (fun _ _ k j => if k = j then 1 else 0) (fun _ => W) (fun _ => γ1) (fun _ => β1),
+       normFFNBlock (s := n) (p := p) hCγ0 hCβ0 hLγ0 hLβ0 hbW1 hbW2 W1 b1 W2 b2
+          (fun _ => γ2) (fun _ => β2)]))) :
+    (MeasureTheory.Measure.pi fun _ : Fin m => P).real
+        {S | ¬ ((∫ x, ℓ (execComp (clampExecLayer (Real.sqrt d * Cγ + Cβ) :: Es) x) ∂P)
+              ≤ (1 / (m : ℝ)) * ∑ i, ℓ (execComp (clampExecLayer (Real.sqrt d * Cγ + Cβ) :: Es) (S i))
+                + (2 * ((12 * Real.sqrt 2) * (1 / Real.sqrt m)
+                    * (∫⁻ ε in Set.Ioc (0 : ℝ) (2 * b),
+                        ENNReal.ofReal (Real.sqrt (Real.log 2)
+                          + Real.sqrt ((p : ℝ) * (4 * R * (Lℓ * lparamLipBound (List.flatten
+                              (List.replicate L
+                                [normMultiHeadBlock (n := n) (p := p) hscale hB hbV0 hβY0 hγW0 hCγ0 hLγ0
+                                    hLβ0 (le_refl 0) (le_refl 0) (le_refl 0)
+                                    (fun _ _ k j => if k = j then 1 else 0)
+                                    (fun _ _ k j => if k = j then 1 else 0) (fun _ => W)
+                                    (fun _ => γ1) (fun _ => β1),
+                                 normFFNBlock (s := n) (p := p) hCγ0 hCβ0 hLγ0 hLβ0 hbW1 hbW2 W1 b1 W2 b2
+                                    (fun _ => γ2) (fun _ => β2)])))))
+                            * ε ^ (-(1 / 2) : ℝ))).toReal) + ε)
+                + 2 * (Lℓ * envBound (clampExecLayer (Real.sqrt d * Cγ + Cβ) :: Es)))}
+      ≤ Real.exp (-2 * ε ^ 2 / ((m : ℝ) * (2 * b / m) ^ 2)) := by
+  subst hEs
+  refine transformerEncoderStackMH_executed_at_depth hm hR hscale hd hB hbV0 hβY0 hγW0 hCγ0 hCβ0
+    hLγ0 hLβ0 (le_refl 0) (le_refl 0) (le_refl 0) hbW1 hbW2
+    (fun _ _ k j => if k = j then 1 else 0) (fun _ _ k j => if k = j then 1 else 0) (fun _ => W)
+    W1 b1 W2 b2 hW1c hW2c (fun _ => γ1) (fun _ => β1) (fun _ => γ2) (fun _ => β2)
+    continuous_const continuous_const continuous_const continuous_const continuous_const
+    continuous_const continuous_const
+    (fun _ _ j => hγ1B j) (fun _ _ j => hβ1B j) (fun _ _ j => hγ2B j) (fun _ _ j => hβ2B j)
+    hβYD
+    (fun _ _ y hy _ i e => by simpa only [matMulCoord_id] using hidB y hy i e)
+    (fun _ _ y hy _ k' e => by simpa only [matMulCoord_id] using hidB y hy k' e)
+    (fun _ _ y hy h j => hVB y hy h j)
+    (fun _ _ _ j => identity_rowSum_le hγWid j) (fun _ _ _ j => identity_rowSum_le hγWid j)
+    (fun _ _ h j => hγWVO h j)
+    (fun _ _ => by simp only [dist_self]; exact mul_nonneg hLγ0 dist_nonneg)
+    (fun _ _ => by simp only [dist_self]; exact mul_nonneg hLβ0 dist_nonneg)
+    (fun _ _ => by simp [dist_self]) (fun _ _ => by simp [dist_self]) (fun _ _ => by simp [dist_self])
+    (fun _ _ => by simp only [dist_self]; exact mul_nonneg hLγ0 dist_nonneg)
+    (fun _ _ => by simp only [dist_self]; exact mul_nonneg hLβ0 dist_nonneg)
+    ℓ hb hℓb hℓcont hLℓ0 hℓLip hε w_T hwT L
+    (litStackEs hd hscale hB hbV0 hγW0 W hγWVO hγWid γ1 β1 hγ1B hβ1B hidB hVB
+      W1 b1 W2 b2 γ2 β2 hγ2B hβ2B hLf0 hffnlip execMapMH execMapFFN rndMH rndFFN hrndMH hrndFFN L)
+    ?hForall2 hintG hLpos
+  refine forall₂_flatten_replicate ?inner L
+  exact List.Forall₂.cons
+    (litMH_ideal_rfl hd hscale hB hbV0 hβY0 hγW0 hCγ0 hLγ0 hLβ0 W hγWVO hγWid γ1 β1 hγ1B hβ1B hidB hVB
+      execMapMH rndMH hrndMH (embedBase Capacity.Dyadic w_T.1))
+    (List.Forall₂.cons
+      (litFFN_ideal_rfl hd hCγ0 hCβ0 hLγ0 hLβ0 hbW1 hbW2 hLf0 W1 b1 W2 b2 γ2 β2 hγ2B hβ2B hffnlip
+        execMapFFN rndFFN hrndFFN (embedBase Capacity.Dyadic w_T.1))
+      List.Forall₂.nil)
+
 
 end TLT.FullBlockLit
