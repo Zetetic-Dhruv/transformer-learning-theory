@@ -25,7 +25,8 @@ downstream FFN's input hypothesis. Closed-form in `(B, Λ)`, grounded in the sof
 
 namespace TLT.FullBlockLit
 
-open TLT TLT.Fp32AttnLit TLT.Fp32Attn
+open TLT TLT.Fp32AttnLit TLT.Fp32Attn TLT.Fp32FFN
+open TorchLean.Floats.IEEE754.IEEE32Exec
 
 /-- **The ideal attention head output is bounded by `B·Λ`.** The head `attnHead scale W Y i` is a
 softmax-convex combination (`attnVec_norm_le`: nonnegative weights summing to one) of the value rows
@@ -63,5 +64,29 @@ lemma execAttn_entry_abs_le_of_dist {n d : ℕ} [NeZero n] (scale : ℝ) (W : Fi
     _ ≤ |E i j - attnHead scale W Y i j| + |attnHead scale W Y i j| := abs_add_le _ _
     _ ≤ rnd + B * Λ := add_le_add hclose hhead
     _ = B * Λ + rnd := by ring
+
+/-- **Rung 3 — the executed FFN output is bounded by `bVval d (bVval d B Λ) Λ`** (entrywise). The block
+`Vexec W2 ∘ reluCoord ∘ Vexec W1`: the first projection lands every entry in `bVval d B Λ`
+(`Vexec_entry_abs_le`); the ReLU is non-expansive (`|max x 0| ≤ |x|`); the second projection lands the
+result in `bVval d (bVval d B Λ) Λ`. Closed-form nested `bVval` in the actual `(B, Λ)` — the input bound
+the downstream layer-norm's `hX` consumes, with the per-matmul no-overflow regime (`VexecNormal`) explicit
+(a genuine operating-domain precondition, not an error budget). -/
+lemma ffnExec_entry_abs_le {n d : ℕ} (W1 W2 : Fin d → Fin d → ℝ) (E : Fin n → Fin d → ℝ)
+    {B Λ : ℝ} (hB : 0 ≤ B) (hΛ : 0 ≤ Λ)
+    (hE : ∀ i k, |E i k| ≤ B) (hW1 : ∀ j, ∑ k, |W1 k j| ≤ Λ) (hW2 : ∀ j, ∑ k, |W2 k j| ≤ Λ)
+    (hn1 : VexecNormal W1 E) (hn2 : VexecNormal W2 (reluCoord (Vexec W1 E)))
+    (hdu : (d : ℝ) * u < 1) (i : Fin n) (j : Fin d) :
+    |ffnExec W1 W2 E i j| ≤ bVval d (bVval d B Λ) Λ := by
+  have hBΛ : 0 ≤ B * Λ := mul_nonneg hB hΛ
+  have hB' : 0 ≤ bVval d B Λ := by rw [bVval]; linarith [rdotBudget_nonneg hdu hBΛ]
+  have hrelu : ∀ a k, |reluCoord (Vexec W1 E) a k| ≤ bVval d B Λ := by
+    intro a k
+    have h1 : |reluCoord (Vexec W1 E) a k| ≤ |Vexec W1 E a k| := by
+      simp only [reluCoord]
+      rw [abs_of_nonneg (le_max_right _ _)]
+      exact max_le (le_abs_self _) (abs_nonneg _)
+    exact h1.trans (Vexec_entry_abs_le W1 E hB hΛ hE hW1 hn1 hdu a k)
+  simp only [ffnExec]
+  exact Vexec_entry_abs_le W2 (reluCoord (Vexec W1 E)) hB' hΛ hrelu hW2 hn2 hdu i j
 
 end TLT.FullBlockLit
