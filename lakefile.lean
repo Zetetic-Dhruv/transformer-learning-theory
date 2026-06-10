@@ -51,6 +51,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Bridge.Fp32.ExpPolynomialError,
     `TLT_Proofs.Bridge.Fp32.FFNForwardError,
     `TLT_Proofs.Bridge.Fp32.GenSoftmaxForwardError,
+    `TLT_Proofs.Bridge.Fp32.LayerNormForwardError,
     `TLT_Proofs.Bridge.Fp32.RelativeUlpAndSummation,
     `TLT_Proofs.Bridge.Fp32.SequentialSummationBackwardError,
     `TLT_Proofs.Bridge.Fp32.StackActivationExecutedValue,
