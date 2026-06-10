@@ -8,6 +8,7 @@ import TLT_Proofs.Bridge.Fp32.ExpExecutedValue
 import TLT_Proofs.Bridge.Spec.ScaledDotProductAttentionCorrespondence
 import NN.Spec.Layers.SoftmaxVecCoordReadStaged
 import TLT_Proofs.Bridge.Fp32.GenSoftmaxForwardError
+import TLT_Proofs.Bridge.Fp32.ExpConeError
 
 /-!
 # The literal executed binding of the fp32 attention forward-error
@@ -851,6 +852,71 @@ theorem attnLiteralForwardError {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
     htv (genSoftmax_sum_le htv) (litPert_bundle ctx Yt Wt hQ hK hB hc hX hdu F hN i)
     (Vexec_error _ _ hB hΛ0 hX hW hN.vnorm hdu)
   rwa [rndLit]
+
+/-- The literal shifted logit `softmaxShiftedIE` is the rounded difference `sub (score) (rowMax)` at the
+`IEEE32Exec` level (its `toReal` companion is `toReal_softmaxShiftedIE`). Bridges the bundle's `subfin`. -/
+lemma softmaxShiftedIE_eq_sub {n' : ℕ} (t : Tensor IEEE32Exec (.dim (n' + 1) .scalar))
+    (k : Fin (n' + 1)) :
+    softmaxShiftedIE t k = sub (Tensor.vecGet t k) (softmaxRowMaxIE t) := by
+  cases t with
+  | dim f => simp only [softmaxShiftedIE, scalarVal_eq_vecGet]; rfl
+
+/-- **C6 — discharge of the per-input exp atom `hδ` on the cone.** On a score row bounded by `B'`, every
+literal shifted logit lands on the softmax cone (`shifted_mem_cone`), where the executed `IEEE32Exec.exp`
+matches `Real.exp` within `δexpCone` (`exec32_exp_error_on_cone`, its output finiteness from
+`exp_output_finite_on_cone`). So the `δ_exp`-atom premise of `attnLiteralForwardError` is a theorem with
+`δ_exp := δexpCone (2B'+2uB') (2uB')`. -/
+theorem hδ_discharge {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
+    (ctx : Spec.AttentionContext IEEE32Exec (n + 1) (n + 1) d h1 h2)
+    (Yt : Fin (n + 1) → Fin d → IEEE32Exec) (Wt : Fin d → Fin d → IEEE32Exec)
+    (F : Fin (n + 1) → Tensor IEEE32Exec (.dim (n + 1) .scalar)) {Dlo E_lit : ℝ}
+    (hN : ExecAttnLitNormal ctx Yt Wt F Dlo E_lit) {B' : ℝ}
+    (hscore : ∀ i k, |toReal (Tensor.vecGet (F i) k)| ≤ B')
+    (hη2 : 2 * u * B' ≤ 1 / 2)
+    (hρ : TLT.ExpError.rrρ (2 * B' + 2 * u * B') ≤ 1 / 8) :
+    ∀ i k, |litExp (F i) k - Real.exp (toReal (softmaxShiftedIE (F i) k))|
+      ≤ TLT.ExpError.δexpCone (2 * B' + 2 * u * B') (2 * u * B') := by
+  intro i k
+  have hfin : isFinite (softmaxShiftedIE (F i) k) = true := by
+    rw [softmaxShiftedIE_eq_sub]; exact hN.subfin i k
+  have hcone := shifted_mem_cone (F i) k (fun j => ⟨hN.vecfin i j, hscore i j⟩) (hN.rowmaxfin i)
+    (hN.subfin i k) (hN.shiftnorm i k)
+  have hfinexp := TLT.ExpError.exp_output_finite_on_cone (softmaxShiftedIE (F i) k) hfin
+    (2 * B' + 2 * u * B') hcone.2 (le_trans hcone.1 hη2) hρ
+  have herr := TLT.ExpError.exec32_exp_error_on_cone (softmaxShiftedIE (F i) k) hfin hfinexp
+    (2 * u * B') (2 * B' + 2 * u * B') hη2 hcone.1 hcone.2 hρ
+  simpa only [litExp] using herr
+
+/-- **The cone-form head certificate** — `attnLiteralForwardError` with the analytic `δ_exp`-atom `hδ`
+RETIRED. On a score row bounded by `B'` (the run-time stabilized-logit magnitude), with the closed-form
+cone conditions `2uB' ≤ ½` and `rrρ(2B'(1+u)) ≤ ⅛`, the literal executed head is within the fully
+closed-form `rndLit … (δexpCone (2B'(1+u)) (2uB')) …` of the ideal head. No exp-accuracy premise remains;
+the bit-level `IEEE32Exec.exp` accuracy is now a *theorem* on the cone the softmax stabilization enforces. -/
+theorem attnLiteralForwardError_onCone {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
+    (ctx : Spec.AttentionContext IEEE32Exec (n + 1) (n + 1) d h1 h2)
+    (Yt : Fin (n + 1) → Fin d → IEEE32Exec) (Wt : Fin d → Fin d → IEEE32Exec)
+    (hQ : ctx.Q = Spec.matrixTensor Yt) (hK : ctx.K = Spec.matrixTensor Yt)
+    (hV : ctx.V = matMulSpec (Spec.matrixTensor Yt) (Spec.matrixTensor Wt)) (hmask : ctx.mask = none)
+    (F : Fin (n + 1) → Tensor IEEE32Exec (.dim (n + 1) .scalar)) {Dlo E_lit : ℝ}
+    (hN : ExecAttnLitNormal ctx Yt Wt F Dlo E_lit) {B Λ B' : ℝ}
+    (hB : 0 ≤ B) (hΛ0 : 0 ≤ Λ) (hc : 0 < toReal (litScaleFactor d : IEEE32Exec))
+    (hX : ∀ a k, |toReal (Yt a k)| ≤ B) (hW : ∀ j, ∑ k, |toReal (Wt k j)| ≤ Λ)
+    (hnu : ((n + 1 : ℕ) : ℝ) * u < 1) (hdu : (d : ℝ) * u < 1) (hE : 0 ≤ E_lit)
+    (hscore : ∀ i k, |toReal (Tensor.vecGet (F i) k)| ≤ B')
+    (hη2 : 2 * u * B' ≤ 1 / 2)
+    (hρ : TLT.ExpError.rrρ (2 * B' + 2 * u * B') ≤ 1 / 8) :
+    dist (execAttnLit ctx) (attnHead (1 / toReal (litScaleFactor d : IEEE32Exec))
+        (fun a b => toReal (Wt a b)) (fun a b => toReal (Yt a b)))
+      ≤ rndLit n d B Λ (1 / toReal (litScaleFactor d : IEEE32Exec)) Dlo
+          (TLT.ExpError.δexpCone (2 * B' + 2 * u * B') (2 * u * B')) E_lit := by
+  have hB'0 : 0 ≤ B' := le_trans (abs_nonneg _) (hscore 0 0)
+  have hln2 : 0 ≤ Real.log 2 := (Real.log_pos (by norm_num)).le
+  have hδ0 : 0 ≤ TLT.ExpError.δexpCone (2 * B' + 2 * u * B') (2 * u * B') := by
+    rw [TLT.ExpError.δexpCone, TLT.ExpError.rrρ, TLT.ExpError.δinv]
+    have := u_nonneg
+    positivity
+  exact attnLiteralForwardError ctx Yt Wt hQ hK hV hmask F hN hB hΛ0 hδ0 hc hX hW hnu hdu hE
+    (hδ_discharge ctx Yt Wt F hN hscore hη2 hρ)
 
 /-! ## KU-stab step 4 — the grid-extended executed map and its ∀-input forward error
 
