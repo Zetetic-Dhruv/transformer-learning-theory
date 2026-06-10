@@ -49,6 +49,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Bridge.Fp32.GenSoftmaxForwardError,
     `TLT_Proofs.Bridge.Fp32.RelativeUlpAndSummation,
     `TLT_Proofs.Bridge.Fp32.SequentialSummationBackwardError,
+    `TLT_Proofs.Bridge.Fp32.StackActivationExecutedValue,
     `TLT_Proofs.Bridge.Lipschitz.AttentionLipschitzOnBall,
     `TLT_Proofs.Bridge.Lipschitz.LayerNormLipschitz,
     `TLT_Proofs.Bridge.Lipschitz.LinearLayerWeightLipschitz,
