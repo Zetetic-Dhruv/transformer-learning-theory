@@ -6,6 +6,7 @@ Authors: Dhruv Gupta
 import TLT_Proofs.Bridge.Fp32.ExpExecutedValue
 import TLT_Proofs.Bridge.Fp32.RelativeUlpAndSummation
 import TLT_Proofs.Capacity.Discretization.Float32IsDyadic
+import NN.Spec.Floats.RoundFinitenessStaged
 
 /-!
 # Executed `Exec32.exp` on the softmax cone — discharging `hδ` to a closed-form theorem
@@ -400,5 +401,43 @@ theorem exec32_exp_error_on_cone (x : IEEE32Exec) (hfin : isFinite x = true)
   rw [δexpCone]
   gcongr
   exact eps32_le_three_u hvalue_ne hvalue_le3
+
+/-- The reduced polynomial value stays below `2⁴⁹` (`poly/2⁴⁸ ≤ √2 + 10⁻⁶ < 2`). Bounds the dyadic
+mantissa magnitude `Nat.log2 (poly.natAbs) ≤ 48`, hence the binary exponent of the `exp` output round. -/
+private lemma evalExp2Poly_lt (x : IEEE32Exec) (hfin : isFinite x = true) :
+    evalExp2Poly (rrF x) < 2 ^ 49 := by
+  have hf := abs_rrF_le x hfin
+  have he := (abs_le.mp (evalExp2Poly_error (rrF x) hf)).2
+  have hln2pos : 0 < Real.log 2 := Real.log_pos (by norm_num)
+  have hrFhalf : (rrF x : ℝ) / 2 ^ 48 ≤ 1 / 2 := by
+    rw [div_le_iff₀ (by positivity)]; nlinarith [hf, le_abs_self (rrF x : ℝ)]
+  have hexp_ub : Real.exp ((rrF x : ℝ) / 2 ^ 48 * Real.log 2) ≤ 1.42 := by
+    have hmono : Real.exp ((rrF x : ℝ) / 2 ^ 48 * Real.log 2) ≤ Real.exp (1 / 2 * Real.log 2) :=
+      Real.exp_le_exp.mpr (by nlinarith [hrFhalf, hln2pos])
+    have hsq : Real.exp (1 / 2 * Real.log 2) * Real.exp (1 / 2 * Real.log 2) = 2 := by
+      rw [← Real.exp_add, show 1 / 2 * Real.log 2 + 1 / 2 * Real.log 2 = Real.log 2 by ring,
+        Real.exp_log (by norm_num)]
+    nlinarith [hmono, hsq, Real.exp_pos (1 / 2 * Real.log 2)]
+  have hpolyR : (evalExp2Poly (rrF x) : ℝ) < 2 ^ 49 := by
+    have h32 : (evalExp2Poly (rrF x) : ℝ) / 2 ^ 48 ≤ 3 / 2 := by linarith [he, hexp_ub]
+    rw [div_le_iff₀ (by positivity)] at h32; nlinarith [h32]
+  exact_mod_cast hpolyR
+
+/-- **E5 — the `exp` output is finite on the cone.** The round target has value `≤ 3`, far below
+overflow: its binary exponent `k = log₂(mant) + (rrK x − 48) ≤ 48 + 1 − 48 = 1 ≤ 126`, so the staged
+`isFinite_roundDyadicToIEEE32_of_le` applies. Discharges `hfinexp` of `exec32_exp_error_on_cone`. -/
+theorem exp_output_finite_on_cone (x : IEEE32Exec) (hfin : isFinite x = true)
+    (T : ℝ) (hT : |toReal x| ≤ T) (hub : toReal x ≤ 1 / 2) (hρ : rrρ T ≤ 1 / 8) :
+    isFinite (IEEE32Exec.exp x) = true := by
+  have hp := evalExp2Poly_pos_of_reduced x hfin
+  have hrK := rrK_le_one_on_cone x hfin T hT hub hρ
+  have hMpos : (evalExp2Poly (rrF x)).natAbs ≠ 0 := Int.natAbs_ne_zero.mpr (ne_of_gt hp)
+  have hMlt : (evalExp2Poly (rrF x)).natAbs < 2 ^ 49 := by
+    have hlt := evalExp2Poly_lt x hfin; lia
+  have hlog : Nat.log2 (evalExp2Poly (rrF x)).natAbs < 49 := (Nat.log2_lt hMpos).mpr hMlt
+  have hk : Int.ofNat (Nat.log2 (evalExp2Poly (rrF x)).natAbs) + (rrK x - fixedScaleInt) ≤ 126 := by
+    simp only [fixedScaleInt, fixedScale, Int.ofNat_eq_natCast]; lia
+  rw [exp_eq_round_of_finite x hfin (not_le.mpr hp)]
+  exact isFinite_roundDyadicToIEEE32_of_le _ hMpos hk
 
 end TLT.ExpError
