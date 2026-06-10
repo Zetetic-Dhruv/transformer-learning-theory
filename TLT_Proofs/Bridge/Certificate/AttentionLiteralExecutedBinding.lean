@@ -9,6 +9,7 @@ import TLT_Proofs.Bridge.Spec.ScaledDotProductAttentionCorrespondence
 import NN.Spec.Layers.SoftmaxVecCoordReadStaged
 import TLT_Proofs.Bridge.Fp32.GenSoftmaxForwardError
 import TLT_Proofs.Bridge.Fp32.ExpConeError
+import TLT_Proofs.Bridge.Certificate.GridExtension
 
 /-!
 # The literal executed binding of the fp32 attention forward-error
@@ -64,7 +65,7 @@ noncomputable section
 
 namespace TLT.Fp32AttnLit
 
-open TLT TLT.Fp32Attn
+open TLT TLT.Fp32Attn TLT.GridExt
 open TorchLean.Staged.SoftmaxCoord
 open MeasureTheory
 open Capacity
@@ -918,26 +919,27 @@ theorem attnLiteralForwardError_onCone {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
   exact attnLiteralForwardError ctx Yt Wt hQ hK hV hmask F hN hB hΛ0 hδ0 hc hX hW hnu hdu hE
     (hδ_discharge ctx Yt Wt F hN hscore hη2 hρ)
 
-/-! ## KU-stab step 4 — the grid-extended executed map and its ∀-input forward error
+/-! ## The grid-extended executed map and its ∀-input forward error
 
 `gridExec` is the literal kernel on each certified fp32 input of the (finite) operating regime, and the
-ideal clamped head everywhere else. Because `IEEE32Exec` is finite, the regime is a finite set of inputs;
-`gridExec` is the ideal plus a finite correction supported exactly on the regime's pre-images, so it is
-measurable termwise and reads off as the kernel on the regime. The off-regime value is the ideal — an
-inert measurable extension, since the input law lives on the regime. The forward error against the
-clamped head is then *exactly* the per-input bound `rnd`, with no input-quantization slack: on the regime
-it is the literal forward error; off the regime it is zero. -/
+ideal clamped head everywhere else — the abstract measurable grid extension `TLT.GridExt.gridExt`
+instantiated at `ideal := attnHead (1/c) W`, `clamp := clampCoord B`, with the regime read `toReal ∘ Yt`
+and the kernel `execAttnLit ∘ ctxOf`. Because `IEEE32Exec` is finite, the regime is a finite set of
+inputs; the extension is the ideal plus a finite correction supported exactly on the regime's pre-images,
+so it is measurable termwise and reads off as the kernel on the regime. The off-regime value is the
+ideal — an inert measurable extension, since the input law lives on the regime. The forward error against
+the clamped head is then *exactly* the per-input bound `rnd`, with no input-quantization slack: on the
+regime it is the literal forward error; off the regime it is zero. -/
 
 /-- The grid-extended executed attention map: literal kernel on the regime `inputs`, clamped ideal head
-elsewhere, written as `ideal + (finite correction supported on the regime)`. -/
+elsewhere — the abstract `gridExt` extension at the attention ideal/clamp/read/kernel. -/
 noncomputable def gridExec {n d : ℕ} {h1 h2 : (n + 1) ≠ 0} (B c : ℝ) (W : Fin d → Fin d → ℝ)
     (inputs : Finset (Fin (n + 1) → Fin d → IEEE32Exec))
     (ctxOf : (Fin (n + 1) → Fin d → IEEE32Exec) →
       Spec.AttentionContext IEEE32Exec (n + 1) (n + 1) d h1 h2)
     (y : Fin (n + 1) → Fin d → ℝ) : Fin (n + 1) → Fin d → ℝ :=
-  attnHead (1 / c) W (clampCoord B y)
-    + ∑ Yt ∈ inputs, Set.indicator {z | (fun a b => toReal (Yt a b)) = clampCoord B z}
-        (fun _ => execAttnLit (ctxOf Yt) - attnHead (1 / c) W (fun a b => toReal (Yt a b))) y
+  gridExt (attnHead (1 / c) W) (clampCoord B) inputs
+    (fun Yt a b => toReal (Yt a b)) (fun Yt => execAttnLit (ctxOf Yt)) y
 
 /-- **The grid extension carries the per-input forward error verbatim — no slack.** Given the literal
 forward error `rnd` on every regime input (`hregime`, each an instance of `attnLiteralForwardError`) and
@@ -953,38 +955,9 @@ theorem gridExec_exec_close {n d : ℕ} {h1 h2 : (n + 1) ≠ 0} (B c : ℝ) (W :
     (hinj : ∀ Yt ∈ inputs, ∀ Yt' ∈ inputs,
         (fun a b => toReal (Yt a b)) = (fun (a : Fin (n + 1)) (b : Fin d) => toReal (Yt' a b)) →
         Yt = Yt') :
-    ∀ y, dist (gridExec B c W inputs ctxOf y) (attnHead (1 / c) W (clampCoord B y)) ≤ rnd := by
-  intro y
-  rw [dist_eq_norm]
-  have hg : gridExec B c W inputs ctxOf y - attnHead (1 / c) W (clampCoord B y)
-      = ∑ Yt ∈ inputs, Set.indicator {z | (fun a b => toReal (Yt a b)) = clampCoord B z}
-          (fun _ => execAttnLit (ctxOf Yt) - attnHead (1 / c) W (fun a b => toReal (Yt a b))) y := by
-    simp only [gridExec, add_sub_cancel_left]
-  rw [hg]
-  by_cases h : ∃ Yt ∈ inputs, (fun a b => toReal (Yt a b)) = clampCoord B y
-  · obtain ⟨Yt0, hYt0, heq0⟩ := h
-    have hmem0 : y ∈ {z | (fun a b => toReal (Yt0 a b)) = clampCoord B z} := heq0
-    have hsingle : (∑ Yt ∈ inputs, Set.indicator {z | (fun a b => toReal (Yt a b)) = clampCoord B z}
-          (fun _ => execAttnLit (ctxOf Yt) - attnHead (1 / c) W (fun a b => toReal (Yt a b))) y)
-        = execAttnLit (ctxOf Yt0) - attnHead (1 / c) W (fun a b => toReal (Yt0 a b)) := by
-      rw [Finset.sum_eq_single_of_mem Yt0 hYt0]
-      · rw [Set.indicator_of_mem hmem0]
-      · intro Yt' hYt' hne
-        apply Set.indicator_of_notMem
-        intro hmem
-        exact hne (hinj Yt' hYt' Yt0 hYt0
-          ((hmem : (fun a b => toReal (Yt' a b)) = clampCoord B y).trans heq0.symm))
-    rw [hsingle, ← dist_eq_norm]
-    exact hregime Yt0 hYt0
-  · have hz : (∑ Yt ∈ inputs, Set.indicator {z | (fun a b => toReal (Yt a b)) = clampCoord B z}
-          (fun _ => execAttnLit (ctxOf Yt) - attnHead (1 / c) W (fun a b => toReal (Yt a b))) y) = 0 := by
-      apply Finset.sum_eq_zero
-      intro Yt hYt
-      apply Set.indicator_of_notMem
-      intro hmem
-      exact h ⟨Yt, hYt, hmem⟩
-    rw [hz, norm_zero]
-    exact hrnd
+    ∀ y, dist (gridExec B c W inputs ctxOf y) (attnHead (1 / c) W (clampCoord B y)) ≤ rnd :=
+  gridExt_exec_close (attnHead (1 / c) W) (clampCoord B) inputs
+    (fun Yt a b => toReal (Yt a b)) (fun Yt => execAttnLit (ctxOf Yt)) hrnd hregime hinj
 
 /-- **On the regime, `gridExec` IS the literal kernel** (not merely close to the ideal): at any real
 input whose clamp reads back a regime fp32 input `Yt`, the grid-extended map equals `execAttnLit (ctxOf Yt)`.
@@ -997,20 +970,9 @@ theorem gridExec_eq_kernel_of_mem {n d : ℕ} {h1 h2 : (n + 1) ≠ 0} (B c : ℝ
         (fun a b => toReal (Yt a b)) = (fun (a : Fin (n + 1)) (b : Fin d) => toReal (Yt' a b)) → Yt = Yt')
     {Yt : Fin (n + 1) → Fin d → IEEE32Exec} (hYt : Yt ∈ inputs)
     {y : Fin (n + 1) → Fin d → ℝ} (heq : (fun a b => toReal (Yt a b)) = clampCoord B y) :
-    gridExec B c W inputs ctxOf y = execAttnLit (ctxOf Yt) := by
-  have hmem : y ∈ {z | (fun a b => toReal (Yt a b)) = clampCoord B z} := heq
-  have hsingle : (∑ Yt' ∈ inputs, Set.indicator {z | (fun a b => toReal (Yt' a b)) = clampCoord B z}
-        (fun _ => execAttnLit (ctxOf Yt') - attnHead (1 / c) W (fun a b => toReal (Yt' a b))) y)
-      = execAttnLit (ctxOf Yt) - attnHead (1 / c) W (fun a b => toReal (Yt a b)) := by
-    rw [Finset.sum_eq_single_of_mem Yt hYt]
-    · rw [Set.indicator_of_mem hmem]
-    · intro Yt' hYt' hne
-      apply Set.indicator_of_notMem
-      intro hmem'
-      exact hne (hinj Yt' hYt' Yt hYt
-        ((hmem' : (fun a b => toReal (Yt' a b)) = clampCoord B y).trans heq.symm))
-  simp only [gridExec, hsingle, ← heq]
-  abel
+    gridExec B c W inputs ctxOf y = execAttnLit (ctxOf Yt) :=
+  gridExt_eq_kernel_of_mem (attnHead (1 / c) W) (clampCoord B) inputs
+    (fun Yt a b => toReal (Yt a b)) (fun Yt => execAttnLit (ctxOf Yt)) hinj hYt heq
 
 /-- `gridExec` is measurable: the ideal head precomposed with the (continuous) clamp, plus a finite sum
 of indicators of the measurable regime pre-images `(clampCoord B)⁻¹{toReal∘Yt}` carrying constant values. -/
@@ -1018,17 +980,11 @@ theorem gridExec_measurable {n d : ℕ} {h1 h2 : (n + 1) ≠ 0} (B c : ℝ) (W :
     (inputs : Finset (Fin (n + 1) → Fin d → IEEE32Exec))
     (ctxOf : (Fin (n + 1) → Fin d → IEEE32Exec) →
       Spec.AttentionContext IEEE32Exec (n + 1) (n + 1) d h1 h2) :
-    Measurable (gridExec B c W inputs ctxOf) := by
-  unfold gridExec
-  refine Measurable.add
-    (((continuous_attnHead_input W).comp (continuous_clampCoord B)).measurable) ?_
-  refine Finset.measurable_sum _ (fun Yt _ => ?_)
-  refine Measurable.indicator measurable_const ?_
-  have hset : {z : Fin (n + 1) → Fin d → ℝ | (fun a b => toReal (Yt a b)) = clampCoord B z}
-      = (clampCoord B) ⁻¹' {fun a b => toReal (Yt a b)} := by
-    ext z; simp only [Set.mem_setOf_eq, Set.mem_preimage, Set.mem_singleton_iff, eq_comm]
-  rw [hset]
-  exact (continuous_clampCoord B).measurable (measurableSet_singleton _)
+    Measurable (gridExec B c W inputs ctxOf) :=
+  gridExt_measurable (attnHead (1 / c) W) (clampCoord B) inputs
+    (fun Yt a b => toReal (Yt a b)) (fun Yt => execAttnLit (ctxOf Yt))
+    ((continuous_attnHead_input W).comp (continuous_clampCoord B)).measurable
+    (continuous_clampCoord B).measurable
 
 /-- **The certified computable float32 generalization bound for the LITERAL executed attention head.**
 For TorchLean's literal `IEEE32Exec` `scaledDotProductAttention` (read over ℝ as `execAttnLit`), run on
@@ -1163,23 +1119,10 @@ theorem gridExec_ae_eq_kernel {n d : ℕ} {h1 h2 : (n + 1) ≠ 0} (B c : ℝ) (W
         (fun a b => toReal (Yt a b)) = (fun (a : Fin (n + 1)) (b : Fin d) => toReal (Yt' a b)) → Yt = Yt')
     (hP : P {y | ∃ Yt ∈ inputs, (fun a b => toReal (Yt a b)) = clampCoord B y} = 1) :
     ∀ᵐ y ∂P, ∃ Yt ∈ inputs, (fun a b => toReal (Yt a b)) = clampCoord B y
-      ∧ gridExec B c W inputs ctxOf y = execAttnLit (ctxOf Yt) := by
-  have hSmeas : MeasurableSet
-      {y : Fin (n + 1) → Fin d → ℝ | ∃ Yt ∈ inputs, (fun a b => toReal (Yt a b)) = clampCoord B y} := by
-    have heq : {y : Fin (n + 1) → Fin d → ℝ | ∃ Yt ∈ inputs, (fun a b => toReal (Yt a b)) = clampCoord B y}
-        = ⋃ Yt ∈ inputs, (clampCoord B) ⁻¹' {fun a b => toReal (Yt a b)} := by
-      ext y
-      simp only [Set.mem_setOf_eq, Set.mem_iUnion, Set.mem_preimage, Set.mem_singleton_iff, eq_comm,
-        exists_prop]
-    rw [heq]
-    exact Finset.measurableSet_biUnion inputs
-      (fun Yt _ => (continuous_clampCoord B).measurable (measurableSet_singleton _))
-  have hae : ∀ᵐ y ∂P, ∃ Yt ∈ inputs, (fun a b => toReal (Yt a b)) = clampCoord B y := by
-    rw [Filter.eventually_iff, mem_ae_iff,
-      measure_compl hSmeas (measure_ne_top P _), measure_univ, hP, tsub_self]
-  filter_upwards [hae] with y hy
-  obtain ⟨Yt, hYt, heq⟩ := hy
-  exact ⟨Yt, hYt, heq, gridExec_eq_kernel_of_mem B c W inputs ctxOf hinj hYt heq⟩
+      ∧ gridExec B c W inputs ctxOf y = execAttnLit (ctxOf Yt) :=
+  gridExt_ae_eq_kernel (attnHead (1 / c) W) (clampCoord B) inputs
+    (fun Yt a b => toReal (Yt a b)) (fun Yt => execAttnLit (ctxOf Yt))
+    (continuous_clampCoord B).measurable hinj P hP
 
 -- SOFTMAX STRUCTURAL READ — DONE (axiom-clean), now imported from the staged TorchLean module
 -- `TorchLean.Staged.SoftmaxCoord` (file `NN/Spec/Layers/SoftmaxVecCoordReadStaged.lean`, quarantined for
