@@ -495,4 +495,63 @@ noncomputable def litFFNBlockExecLayer {n d h : ℕ} (hd : 0 < d) {Cγ Cβ Lf : 
     (fun a ha b hb => normResidualBlock_input_lip hd γ β hCγ hLf0 a b (hffnlip a ha b hb))
     hrnd
 
+/-- **The literal multi-head residual block, clamp-precomposed, as an ambient `ExecLayer`.** The capstone
+`transformerEncoderStackMH_executed_at_depth` consumes ambient `ExecLayer (Fin n → Fin d → ℝ)`s whose ideal
+is `block ∘ clampCoord` (the leading `clampExecLayer` lands inputs in the ball, so blocks are pre-clamped).
+Precomposing the multi-head block with `clampCoord (√d·Cγ+Cβ)` makes it *globally* Lipschitz — the on-ball
+constant of `normMultiHeadBlock_input_lip` composed with `clampCoord`'s 1-Lipschitzness — so it is a
+genuine ambient `ExecLayer` (forward-invariance is trivial on `univ`). The executed map (which clamps
+internally) and `rnd` are data; this is the `Es`-ready multi-head block entry. -/
+noncomputable def clampedMHBlockExecLayer {n d H : ℕ} [NeZero n] (hd : 0 < d)
+    {scale B bV γW Cγ Cβ : ℝ} (hscale : 0 < scale) (hB : 0 ≤ B) (hbV0 : 0 ≤ bV) (hγW0 : 0 ≤ γW)
+    (WQ WK WVO : Fin H → Fin d → Fin d → ℝ) (hγWQ : ∀ h j, (∑ k, |WQ h k j|) ≤ γW)
+    (hγWK : ∀ h j, (∑ k, |WK h k j|) ≤ γW) (hγWVO : ∀ h j, (∑ k, |WVO h k j|) ≤ γW)
+    (γ β : Fin d → ℝ) (hCγ : ∀ j, |γ j| ≤ Cγ) (hCβ : ∀ j, |β j| ≤ Cβ)
+    (hQB : ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ h i e, |matMulCoord (WQ h) y i e| ≤ B)
+    (hKB : ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ h k' e, |matMulCoord (WK h) y k' e| ≤ B)
+    (hVB : ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ h j, ‖matMulCoord (WVO h) y j‖ ≤ bV)
+    (execMap : (Fin n → Fin d → ℝ) → (Fin n → Fin d → ℝ)) (rnd : ℝ)
+    (hrnd : ∀ x, dist (execMap x)
+      (normAttnCoord γ β (multiHeadAttn scale WQ WK WVO)
+        (clampCoord (Real.sqrt d * Cγ + Cβ) x)) ≤ rnd) :
+    ExecLayer (Fin n → Fin d → ℝ) where
+  ideal x := normAttnCoord γ β (multiHeadAttn scale WQ WK WVO) (clampCoord (Real.sqrt d * Cγ + Cβ) x)
+  exec := execMap
+  lip := Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon
+    * (1 + (H : ℝ) * (2 * bV * ((d : ℝ) * B / scale) * (2 * γW) + γW))
+  rnd := rnd
+  lip_nonneg := by
+    have hCγ0 : 0 ≤ Cγ := le_trans (abs_nonneg _) (hCγ ⟨0, hd⟩)
+    have hC : (0 : ℝ) ≤ 2 * bV * ((d : ℝ) * B / scale) :=
+      mul_nonneg (mul_nonneg (by norm_num) hbV0)
+        (div_nonneg (mul_nonneg (Nat.cast_nonneg d) hB) hscale.le)
+    have hLN : (0 : ℝ) ≤ Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon :=
+      div_nonneg (mul_nonneg hCγ0 (by positivity)) (Real.sqrt_nonneg _)
+    exact mul_nonneg hLN (by positivity)
+  ideal_lip a b := by
+    have hCγ0 : 0 ≤ Cγ := le_trans (abs_nonneg _) (hCγ ⟨0, hd⟩)
+    have hCβ0 : 0 ≤ Cβ := le_trans (abs_nonneg _) (hCβ ⟨0, hd⟩)
+    have hrad : (0 : ℝ) ≤ Real.sqrt d * Cγ + Cβ := by positivity
+    have hca : clampCoord (Real.sqrt d * Cγ + Cβ) a
+        ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ) := by
+      rw [mem_closedBall_zero_iff]; exact clampCoord_norm_le hrad a
+    have hcb : clampCoord (Real.sqrt d * Cγ + Cβ) b
+        ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ) := by
+      rw [mem_closedBall_zero_iff]; exact clampCoord_norm_le hrad b
+    have hC : (0 : ℝ) ≤ 2 * bV * ((d : ℝ) * B / scale) :=
+      mul_nonneg (mul_nonneg (by norm_num) hbV0)
+        (div_nonneg (mul_nonneg (Nat.cast_nonneg d) hB) hscale.le)
+    have hLN : (0 : ℝ) ≤ Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon :=
+      div_nonneg (mul_nonneg hCγ0 (by positivity)) (Real.sqrt_nonneg _)
+    have hLip0 : (0 : ℝ) ≤ Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon
+        * (1 + (H : ℝ) * (2 * bV * ((d : ℝ) * B / scale) * (2 * γW) + γW)) :=
+      mul_nonneg hLN (by positivity)
+    refine le_trans (normMultiHeadBlock_input_lip hd hscale hB hbV0 hγW0 WQ WK WVO hγWQ hγWK hγWVO
+      γ β hCγ _ _ (hQB _ hcb) (hKB _ hca) (hVB _ hca)) ?_
+    exact mul_le_mul_of_nonneg_left (clampCoord_lipschitz _ a b) hLip0
+  exec_close := hrnd
+
 end TLT.FullBlockLit
