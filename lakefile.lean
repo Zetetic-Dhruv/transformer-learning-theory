@@ -39,6 +39,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Bridge.Forward.ForwardContinuity,
     `TLT_Proofs.Bridge.Forward.ForwardEnvelope,
     `TLT_Proofs.Bridge.Forward.LayerConsistency,
+    `TLT_Proofs.Bridge.Forward.LiteralStackMargin,
     `TLT_Proofs.Bridge.Forward.NonExpansiveDepthEnvelope,
     `TLT_Proofs.Bridge.Forward.TransformerForwardRegularity,
     `TLT_Proofs.Bridge.Fp32.AttentionForwardError,
