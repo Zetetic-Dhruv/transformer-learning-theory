@@ -554,4 +554,46 @@ noncomputable def clampedMHBlockExecLayer {n d H : ℕ} [NeZero n] (hd : 0 < d)
     exact mul_le_mul_of_nonneg_left (clampCoord_lipschitz _ a b) hLip0
   exec_close := hrnd
 
+/-- **The literal FFN residual block, clamp-precomposed, as an ambient `ExecLayer`.** Mirrors
+`clampedMHBlockExecLayer` for the FFN block: `block ∘ clampCoord` is globally
+`Cγ·(2√d+2)/√ε·(1+Lf)`-Lipschitz (`normResidualBlock_input_lip` at `f = ffnCoord` on the ball, composed
+with `clampCoord`'s 1-Lipschitzness). The `Es`-ready FFN block entry for the multi-head capstone. -/
+noncomputable def clampedFFNBlockExecLayer {n d h : ℕ} (hd : 0 < d) {Cγ Cβ Lf : ℝ} (hLf0 : 0 ≤ Lf)
+    (W1 : Fin d → Fin h → ℝ) (b1 : Fin h → ℝ) (W2 : Fin h → Fin d → ℝ) (b2 : Fin d → ℝ)
+    (γ β : Fin d → ℝ) (hCγ : ∀ j, |γ j| ≤ Cγ) (hCβ : ∀ j, |β j| ≤ Cβ)
+    (hffnlip : ∀ a ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ b ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      dist (ffnCoord W1 b1 W2 b2 a) (ffnCoord W1 b1 W2 b2 b) ≤ Lf * dist a b)
+    (execMap : (Fin n → Fin d → ℝ) → (Fin n → Fin d → ℝ)) (rnd : ℝ)
+    (hrnd : ∀ x, dist (execMap x)
+      (normAttnCoord γ β (ffnCoord W1 b1 W2 b2) (clampCoord (Real.sqrt d * Cγ + Cβ) x)) ≤ rnd) :
+    ExecLayer (Fin n → Fin d → ℝ) where
+  ideal x := normAttnCoord γ β (ffnCoord W1 b1 W2 b2) (clampCoord (Real.sqrt d * Cγ + Cβ) x)
+  exec := execMap
+  lip := Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon * (1 + Lf)
+  rnd := rnd
+  lip_nonneg := by
+    have hCγ0 : 0 ≤ Cγ := le_trans (abs_nonneg _) (hCγ ⟨0, hd⟩)
+    have hLN : (0 : ℝ) ≤ Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon :=
+      div_nonneg (mul_nonneg hCγ0 (by positivity)) (Real.sqrt_nonneg _)
+    exact mul_nonneg hLN (by positivity)
+  ideal_lip a b := by
+    have hCγ0 : 0 ≤ Cγ := le_trans (abs_nonneg _) (hCγ ⟨0, hd⟩)
+    have hCβ0 : 0 ≤ Cβ := le_trans (abs_nonneg _) (hCβ ⟨0, hd⟩)
+    have hrad : (0 : ℝ) ≤ Real.sqrt d * Cγ + Cβ := by positivity
+    have hca : clampCoord (Real.sqrt d * Cγ + Cβ) a
+        ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ) := by
+      rw [mem_closedBall_zero_iff]; exact clampCoord_norm_le hrad a
+    have hcb : clampCoord (Real.sqrt d * Cγ + Cβ) b
+        ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ) := by
+      rw [mem_closedBall_zero_iff]; exact clampCoord_norm_le hrad b
+    have hLN : (0 : ℝ) ≤ Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon :=
+      div_nonneg (mul_nonneg hCγ0 (by positivity)) (Real.sqrt_nonneg _)
+    have hLip0 : (0 : ℝ) ≤ Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon * (1 + Lf) :=
+      mul_nonneg hLN (by positivity)
+    refine le_trans (normResidualBlock_input_lip hd γ β hCγ hLf0 _ _
+      (hffnlip _ hca _ hcb)) ?_
+    exact mul_le_mul_of_nonneg_left (clampCoord_lipschitz _ a b) hLip0
+  exec_close := hrnd
+
 end TLT.FullBlockLit
