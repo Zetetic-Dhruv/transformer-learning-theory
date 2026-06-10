@@ -8,6 +8,7 @@ import TLT_Proofs.Bridge.Fp32.FFNForwardError
 import TLT_Proofs.Bridge.Fp32.LayerNormForwardError
 import TLT_Proofs.Bridge.Forward.LiteralBlockComposition
 import TLT_Proofs.Bridge.Certificate.TransformerStackLiteralExecutedBinding
+import TLT_Proofs.Bridge.Lipschitz.MultiHeadAttnCertificate
 
 /-!
 # The full literal transformer-block certificate — assembly toward closed-form, grounded bounds
@@ -375,5 +376,27 @@ lemma affineRound_le {n d : ℕ} (γ β : Fin d → ℝ) (meanE stdE : Fin n →
       ≤ neuralBpow binaryRadix (-24) * Maff := by
   simp only [lnStarExec]
   exact fp32Round_abs_le_of_normal (hMaff i j) (hnormal i j)
+
+/-- The coordinate matmul against the identity matrix is the identity. -/
+lemma matMulCoord_id {n d : ℕ} (Y : Fin n → Fin d → ℝ) :
+    matMulCoord (fun k j => if k = j then (1 : ℝ) else 0) Y = Y := by
+  funext i j
+  simp only [matMulCoord]
+  rw [Finset.sum_eq_single j]
+  · simp
+  · intro k _ hkj; simp [hkj]
+  · intro h; exact absurd (Finset.mem_univ j) h
+
+/-- **The H=1 reconciliation.** The shipped multi-head attention `multiHeadAttn` at head-count `1` with
+identity query/key projections and value projection `W` is exactly the single-head `attnHead scale W`
+that the literal cone certificate binds to. This is what lets the single-head literal forward errors
+instantiate the shipped multi-head capstone `transformerEncoderStackMH_executed_at_depth` at `H=1`. -/
+lemma attnHead_eq_multiHead_one {n d : ℕ} (scale : ℝ) (W : Fin d → Fin d → ℝ) (Y : Fin n → Fin d → ℝ) :
+    multiHeadAttn (n := n) (H := 1) scale (fun _ k j => if k = j then (1 : ℝ) else 0)
+        (fun _ k j => if k = j then (1 : ℝ) else 0) (fun _ => W) Y
+      = attnHead scale W Y := by
+  simp only [multiHeadAttn, Fin.sum_univ_one]
+  unfold attnHeadQK attnHead
+  simp only [matMulCoord_id]
 
 end TLT.FullBlockLit
