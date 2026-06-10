@@ -9,6 +9,7 @@ import TLT_Proofs.Bridge.Fp32.LayerNormForwardError
 import TLT_Proofs.Bridge.Forward.LiteralBlockComposition
 import TLT_Proofs.Bridge.Certificate.TransformerStackLiteralExecutedBinding
 import TLT_Proofs.Bridge.Lipschitz.MultiHeadAttnCertificate
+import TLT_Proofs.Bridge.Certificate.TransformerStackCertificate
 
 /-!
 # The full literal transformer-block certificate — assembly toward closed-form, grounded bounds
@@ -459,6 +460,39 @@ noncomputable def litMHBlockExecLayer {n d H : ℕ} [NeZero n] (hd : 0 < d) {sca
     hexecinv
     (fun a ha b hb => normMultiHeadBlock_input_lip hd hscale hB hbV0 hγW0 WQ WK WVO hγWQ hγWK hγWVO
       γ β hCγ a b (hQB b hb) (hKB a ha) (hVB a ha))
+    hrnd
+
+/-- **The literal feed-forward residual block as a bounded `ExecLayer`** (the carrier). The ideal block
+`normAttnCoord γ β (ffnCoord …)` maps into the ball of radius `√d·Cγ+Cβ` (`layerNormCoord_norm_le`) and is
+`Cγ·(2√d+2)/√ε·(1+Lf)`-Lipschitz on it (`normResidualBlock_input_lip` at `f = ffnCoord`, with the FFN's own
+Lipschitz constant `Lf` on the ball supplied as data). So any ball-forward-invariant executed map within
+`rnd` of it is a genuine `ExecLayer` over the ball — the FFN-block entry of the `Es` list. Mirrors
+`litMHBlockExecLayer`. -/
+noncomputable def litFFNBlockExecLayer {n d h : ℕ} (hd : 0 < d) {Cγ Cβ Lf : ℝ} (hLf0 : 0 ≤ Lf)
+    (W1 : Fin d → Fin h → ℝ) (b1 : Fin h → ℝ) (W2 : Fin h → Fin d → ℝ) (b2 : Fin d → ℝ)
+    (γ β : Fin d → ℝ) (hCγ : ∀ j, |γ j| ≤ Cγ) (hCβ : ∀ j, |β j| ≤ Cβ)
+    (hffnlip : ∀ a ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ b ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      dist (ffnCoord W1 b1 W2 b2 a) (ffnCoord W1 b1 W2 b2 b) ≤ Lf * dist a b)
+    (execMap : (Fin n → Fin d → ℝ) → (Fin n → Fin d → ℝ)) (rnd : ℝ)
+    (hexecinv : ∀ x ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      execMap x ∈ Metric.closedBall 0 (Real.sqrt d * Cγ + Cβ))
+    (hrnd : ∀ x ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      dist (execMap x) (normAttnCoord γ β (ffnCoord W1 b1 W2 b2) x) ≤ rnd) :
+    ExecLayer (↥(Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ))) :=
+  execLayerOfForwardInvariant (Metric.closedBall 0 (Real.sqrt d * Cγ + Cβ))
+    (normAttnCoord γ β (ffnCoord W1 b1 W2 b2)) execMap
+    (Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon * (1 + Lf)) rnd
+    (by
+      have hCγ0 : 0 ≤ Cγ := le_trans (abs_nonneg _) (hCγ ⟨0, hd⟩)
+      have hLN : (0 : ℝ) ≤ Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon :=
+        div_nonneg (mul_nonneg hCγ0 (by positivity)) (Real.sqrt_nonneg _)
+      exact mul_nonneg hLN (by positivity))
+    (fun x _ => by
+      rw [mem_closedBall_zero_iff]
+      exact layerNormCoord_norm_le hd γ β hCγ hCβ _)
+    hexecinv
+    (fun a ha b hb => normResidualBlock_input_lip hd γ β hCγ hLf0 a b (hffnlip a ha b hb))
     hrnd
 
 end TLT.FullBlockLit
