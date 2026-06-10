@@ -154,4 +154,161 @@ theorem fullBlock_forward_error {n d : ℕ} (W1 W2 : Fin d → Fin d → ℝ) (�
   ln_after_block_forward_error γ β meanE stdE (ffnExec W1 W2 A_exec) (ffnIdeal W1 W2 A_ideal) hΛ_ln
     (ffn_after_block_forward_error W1 W2 A_exec A_ideal hB hΛ hX hW1 hW2 hn1 hn2 hdu hattn) hln hlnlip
 
+/-- **Square-root difference bound on `[ε, ∞)`.** For `a, b ≥ ε > 0`, `√` is `1/(2√ε)`-Lipschitz:
+`|√a − √b| ≤ |a − b| / (2√ε)`. Proved from `√a·√a = a` and `√a + √b ≥ 2√ε`; no packaged Mathlib lemma. -/
+private lemma sqrt_sub_le {a b ε : ℝ} (hε : 0 < ε) (ha : ε ≤ a) (hb : ε ≤ b) :
+    |Real.sqrt a - Real.sqrt b| ≤ |a - b| / (2 * Real.sqrt ε) := by
+  have hsqa : Real.sqrt a * Real.sqrt a = a := Real.mul_self_sqrt (le_trans hε.le ha)
+  have hsqb : Real.sqrt b * Real.sqrt b = b := Real.mul_self_sqrt (le_trans hε.le hb)
+  have hεpos : 0 < Real.sqrt ε := Real.sqrt_pos.mpr hε
+  have hsum : 2 * Real.sqrt ε ≤ Real.sqrt a + Real.sqrt b := by
+    have h1 : Real.sqrt ε ≤ Real.sqrt a := Real.sqrt_le_sqrt ha
+    have h2 : Real.sqrt ε ≤ Real.sqrt b := Real.sqrt_le_sqrt hb
+    linarith
+  have hsumpos : 0 < Real.sqrt a + Real.sqrt b := by linarith
+  have hfact : a - b = (Real.sqrt a - Real.sqrt b) * (Real.sqrt a + Real.sqrt b) := by
+    have : (Real.sqrt a - Real.sqrt b) * (Real.sqrt a + Real.sqrt b)
+        = Real.sqrt a * Real.sqrt a - Real.sqrt b * Real.sqrt b := by ring
+    rw [this, hsqa, hsqb]
+  have habs : |a - b| = |Real.sqrt a - Real.sqrt b| * (Real.sqrt a + Real.sqrt b) := by
+    rw [hfact, abs_mul, abs_of_pos hsumpos]
+  rw [habs, le_div_iff₀ (by positivity : (0 : ℝ) < 2 * Real.sqrt ε)]
+  exact mul_le_mul_of_nonneg_left hsum (abs_nonneg _)
+
+/-- **Centered-square perturbation.** Replacing the row mean `rm` by an approximation `me` within `ρm`
+perturbs the centered square `(x − ·)²` by at most `ρm·(4B + ρm)`, when `|x|, |rm| ≤ B`. The `(a−b)(a+b)`
+factoring of the squared difference; carries the layer-norm mean-error `ρm` through the variance. -/
+private lemma centeredSq_diff_le {x me rm B ρm : ℝ} (hB : 0 ≤ B) (hρm : 0 ≤ ρm)
+    (hx : |x| ≤ B) (hrm : |rm| ≤ B) (hme : |me - rm| ≤ ρm) :
+    |(x - me) ^ 2 - (x - rm) ^ 2| ≤ ρm * (4 * B + ρm) := by
+  have hfact : (x - me) ^ 2 - (x - rm) ^ 2 = (rm - me) * (2 * x - me - rm) := by ring
+  rw [hfact, abs_mul]
+  have h1 : |rm - me| ≤ ρm := by rw [abs_sub_comm]; exact hme
+  have hmeB : |me| ≤ B + ρm := by
+    calc |me| = |(me - rm) + rm| := by rw [sub_add_cancel]
+      _ ≤ |me - rm| + |rm| := abs_add_le _ _
+      _ ≤ ρm + B := add_le_add hme hrm
+      _ = B + ρm := by ring
+  have h2 : |2 * x - me - rm| ≤ 4 * B + ρm := by
+    have hx' := abs_le.mp hx; have hme' := abs_le.mp hmeB; have hrm' := abs_le.mp hrm
+    rw [abs_le]
+    exact ⟨by linarith [hx'.1, hme'.2, hrm'.2], by linarith [hx'.2, hme'.1, hrm'.1]⟩
+  exact mul_le_mul h1 h2 (abs_nonneg _) hρm
+
+/-- **Rung 6 — the layer-norm variance budget grounded.** The per-row variance
+`rowVarCoord i X = (∑ₖ(X i k − mean)²)/d` is the uniform-`1/d` matmul of the centered squares (same reuse
+as `lnMean_error`). The executed variance `Vexec (·↦1/d) cSqExec` — where `cSqExec` is the executed
+centered squares (within `εsq` of `(X − meanE)²`, the squaring round) — is within
+`rdotBudget d ((2B+ρm)² + εsq) + (εsq + ρm·(4B+ρm))` of the ideal: the matmul rounding (leg A) plus the
+centered-square perturbation carried through the uniform matmul (leg B, via `centeredSq_diff_le`). Closed
+form in `(B, d, ρm, εsq)`; `εsq` grounds further to `2⁻²⁴·(2B+ρm)²` by the relative round bound. -/
+lemma lnVar_error {n d : ℕ} (hd : 0 < d) (X : Fin n → Fin d → ℝ) (meanE : Fin n → ℝ)
+    (cSqExec : Fin n → Fin d → ℝ) {B ρm εsq : ℝ} (hB : 0 ≤ B) (hρm : 0 ≤ ρm) (hεsq : 0 ≤ εsq)
+    (hX : ∀ i k, |X i k| ≤ B) (hmean : ∀ i, |meanE i - rowMeanCoord i X| ≤ ρm)
+    (hmeanB : ∀ i, |rowMeanCoord i X| ≤ B)
+    (hsqround : ∀ i k, |cSqExec i k - (X i k - meanE i) ^ 2| ≤ εsq)
+    (hn : VexecNormal (fun _ _ => (1 / (d : ℝ))) cSqExec) (hdu : (d : ℝ) * u < 1)
+    (i : Fin n) (j : Fin d) :
+    |Vexec (fun _ _ => (1 / (d : ℝ))) cSqExec i j - rowVarCoord i X|
+      ≤ rdotBudget d ((2 * B + ρm) ^ 2 + εsq) + (εsq + ρm * (4 * B + ρm)) := by
+  have hdpos : (0 : ℝ) < (d : ℝ) := Nat.cast_pos.mpr hd
+  have hΛ : ∀ j' : Fin d, ∑ k : Fin d, |((fun _ _ => (1 / (d : ℝ))) k j')| ≤ 1 := by
+    intro j'
+    simp only [abs_of_nonneg (le_of_lt (by positivity : (0 : ℝ) < 1 / (d : ℝ)))]
+    rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, mul_one_div,
+      div_self (ne_of_gt hdpos)]
+  have hdiff : ∀ a b, |cSqExec a b - (X a b - rowMeanCoord a X) ^ 2| ≤ εsq + ρm * (4 * B + ρm) := by
+    intro a b
+    calc |cSqExec a b - (X a b - rowMeanCoord a X) ^ 2|
+        ≤ |cSqExec a b - (X a b - meanE a) ^ 2|
+          + |(X a b - meanE a) ^ 2 - (X a b - rowMeanCoord a X) ^ 2| := abs_sub_le _ _ _
+      _ ≤ εsq + ρm * (4 * B + ρm) :=
+          add_le_add (hsqround a b) (centeredSq_diff_le hB hρm (hX a b) (hmeanB a) (hmean a))
+  have hcSqB : ∀ a b, |cSqExec a b| ≤ (2 * B + ρm) ^ 2 + εsq := by
+    intro a b
+    have hmeB : |meanE a| ≤ B + ρm := by
+      calc |meanE a| = |(meanE a - rowMeanCoord a X) + rowMeanCoord a X| := by rw [sub_add_cancel]
+        _ ≤ |meanE a - rowMeanCoord a X| + |rowMeanCoord a X| := abs_add_le _ _
+        _ ≤ ρm + B := add_le_add (hmean a) (hmeanB a)
+        _ = B + ρm := by ring
+    have hxm : |X a b - meanE a| ≤ 2 * B + ρm := by
+      calc |X a b - meanE a| = |X a b + -meanE a| := by ring_nf
+        _ ≤ |X a b| + |(-meanE a)| := abs_add_le _ _
+        _ = |X a b| + |meanE a| := by rw [abs_neg]
+        _ ≤ B + (B + ρm) := add_le_add (hX a b) hmeB
+        _ = 2 * B + ρm := by ring
+    have hsqle : (X a b - meanE a) ^ 2 ≤ (2 * B + ρm) ^ 2 := by
+      nlinarith [hxm, abs_nonneg (X a b - meanE a), sq_abs (X a b - meanE a)]
+    calc |cSqExec a b|
+        = |(X a b - meanE a) ^ 2 + (cSqExec a b - (X a b - meanE a) ^ 2)| := by ring_nf
+      _ ≤ |(X a b - meanE a) ^ 2| + |cSqExec a b - (X a b - meanE a) ^ 2| := abs_add_le _ _
+      _ ≤ (2 * B + ρm) ^ 2 + εsq := by
+          gcongr
+          · rw [abs_of_nonneg (sq_nonneg _)]; exact hsqle
+          · exact hsqround a b
+  have hlegA := Vexec_entry_error (fun _ _ => (1 / (d : ℝ))) cSqExec (by positivity) zero_le_one
+    hcSqB hΛ hn hdu i j
+  rw [mul_one] at hlegA
+  have hlin : matMulCoord (fun _ _ => (1 / (d : ℝ))) cSqExec i j
+      - matMulCoord (fun _ _ => (1 / (d : ℝ))) (fun a b => (X a b - rowMeanCoord a X) ^ 2) i j
+      = matMulCoord (fun _ _ => (1 / (d : ℝ)))
+          (fun a b => cSqExec a b - (X a b - rowMeanCoord a X) ^ 2) i j := by
+    simp only [matMulCoord]; rw [← Finset.sum_sub_distrib]; apply Finset.sum_congr rfl; intro k _; ring
+  have hlegB : |matMulCoord (fun _ _ => (1 / (d : ℝ))) cSqExec i j
+      - matMulCoord (fun _ _ => (1 / (d : ℝ))) (fun a b => (X a b - rowMeanCoord a X) ^ 2) i j|
+      ≤ εsq + ρm * (4 * B + ρm) := by
+    rw [hlin]
+    have := matMulCoord_entry_abs_le (fun _ _ => (1 / (d : ℝ)))
+      (fun a b => cSqExec a b - (X a b - rowMeanCoord a X) ^ 2) (by positivity) hdiff hΛ i j
+    rwa [mul_one] at this
+  have hmm : matMulCoord (fun _ _ => (1 / (d : ℝ))) (fun a b => (X a b - rowMeanCoord a X) ^ 2) i j
+      = rowVarCoord i X := by
+    rw [matMulCoord, rowVarCoord]; simp only [mul_one_div]; rw [← Finset.sum_div]
+  calc |Vexec (fun _ _ => (1 / (d : ℝ))) cSqExec i j - rowVarCoord i X|
+      = |Vexec (fun _ _ => (1 / (d : ℝ))) cSqExec i j
+          - matMulCoord (fun _ _ => (1 / (d : ℝ))) (fun a b => (X a b - rowMeanCoord a X) ^ 2) i j| := by
+        rw [hmm]
+    _ ≤ |Vexec (fun _ _ => (1 / (d : ℝ))) cSqExec i j
+          - matMulCoord (fun _ _ => (1 / (d : ℝ))) cSqExec i j|
+        + |matMulCoord (fun _ _ => (1 / (d : ℝ))) cSqExec i j
+          - matMulCoord (fun _ _ => (1 / (d : ℝ))) (fun a b => (X a b - rowMeanCoord a X) ^ 2) i j| :=
+        abs_sub_le _ _ _
+    _ ≤ rdotBudget d ((2 * B + ρm) ^ 2 + εsq) + (εsq + ρm * (4 * B + ρm)) := add_le_add hlegA hlegB
+
+/-- **Rung 7 — the layer-norm std budget grounded.** The standard deviation `rowStdCoord =
+√(max(var,0)+ε)`; replacing the ideal variance by the executed one moves it by at most
+`ρs_var / (2√ε)`, where `ρs_var` is the variance budget (`lnVar_error`) — the `√` is `1/(2√ε)`-Lipschitz
+on `[ε,∞)` (`sqrt_sub_le`), the `ε = 1e-6` floor making the denominator nonzero, and `max(·,0)` is
+1-Lipschitz. Closed form; this is the layer-norm `ρs` budget driven to the floor. -/
+lemma lnStd_error {n d : ℕ} (hd : 0 < d) (X : Fin n → Fin d → ℝ) (meanE : Fin n → ℝ)
+    (cSqExec : Fin n → Fin d → ℝ) {B ρm εsq : ℝ} (hB : 0 ≤ B) (hρm : 0 ≤ ρm) (hεsq : 0 ≤ εsq)
+    (hX : ∀ i k, |X i k| ≤ B) (hmean : ∀ i, |meanE i - rowMeanCoord i X| ≤ ρm)
+    (hmeanB : ∀ i, |rowMeanCoord i X| ≤ B)
+    (hsqround : ∀ i k, |cSqExec i k - (X i k - meanE i) ^ 2| ≤ εsq)
+    (hn : VexecNormal (fun _ _ => (1 / (d : ℝ))) cSqExec) (hdu : (d : ℝ) * u < 1)
+    (i : Fin n) (j : Fin d) :
+    |Real.sqrt (max (Vexec (fun _ _ => (1 / (d : ℝ))) cSqExec i j) 0 + Numbers.epsilon)
+        - rowStdCoord i X|
+      ≤ (rdotBudget d ((2 * B + ρm) ^ 2 + εsq) + (εsq + ρm * (4 * B + ρm)))
+          / (2 * Real.sqrt Numbers.epsilon) := by
+  have heps : (0 : ℝ) < Numbers.epsilon := numbers_epsilon_real_pos
+  have hrowStd : rowStdCoord i X
+      = Real.sqrt (max (rowVarCoord i X) 0 + Numbers.epsilon) := rfl
+  rw [hrowStd]
+  have ha : Numbers.epsilon
+      ≤ max (Vexec (fun _ _ => (1 / (d : ℝ))) cSqExec i j) 0 + Numbers.epsilon := by
+    have : (0 : ℝ) ≤ max (Vexec (fun _ _ => (1 / (d : ℝ))) cSqExec i j) 0 := le_max_right _ _
+    linarith
+  have hb : Numbers.epsilon ≤ max (rowVarCoord i X) 0 + Numbers.epsilon := by
+    have : (0 : ℝ) ≤ max (rowVarCoord i X) 0 := le_max_right _ _
+    linarith
+  refine (sqrt_sub_le heps ha hb).trans ?_
+  gcongr
+  have hsimp : max (Vexec (fun _ _ => (1 / (d : ℝ))) cSqExec i j) 0 + Numbers.epsilon
+      - (max (rowVarCoord i X) 0 + Numbers.epsilon)
+      = max (Vexec (fun _ _ => (1 / (d : ℝ))) cSqExec i j) 0 - max (rowVarCoord i X) 0 := by ring
+  rw [hsimp]
+  refine (abs_max_sub_max_le_abs _ _ _).trans ?_
+  exact lnVar_error hd X meanE cSqExec hB hρm hεsq hX hmean hmeanB hsqround hn hdu i j
+
 end TLT.FullBlockLit
