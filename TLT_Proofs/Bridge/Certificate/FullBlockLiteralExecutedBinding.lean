@@ -28,6 +28,7 @@ namespace TLT.FullBlockLit
 
 open TLT TLT.Fp32AttnLit TLT.Fp32Attn TLT.Fp32FFN TLT.Fp32LN TLT.LitCompose TLT.StackLit
 open TorchLean.Floats.IEEE754.IEEE32Exec
+open TorchLean.Floats (neuralMagnitude neuralBpow binaryRadix)
 
 /-- **The ideal attention head output is bounded by `B·Λ`.** The head `attnHead scale W Y i` is a
 softmax-convex combination (`attnVec_norm_le`: nonnegative weights summing to one) of the value rows
@@ -310,5 +311,69 @@ lemma lnStd_error {n d : ℕ} (hd : 0 < d) (X : Fin n → Fin d → ℝ) (meanE 
   rw [hsimp]
   refine (abs_max_sub_max_le_abs _ _ _).trans ?_
   exact lnVar_error hd X meanE cSqExec hB hρm hεsq hX hmean hmeanB hsqround hn hdu i j
+
+/-- **The single fp32 round, relatively bounded on the normal range.** For `|z| ≤ M` with `z` in the
+binary32 normal range, `|fp32Round z − z| ≤ 2⁻²⁴·M` — the relative round bound `fp32Round_rel_on_normal`
+lifted to the closed magnitude bound `M` (no `eps₃₂`-monotonicity needed). The atom that grounds every
+per-op round budget (`εsq` for the squaring, `ρround` for the affine) to a closed form in the actual
+magnitudes. -/
+private lemma fp32Round_abs_le_of_normal {z M : ℝ} (hz : |z| ≤ M)
+    (hnormal : z ≠ 0 → (-125 : ℤ) ≤ neuralMagnitude binaryRadix z) :
+    |fp32Round z - z| ≤ neuralBpow binaryRadix (-24) * M := by
+  have hM : 0 ≤ M := le_trans (abs_nonneg z) hz
+  have hnb : 0 ≤ neuralBpow binaryRadix (-24) := neuralBpow.nonneg binaryRadix (-24)
+  by_cases h0 : z = 0
+  · rw [h0, fp32Round_zero]; simp only [sub_self, abs_zero]; exact mul_nonneg hnb hM
+  · calc |fp32Round z - z|
+        ≤ neuralBpow binaryRadix (-24) * |z| := fp32Round_rel_on_normal z h0 (hnormal h0)
+      _ ≤ neuralBpow binaryRadix (-24) * M := by gcongr
+
+/-- The centered square is bounded by `(2B+ρm)²` when `|x|, |rm| ≤ B` and `|me − rm| ≤ ρm`
+(`|x − me| ≤ 2B+ρm`, squared). -/
+private lemma centeredSq_abs_le {x me rm B ρm : ℝ} (hB : 0 ≤ B) (hρm : 0 ≤ ρm)
+    (hx : |x| ≤ B) (hrm : |rm| ≤ B) (hme : |me - rm| ≤ ρm) :
+    (x - me) ^ 2 ≤ (2 * B + ρm) ^ 2 := by
+  have hmeB : |me| ≤ B + ρm := by
+    calc |me| = |(me - rm) + rm| := by rw [sub_add_cancel]
+      _ ≤ |me - rm| + |rm| := abs_add_le _ _
+      _ ≤ ρm + B := add_le_add hme hrm
+      _ = B + ρm := by ring
+  have hxm : |x - me| ≤ 2 * B + ρm := by
+    calc |x - me| = |x + -me| := by ring_nf
+      _ ≤ |x| + |(-me)| := abs_add_le _ _
+      _ = |x| + |me| := by rw [abs_neg]
+      _ ≤ B + (B + ρm) := add_le_add hx hmeB
+      _ = 2 * B + ρm := by ring
+  nlinarith [hxm, abs_nonneg (x - me), sq_abs (x - me)]
+
+/-- **`εsq` grounded — the squaring round in closed form.** The executed centered square
+`fp32Round((X − meanE)²)` is within `2⁻²⁴·(2B+ρm)²` of the exact `(X − meanE)²`, under the squaring's
+normal-range regime `hnormal`. This discharges `lnVar_error`/`lnStd_error`'s `hsqround` with the closed
+budget `εsq := 2⁻²⁴·(2B+ρm)²` — no free per-op budget left in the variance. -/
+lemma centeredSqRound_le {n d : ℕ} (X : Fin n → Fin d → ℝ) (meanE : Fin n → ℝ) {B ρm : ℝ}
+    (hB : 0 ≤ B) (hρm : 0 ≤ ρm) (hX : ∀ i k, |X i k| ≤ B)
+    (hmean : ∀ i, |meanE i - rowMeanCoord i X| ≤ ρm) (hmeanB : ∀ i, |rowMeanCoord i X| ≤ B)
+    (hnormal : ∀ i k, (X i k - meanE i) ^ 2 ≠ 0 →
+      (-125 : ℤ) ≤ neuralMagnitude binaryRadix ((X i k - meanE i) ^ 2)) (i : Fin n) (k : Fin d) :
+    |fp32Round ((X i k - meanE i) ^ 2) - (X i k - meanE i) ^ 2|
+      ≤ neuralBpow binaryRadix (-24) * (2 * B + ρm) ^ 2 := by
+  refine fp32Round_abs_le_of_normal ?_ (hnormal i k)
+  rw [abs_of_nonneg (sq_nonneg _)]
+  exact centeredSq_abs_le hB hρm (hX i k) (hmeanB i) (hmean i)
+
+/-- **`ρround` grounded — the affine round in closed form.** The executed layer-norm `lnStarExec` is the
+single `fp32Round` of the affine `(X − meanE)/stdE·γ + β`; given the affine magnitude bound `Maff` and the
+affine's normal-range regime, that round is within `2⁻²⁴·Maff` of the exact affine. This discharges
+`lnExec_forward_error`'s `hround` with the closed budget `ρround := 2⁻²⁴·Maff` (`Maff` itself closed-form
+`((2B+ρm)/√ε)·Cγ + Cβ` from the input/`γ`/`β`/std bounds) — the same round atom as `εsq`. -/
+lemma affineRound_le {n d : ℕ} (γ β : Fin d → ℝ) (meanE stdE : Fin n → ℝ) (X : Fin n → Fin d → ℝ)
+    {Maff : ℝ} (hMaff : ∀ i j, |(X i j - meanE i) / stdE i * γ j + β j| ≤ Maff)
+    (hnormal : ∀ i j, ((X i j - meanE i) / stdE i * γ j + β j) ≠ 0 →
+      (-125 : ℤ) ≤ neuralMagnitude binaryRadix ((X i j - meanE i) / stdE i * γ j + β j))
+    (i : Fin n) (j : Fin d) :
+    |lnStarExec γ β meanE stdE X i j - ((X i j - meanE i) / stdE i * γ j + β j)|
+      ≤ neuralBpow binaryRadix (-24) * Maff := by
+  simp only [lnStarExec]
+  exact fp32Round_abs_le_of_normal (hMaff i j) (hnormal i j)
 
 end TLT.FullBlockLit
