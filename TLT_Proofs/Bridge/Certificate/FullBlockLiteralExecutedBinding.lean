@@ -416,4 +416,49 @@ theorem residual_block_forward_error {n d : ℕ} (γ β : Fin d → ℝ) (meanE 
   refine ln_after_block_forward_error γ β meanE stdE (X + subExec) (X + subIdeal) hΛ_ln ?_ hln hlnlip
   rw [dist_add_left]; exact hsub
 
+/-- **The literal multi-head residual block as a bounded `ExecLayer`** (the carrier). The ideal block
+`normAttnCoord γ β (multiHeadAttn …)` maps every input into the ball of radius `√d·Cγ+Cβ`
+(`layerNormCoord_norm_le`, since it ends in layer-norm) and is `normMultiHeadBlock_input_lip`-Lipschitz on
+that ball (from the projected-query/key/value bounds on the ball). So — via `execLayerOfForwardInvariant`
+— any executed map `execMap` that is ball-forward-invariant and within `rnd` of it on the ball is a
+genuine `ExecLayer` over the ball, ready to sit in the `Es` list of
+`transformerEncoderStackMH_executed_at_depth`. The executed map and its `rnd` are supplied as data (the
+literal IEEE block + the residual-block forward error). -/
+noncomputable def litMHBlockExecLayer {n d H : ℕ} [NeZero n] (hd : 0 < d) {scale B bV γW Cγ Cβ : ℝ}
+    (hscale : 0 < scale) (hB : 0 ≤ B) (hbV0 : 0 ≤ bV) (hγW0 : 0 ≤ γW)
+    (WQ WK WVO : Fin H → Fin d → Fin d → ℝ) (hγWQ : ∀ h j, (∑ k, |WQ h k j|) ≤ γW)
+    (hγWK : ∀ h j, (∑ k, |WK h k j|) ≤ γW) (hγWVO : ∀ h j, (∑ k, |WVO h k j|) ≤ γW)
+    (γ β : Fin d → ℝ) (hCγ : ∀ j, |γ j| ≤ Cγ) (hCβ : ∀ j, |β j| ≤ Cβ)
+    (hQB : ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ h i e, |matMulCoord (WQ h) y i e| ≤ B)
+    (hKB : ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ h k' e, |matMulCoord (WK h) y k' e| ≤ B)
+    (hVB : ∀ y ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      ∀ h j, ‖matMulCoord (WVO h) y j‖ ≤ bV)
+    (execMap : (Fin n → Fin d → ℝ) → (Fin n → Fin d → ℝ)) (rnd : ℝ)
+    (hexecinv : ∀ x ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      execMap x ∈ Metric.closedBall 0 (Real.sqrt d * Cγ + Cβ))
+    (hrnd : ∀ x ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ),
+      dist (execMap x) (normAttnCoord γ β (multiHeadAttn scale WQ WK WVO) x) ≤ rnd) :
+    ExecLayer (↥(Metric.closedBall (0 : Fin n → Fin d → ℝ) (Real.sqrt d * Cγ + Cβ))) :=
+  execLayerOfForwardInvariant (Metric.closedBall 0 (Real.sqrt d * Cγ + Cβ))
+    (normAttnCoord γ β (multiHeadAttn scale WQ WK WVO)) execMap
+    (Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon
+      * (1 + (H : ℝ) * (2 * bV * ((d : ℝ) * B / scale) * (2 * γW) + γW))) rnd
+    (by
+      have hCγ0 : 0 ≤ Cγ := le_trans (abs_nonneg _) (hCγ ⟨0, hd⟩)
+      have hC : (0 : ℝ) ≤ 2 * bV * ((d : ℝ) * B / scale) :=
+        mul_nonneg (mul_nonneg (by norm_num) hbV0)
+          (div_nonneg (mul_nonneg (Nat.cast_nonneg d) hB) hscale.le)
+      have hLN : (0 : ℝ) ≤ Cγ * (2 * Real.sqrt d + 2) / Real.sqrt Numbers.epsilon :=
+        div_nonneg (mul_nonneg hCγ0 (by positivity)) (Real.sqrt_nonneg _)
+      exact mul_nonneg hLN (by positivity))
+    (fun x _ => by
+      rw [mem_closedBall_zero_iff]
+      exact layerNormCoord_norm_le hd γ β hCγ hCβ _)
+    hexecinv
+    (fun a ha b hb => normMultiHeadBlock_input_lip hd hscale hB hbV0 hγW0 WQ WK WVO hγWQ hγWK hγWVO
+      γ β hCγ a b (hQB b hb) (hKB a ha) (hVB a ha))
+    hrnd
+
 end TLT.FullBlockLit
