@@ -571,6 +571,78 @@ lemma litPert {n' : ℕ} (zt : Tensor IEEE32Exec (.dim (n' + 1) .scalar)) (sExac
     exact hscorediff k
   linarith
 
+/-- The float left-fold `max` over a list is `≥` its starting accumulator and `≥` every element it
+folds in (read over ℝ, all entries finite). The order-companion of `foldl_scalarMax_bound`. -/
+lemma foldl_scalarMax_ge {n' : ℕ} (f : Fin (n' + 1) → Tensor IEEE32Exec .scalar)
+    (hf : ∀ k, isFinite (scalarVal (f k)) = true) :
+    ∀ (l : List (Fin (n' + 1))) (acc : IEEE32Exec), isFinite acc = true →
+      toReal acc ≤ toReal (l.foldl (fun acc i => scalarElim (f i) (fun v => max acc v)) acc) ∧
+      ∀ k ∈ l, toReal (scalarVal (f k))
+        ≤ toReal (l.foldl (fun acc i => scalarElim (f i) (fun v => max acc v)) acc) := by
+  intro l
+  induction l with
+  | nil => intro acc _; exact ⟨le_refl _, by simp⟩
+  | cons i l ih =>
+    intro acc haccf
+    simp only [List.foldl_cons]
+    have hfi := hf i
+    have hstep : scalarElim (f i) (fun v => max acc v) = maximum acc (scalarVal (f i)) := by
+      cases f i with | scalar v => rfl
+    rw [hstep]
+    have hmaxfin := isFinite_maximum_of_isFinite acc (scalarVal (f i)) haccf hfi
+    obtain ⟨ihacc, ihmem⟩ := ih (maximum acc (scalarVal (f i))) hmaxfin
+    have hge_acc : toReal acc ≤ toReal (maximum acc (scalarVal (f i))) := by
+      rw [toReal_maximum_eq_max_of_isFinite acc (scalarVal (f i)) haccf hfi]; exact le_max_left _ _
+    have hge_fi : toReal (scalarVal (f i)) ≤ toReal (maximum acc (scalarVal (f i))) := by
+      rw [toReal_maximum_eq_max_of_isFinite acc (scalarVal (f i)) haccf hfi]; exact le_max_right _ _
+    refine ⟨le_trans hge_acc ihacc, fun k hk => ?_⟩
+    rcases List.mem_cons.mp hk with hk | hk
+    · subst hk; exact le_trans hge_fi ihacc
+    · exact ihmem k hk
+
+/-- **The row max dominates every score entry** (read over ℝ). The order-companion of
+`abs_toReal_softmaxRowMaxIE_le`; supplies `score − rowMax ≤ 0`, the cone's upper edge. -/
+lemma toReal_le_softmaxRowMaxIE {n' : ℕ} (f : Fin (n' + 1) → Tensor IEEE32Exec .scalar)
+    (hf : ∀ k, isFinite (scalarVal (f k)) = true) (k : Fin (n' + 1)) :
+    toReal (scalarVal (f k)) ≤ toReal (softmaxRowMaxIE (Tensor.dim f)) := by
+  have h := foldl_scalarMax_ge f hf (List.finRange (n' + 1)) (scalarVal (f ⟨0, Nat.succ_pos n'⟩)) (hf _)
+  simpa [softmaxRowMaxIE] using h.2 k (List.mem_finRange k)
+
+/-- **C5 — the literal shifted logit lies on the softmax cone.** For a score row bounded by `B'`, the
+shifted logit `softmaxShiftedIE zt k` read over ℝ satisfies `≤ 2uB'` (upper edge `η`, since `score −
+rowMax ≤ 0` plus the relative round) and `|·| ≤ 2B' + 2uB'` (radius `T`). This is the cone hypothesis of
+`exec32_exp_error_on_cone`, derived from the run-time score bound. -/
+lemma shifted_mem_cone {n' : ℕ} (zt : Tensor IEEE32Exec (.dim (n' + 1) .scalar)) (k : Fin (n' + 1))
+    {B' : ℝ}
+    (hentry : ∀ j, isFinite (Tensor.vecGet zt j) = true ∧ |toReal (Tensor.vecGet zt j)| ≤ B')
+    (hrowmaxfin : isFinite (softmaxRowMaxIE zt) = true)
+    (hshiftfin : isFinite (sub (Tensor.vecGet zt k) (softmaxRowMaxIE zt)) = true)
+    (hshiftnorm : toReal (Tensor.vecGet zt k) - toReal (softmaxRowMaxIE zt) ≠ 0 ∧
+      (-125 : ℤ) ≤ neuralMagnitude binaryRadix
+        (toReal (Tensor.vecGet zt k) - toReal (softmaxRowMaxIE zt))) :
+    toReal (softmaxShiftedIE zt k) ≤ 2 * u * B' ∧
+      |toReal (softmaxShiftedIE zt k)| ≤ 2 * B' + 2 * u * B' := by
+  have hsub := abs_toReal_softmaxShiftedIE_sub_le zt k (hentry k).1 hrowmaxfin hshiftfin
+    hshiftnorm.1 hshiftnorm.2
+  have hge : toReal (Tensor.vecGet zt k) ≤ toReal (softmaxRowMaxIE zt) := by
+    cases zt with
+    | dim f =>
+      rw [← scalarVal_eq_vecGet]
+      exact toReal_le_softmaxRowMaxIE f (fun j => by rw [scalarVal_eq_vecGet]; exact (hentry j).1) k
+  have hmR : |toReal (softmaxRowMaxIE zt)| ≤ B' := by
+    cases zt with
+    | dim f => exact abs_toReal_softmaxRowMaxIE_le f (fun j => by rw [scalarVal_eq_vecGet]; exact hentry j)
+  have hsk := abs_le.mp (hentry k).2
+  have hmRle := abs_le.mp hmR
+  have hdiffB : |toReal (Tensor.vecGet zt k) - toReal (softmaxRowMaxIE zt)| ≤ 2 * B' := by
+    rw [abs_le]; constructor <;> linarith
+  have humul : u * |toReal (Tensor.vecGet zt k) - toReal (softmaxRowMaxIE zt)| ≤ u * (2 * B') :=
+    mul_le_mul_of_nonneg_left hdiffB u_nonneg
+  have hsubabs := abs_le.mp hsub
+  refine ⟨by nlinarith [hge, hsubabs.2, humul], ?_⟩
+  rw [abs_le]
+  constructor <;> nlinarith [hsubabs.1, hsubabs.2, abs_le.mp hdiffB, humul]
+
 /-- **The literal executed-head no-overflow bundle.** Every field is an honest condition on the run-time
 binary32 intermediates of the literal `scaledDotProductAttention` (no overflow / no underflow / normal
 range), mirroring the model's `ExecAttnNormal`. `F` are the score rows (`litScaledScores ctx = dim F`),
