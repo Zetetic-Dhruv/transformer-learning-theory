@@ -7,6 +7,7 @@ import TLT_Proofs.Bridge.Certificate.AttentionLiteralExecutedBinding
 import TLT_Proofs.Bridge.Fp32.FFNForwardError
 import TLT_Proofs.Bridge.Fp32.LayerNormForwardError
 import TLT_Proofs.Bridge.Forward.LiteralBlockComposition
+import TLT_Proofs.Bridge.Certificate.TransformerStackLiteralExecutedBinding
 
 /-!
 # The full literal transformer-block certificate — assembly toward closed-form, grounded bounds
@@ -25,7 +26,7 @@ downstream FFN's input hypothesis. Closed-form in `(B, Λ)`, grounded in the sof
 
 namespace TLT.FullBlockLit
 
-open TLT TLT.Fp32AttnLit TLT.Fp32Attn TLT.Fp32FFN TLT.Fp32LN TLT.LitCompose
+open TLT TLT.Fp32AttnLit TLT.Fp32Attn TLT.Fp32FFN TLT.Fp32LN TLT.LitCompose TLT.StackLit
 open TorchLean.Floats.IEEE754.IEEE32Exec
 
 /-- **The ideal attention head output is bounded by `B·Λ`.** The head `attnHead scale W Y i` is a
@@ -126,5 +127,31 @@ lemma lnMean_error {n d : ℕ} (hd : 0 < d) (X : Fin n → Fin d → ℝ) {B : �
   have hkey := Vexec_entry_error (fun _ _ => (1 / (d : ℝ))) X hB zero_le_one hX hΛ hn hdu i j
   rw [hmm, mul_one] at hkey
   exact hkey
+
+/-- **The literal `attention → FFN → layerNorm` block forward error.** Threading the three sub-layer
+legs through their pointwise telescopes: the executed `attention → FFN` composite is within the FFN
+rounding plus `Λ²·ρ_attn` of the ideal (`ffn_after_block_forward_error`, with `ρ_attn` the attention
+cone certificate's `rndLit`); the executed layer-norm on that is within `ln_budget + Λ_ln·(·)` of the
+ideal block (`ln_after_block_forward_error`). The full block telescopes to
+`ln_budget + Λ_ln·(FFN budget + Λ²·ρ_attn)` — every term closed-form in the actual weights once the FFN
+budget (`rdotBudget`, shipped) and the layer-norm budget `ln_budget` (its `ρm` grounded by `lnMean_error`,
+`ρs`/`ρround` by the layer-norm reductions) are substituted. The block-level `ExecLayer` carrier (uniform
+across blocks) then stacks these via `execComp_envelope`; the `gridExt` wrapper lifts to ∀-input. -/
+theorem fullBlock_forward_error {n d : ℕ} (W1 W2 : Fin d → Fin d → ℝ) (γ β : Fin d → ℝ)
+    (meanE stdE : Fin n → ℝ) (A_exec A_ideal : Fin n → Fin d → ℝ)
+    {B Λ ρ_attn ln_budget Λ_ln : ℝ} (hB : 0 ≤ B) (hΛ : 0 ≤ Λ) (hΛ_ln : 0 ≤ Λ_ln)
+    (hX : ∀ i k, |A_exec i k| ≤ B) (hW1 : ∀ j, ∑ k, |W1 k j| ≤ Λ) (hW2 : ∀ j, ∑ k, |W2 k j| ≤ Λ)
+    (hn1 : VexecNormal W1 A_exec) (hn2 : VexecNormal W2 (reluCoord (Vexec W1 A_exec)))
+    (hdu : (d : ℝ) * u < 1) (hattn : dist A_exec A_ideal ≤ ρ_attn)
+    (hln : dist (lnStarExec γ β meanE stdE (ffnExec W1 W2 A_exec))
+        (layerNormCoord γ β (ffnExec W1 W2 A_exec)) ≤ ln_budget)
+    (hlnlip : ∀ a b : Fin n → Fin d → ℝ,
+      dist (layerNormCoord γ β a) (layerNormCoord γ β b) ≤ Λ_ln * dist a b) :
+    dist (lnStarExec γ β meanE stdE (ffnExec W1 W2 A_exec))
+        (layerNormCoord γ β (ffnIdeal W1 W2 A_ideal))
+      ≤ ln_budget + Λ_ln *
+          (rdotBudget d (bVval d B Λ * Λ) + Λ * rdotBudget d (B * Λ) + Λ ^ 2 * ρ_attn) :=
+  ln_after_block_forward_error γ β meanE stdE (ffnExec W1 W2 A_exec) (ffnIdeal W1 W2 A_ideal) hΛ_ln
+    (ffn_after_block_forward_error W1 W2 A_exec A_ideal hB hΛ hX hW1 hW2 hn1 hn2 hdu hattn) hln hlnlip
 
 end TLT.FullBlockLit
