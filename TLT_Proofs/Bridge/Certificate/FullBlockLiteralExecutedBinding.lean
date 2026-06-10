@@ -25,7 +25,7 @@ downstream FFN's input hypothesis. Closed-form in `(B, Λ)`, grounded in the sof
 
 namespace TLT.FullBlockLit
 
-open TLT TLT.Fp32AttnLit TLT.Fp32Attn TLT.Fp32FFN
+open TLT TLT.Fp32AttnLit TLT.Fp32Attn TLT.Fp32FFN TLT.Fp32LN TLT.LitCompose
 open TorchLean.Floats.IEEE754.IEEE32Exec
 
 /-- **The ideal attention head output is bounded by `B·Λ`.** The head `attnHead scale W Y i` is a
@@ -88,5 +88,43 @@ lemma ffnExec_entry_abs_le {n d : ℕ} (W1 W2 : Fin d → Fin d → ℝ) (E : Fi
     exact h1.trans (Vexec_entry_abs_le W1 E hB hΛ hE hW1 hn1 hdu a k)
   simp only [ffnExec]
   exact Vexec_entry_abs_le W2 (reluCoord (Vexec W1 E)) hB' hΛ hrelu hW2 hn2 hdu i j
+
+/-- **Rung 4 — the layer-norm leg composed onto any upstream block.** Given an upstream block whose
+executed output `A_exec` is within `ρ` of its ideal output `A_ideal` (e.g. `ρ =` the `attention → FFN`
+block's forward error), the executed starred layer-norm on `A_exec` is within `ln_budget + Λ_ln·ρ` of the
+ideal `layerNormCoord` on `A_ideal`: the layer-norm's own forward error `ln_budget` (the closed-form
+`lnExec_forward_error` bound) plus the upstream error amplified by the layer-norm Lipschitz constant
+`Λ_ln` (`layerNormCoord_lipschitz`). The block's forward error telescopes one sub-layer at a time;
+mirrors `ffn_after_block_forward_error`. -/
+theorem ln_after_block_forward_error {n d : ℕ} (γ β : Fin d → ℝ) (meanE stdE : Fin n → ℝ)
+    (A_exec A_ideal : Fin n → Fin d → ℝ) {ρ ln_budget Λ_ln : ℝ} (hΛ_ln : 0 ≤ Λ_ln)
+    (hupstream : dist A_exec A_ideal ≤ ρ)
+    (hln : dist (lnStarExec γ β meanE stdE A_exec) (layerNormCoord γ β A_exec) ≤ ln_budget)
+    (hlnlip : ∀ a b : Fin n → Fin d → ℝ,
+      dist (layerNormCoord γ β a) (layerNormCoord γ β b) ≤ Λ_ln * dist a b) :
+    dist (lnStarExec γ β meanE stdE A_exec) (layerNormCoord γ β A_ideal) ≤ ln_budget + Λ_ln * ρ :=
+  block2_forward_error (fun _ : Unit => A_exec) (fun _ : Unit => A_ideal)
+    (lnStarExec γ β meanE stdE) (layerNormCoord γ β) () hΛ_ln hupstream hln hlnlip
+
+/-- **Rung 5 — the layer-norm mean reduction grounded to `rdotBudget`.** The per-row mean
+`rowMeanCoord i X = (∑ₖ X i k)/d` is exactly the matmul `matMulCoord (·↦1/d) X i 0` against the uniform
+weight (whose `ℓ¹` row-sum is `1`). So the executed mean `Vexec (·↦1/d) X i 0` is within the shipped
+matmul rounding budget `rdotBudget d B` of the ideal mean — the layer-norm's `ρm` budget driven to closed
+form by *reusing* the value-projection atom `Vexec_entry_error`, with no new summation-fold analysis. -/
+lemma lnMean_error {n d : ℕ} (hd : 0 < d) (X : Fin n → Fin d → ℝ) {B : ℝ} (hB : 0 ≤ B)
+    (hX : ∀ i k, |X i k| ≤ B) (hn : VexecNormal (fun _ _ => (1 / (d : ℝ))) X)
+    (hdu : (d : ℝ) * u < 1) (i : Fin n) (j : Fin d) :
+    |Vexec (fun _ _ => (1 / (d : ℝ))) X i j - rowMeanCoord i X| ≤ rdotBudget d B := by
+  have hdpos : (0 : ℝ) < (d : ℝ) := Nat.cast_pos.mpr hd
+  have hmm : matMulCoord (fun _ _ => (1 / (d : ℝ))) X i j = rowMeanCoord i X := by
+    rw [matMulCoord, rowMeanCoord]; simp only [mul_one_div]; rw [← Finset.sum_div]
+  have hΛ : ∀ j : Fin d, ∑ k : Fin d, |((fun _ _ => (1 / (d : ℝ))) k j)| ≤ 1 := by
+    intro j
+    simp only [abs_of_nonneg (le_of_lt (by positivity : (0 : ℝ) < 1 / (d : ℝ)))]
+    rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, mul_one_div,
+      div_self (ne_of_gt hdpos)]
+  have hkey := Vexec_entry_error (fun _ _ => (1 / (d : ℝ))) X hB zero_le_one hX hΛ hn hdu i j
+  rw [hmm, mul_one] at hkey
+  exact hkey
 
 end TLT.FullBlockLit
