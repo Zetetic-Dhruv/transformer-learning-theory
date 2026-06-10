@@ -32,6 +32,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Bridge.Certificate.MultiHeadEncoderStack,
     `TLT_Proofs.Bridge.Certificate.TransformerCertificate,
     `TLT_Proofs.Bridge.Certificate.TransformerStackCertificate,
+    `TLT_Proofs.Bridge.Certificate.TransformerStackLiteralExecutedBinding,
     `TLT_Proofs.Bridge.Forward.BoundedExecLayer,
     `TLT_Proofs.Bridge.Forward.ExecLayerInstances,
     `TLT_Proofs.Bridge.Forward.ExecutedForward,
