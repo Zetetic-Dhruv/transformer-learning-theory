@@ -399,4 +399,21 @@ lemma attnHead_eq_multiHead_one {n d : ℕ} (scale : ℝ) (W : Fin d → Fin d �
   unfold attnHeadQK attnHead
   simp only [matMulCoord_id]
 
+/-- **The residual-then-layer-norm block forward error.** The shipped encoder sub-block is
+`normAttnCoord/normFFNBlock = layerNormCoord γ β (X + sub X)` — residual around a sub-layer, then
+layer-norm. The residual `+ X` cancels in the distance (`dist_add_left`), so the executed block on
+`X + subExec` is within `ln_budget + Λ_ln·ρ` of the ideal block on `X + subIdeal`, where `ρ` bounds the
+sub-layer forward error `dist subExec subIdeal` (the attention cone certificate's `rndLit`, or the FFN
+budget). General over the sub-layer; mirrors `ln_after_block_forward_error` with the residual upstream. -/
+theorem residual_block_forward_error {n d : ℕ} (γ β : Fin d → ℝ) (meanE stdE : Fin n → ℝ)
+    (X subExec subIdeal : Fin n → Fin d → ℝ) {ρ ln_budget Λ_ln : ℝ} (hΛ_ln : 0 ≤ Λ_ln)
+    (hsub : dist subExec subIdeal ≤ ρ)
+    (hln : dist (lnStarExec γ β meanE stdE (X + subExec)) (layerNormCoord γ β (X + subExec)) ≤ ln_budget)
+    (hlnlip : ∀ a b : Fin n → Fin d → ℝ,
+      dist (layerNormCoord γ β a) (layerNormCoord γ β b) ≤ Λ_ln * dist a b) :
+    dist (lnStarExec γ β meanE stdE (X + subExec)) (layerNormCoord γ β (X + subIdeal))
+      ≤ ln_budget + Λ_ln * ρ := by
+  refine ln_after_block_forward_error γ β meanE stdE (X + subExec) (X + subIdeal) hΛ_ln ?_ hln hlnlip
+  rw [dist_add_left]; exact hsub
+
 end TLT.FullBlockLit
