@@ -32,6 +32,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Bridge.Certificate.FullBlockLiteralExecutedBinding,
     `TLT_Proofs.Bridge.Certificate.GridExtension,
     `TLT_Proofs.Bridge.Certificate.LNBudgetDischarge,
+    `TLT_Proofs.Bridge.Certificate.LayerNormLiteralExecutedBinding,
     `TLT_Proofs.Bridge.Certificate.LiteralStackCertConcrete,
     `TLT_Proofs.Bridge.Certificate.MHBlockRootBinding,
     `TLT_Proofs.Bridge.Certificate.MeasurabilityPrecondition,
