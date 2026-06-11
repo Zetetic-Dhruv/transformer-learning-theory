@@ -108,6 +108,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.TemperedDesignLaw.MixtureParamLayer,
     `TLT_Proofs.TemperedDesignLaw.MixtureLipschitz,
     `TLT_Proofs.TemperedDesignLaw.MixtureOutput,
+    `TLT_Proofs.TemperedDesignLaw.RegionTelescope,
     `TLT_Proofs.TemperedDesignLaw.SharpnessLowerBound,
     `TLT_Proofs.TemperedDesignLaw.TwoLedger,
     `TLT_Proofs.TemperedDesignLaw.ZeroSharpness,
