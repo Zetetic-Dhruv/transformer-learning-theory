@@ -101,6 +101,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.TemperedDesignLaw.Conjectures,
     `TLT_Proofs.TemperedDesignLaw.Expressivity,
     `TLT_Proofs.TemperedDesignLaw.HardeningCascade,
+    `TLT_Proofs.TemperedDesignLaw.HardeningCascadeDepth,
     `TLT_Proofs.TemperedDesignLaw.HardeningEnvelope,
     `TLT_Proofs.TemperedDesignLaw.LeakageLaw,
     `TLT_Proofs.TemperedDesignLaw.MarginShell,
