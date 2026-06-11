@@ -100,6 +100,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Strictness.AttentionNonBorelWitness,
     `TLT_Proofs.TemperedDesignLaw.Conjectures,
     `TLT_Proofs.TemperedDesignLaw.LeakageLaw,
+    `TLT_Proofs.TemperedDesignLaw.MarginShell,
     `TLT_Proofs.TemperedDesignLaw.SymbolChannel,
     `TLT_Proofs.TemperedDesignLaw.Stability,
     `TLT_Proofs.Tame.FiniteCellRouter,
