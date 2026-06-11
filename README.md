@@ -79,7 +79,18 @@ The sharpest form of the head bound: stated not about a real‑arithmetic model 
 > stack at depth. The per‑layer `rnd` is supplied as data (as the single‑layer executed certificate
 > does); the **single attention head's** literal fp32 forward error is now **derived** (`attnLiteralForwardError`, in *The literal float32 attention head* above), and the lift through the full block is **done at the block level**: the feed‑forward block is bound to the literal `Spec.FeedForward.forward` at `IEEE32Exec` (`ffnLiteral_forward_error`, `Bridge/Certificate/FFNLiteralExecutedBinding`), and both residual+LayerNorm block carriers are built as `Es`‑ready `ExecLayer`s (`mhBlockRootExecLayer` / `ffnBlockRootExecLayer`, `Bridge/Certificate/{MH,FFN}BlockRootBinding`), each within a closed forward error of its ideal block. The LayerNorm enters as a **faithful executed ℝ‑model** on the genuine fp32 mean/std `Vexec` reductions, with a fully floor‑driven budget (`lnStarExec_residual_budget`, `Bridge/Certificate/LNBudgetDischarge`) — no abstract LayerNorm slot.
 >
-> **TODO (literal LayerNorm).** The LayerNorm is the executed ℝ‑model `lnStarExec` (one `fp32Round` over the affine, with the mean/std the bit‑level `Vexec` reductions), not yet the **full literal op‑DAG** `toReal∘Spec.layerNorm` — the bit‑level `reduceMean → center → reduceVar → clamp → +ε → sqrt → divide → ·γ → +β` tensor pipeline, which rounds per‑op (the attention and FFN sub‑layers are bound at this literal op‑DAG level; the LayerNorm is not yet). The named concrete‑capstone bundle plugging both block carriers into the depth‑`L` Dudley generalization bound is the remaining mechanical step.
+> **Literal LayerNorm — done.** `toReal∘Spec.layerNorm` now binds op‑by‑op, the same idiom as the
+> attention and feed‑forward sub‑layers: `get2_layerNorm_litAffine` (`Bridge/Certificate/LayerNormLiteralExecutedBinding`)
+> reads the output coordinate `[i,j]` of `Spec.layerNorm` at `IEEE32Exec` as exactly the executed affine
+> `((x − mean)/std · γ + β)` of the literal per‑row mean/std, through the shipped `_ie` coordinate
+> reductions (`subSpec`/`divSpec`/`mulSpec` + the two broadcasts); the `reduceMean`/`reduceVar` reductions
+> enter as opaque per‑row scalars (no general‑axis unfolding), their rounding the `ρm`/`ρs` budget
+> `lnExec_forward_error` already carries. `toReal_layerNorm_forward_error` bounds it against the ℝ‑model
+> `layerNormCoord`, reusing `lnExec_forward_error` verbatim — no new error machinery, with the per‑op affine
+> rounding the honest `δ` regime (dischargeable from the read equation and the shipped `toReal_sub`/`div`/`mul`/`add`
+> atoms). **All three sub‑layers — attention, FFN, LayerNorm — are bound to their literal `Spec` ops.** The
+> named concrete‑capstone bundle plugging both block carriers into the depth‑`L` Dudley generalization bound
+> is `litMHEncoderStack_literal_certified_generalization` (`Bridge/Certificate/LiteralStackCertConcrete`).
 >
 > **Depth dependence of the envelope.** The generic `envBound` amplifies each layer's rounding by the
 > product of the downstream ideal Lipschitz constants, which is **exponential in depth** when the
