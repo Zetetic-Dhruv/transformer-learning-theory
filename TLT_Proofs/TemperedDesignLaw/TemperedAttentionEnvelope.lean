@@ -29,6 +29,7 @@ Everything is monotonicity of the *shipped* closed forms; no new envelope is int
 -/
 
 open TLT.ExpError TLT.Fp32Attn TLT.Fp32AttnLit
+open scoped BigOperators
 
 noncomputable section
 
@@ -117,5 +118,39 @@ lemma rndLit_temperedCone_mono {n d : ℕ} {B Λ scale Dlo E_lit B'₁ B'₂ : �
   · nlinarith [u_nonneg, hB'0]
   · nlinarith [u_nonneg, hB', hB'0]
   · nlinarith [u_nonneg, hB']
+
+open Spec Tensor TorchLean.Floats.IEEE754 TorchLean.Floats.IEEE754.IEEE32Exec in
+/-- **The certified tempered attention region.** The literal fp32 attention forward error on a score row
+bounded by `B'`, with the opaque cone-regime premise of `attnLiteralForwardError_onCone`
+(`rrρ (2B'(1+u)) ≤ 1/8`) replaced by the checkable score-bound ceiling `B' ≤ Tmax / (2(1+u))`. Below the
+ceiling the range-reduction argument `2B'(1+u)` stays under the cone ceiling `Tmax`, so the affine
+range-reduction envelope stays in the cone (`rrρ_le_of_le_Tmax`), the per-logit exp atom is discharged on
+the cone, and the executed head is within the closed form `rndLit … (δexpCone (2B'(1+u)) (2uB')) …` of the
+ideal head — with no analytic exp-accuracy premise. `Tmax` is the exact cone ceiling; the score bound `B'`
+carries the sharpness on the temperature axis, so `B' ≤ Tmax / (2(1+u))` is the certified sharpness window. -/
+theorem litAttnForwardError_temperedCone {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
+    (ctx : Spec.AttentionContext IEEE32Exec (n + 1) (n + 1) d h1 h2)
+    (Yt : Fin (n + 1) → Fin d → IEEE32Exec) (Wt : Fin d → Fin d → IEEE32Exec)
+    (hQ : ctx.Q = Spec.matrixTensor Yt) (hK : ctx.K = Spec.matrixTensor Yt)
+    (hV : ctx.V = matMulSpec (Spec.matrixTensor Yt) (Spec.matrixTensor Wt)) (hmask : ctx.mask = none)
+    (F : Fin (n + 1) → Tensor IEEE32Exec (.dim (n + 1) .scalar)) {Dlo E_lit : ℝ}
+    (hN : ExecAttnLitNormal ctx Yt Wt F Dlo E_lit) {B Λ B' : ℝ}
+    (hB : 0 ≤ B) (hΛ0 : 0 ≤ Λ) (hc : 0 < toReal (litScaleFactor d : IEEE32Exec))
+    (hX : ∀ a k, |toReal (Yt a k)| ≤ B) (hW : ∀ j, ∑ k, |toReal (Wt k j)| ≤ Λ)
+    (hnu : ((n + 1 : ℕ) : ℝ) * u < 1) (hdu : (d : ℝ) * u < 1) (hE : 0 ≤ E_lit)
+    (hscore : ∀ i k, |toReal (Tensor.vecGet (F i) k)| ≤ B')
+    (hη2 : 2 * u * B' ≤ 1 / 2)
+    (hB'max : B' ≤ Tmax / (2 * (1 + u))) :
+    dist (execAttnLit ctx) (attnHead (1 / toReal (litScaleFactor d : IEEE32Exec))
+        (fun a b => toReal (Wt a b)) (fun a b => toReal (Yt a b)))
+      ≤ rndLit n d B Λ (1 / toReal (litScaleFactor d : IEEE32Exec)) Dlo
+          (δexpCone (2 * B' + 2 * u * B') (2 * u * B')) E_lit := by
+  have hu := u_nonneg
+  have hupos : (0 : ℝ) < 2 * (1 + u) := by linarith
+  have hcone : 2 * B' + 2 * u * B' ≤ Tmax := by
+    have hmul : B' * (2 * (1 + u)) ≤ Tmax := (le_div_iff₀ hupos).mp hB'max
+    nlinarith [hmul]
+  exact attnLiteralForwardError_onCone ctx Yt Wt hQ hK hV hmask F hN hB hΛ0 hc hX hW hnu hdu hE
+    hscore hη2 (rrρ_le_of_le_Tmax hcone)
 
 end TLT.TemperedDesignLaw
