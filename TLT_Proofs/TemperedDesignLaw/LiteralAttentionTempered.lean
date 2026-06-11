@@ -43,7 +43,9 @@ def litAttnTempered (d nK : ℕ) (β : ℝ) (hβ : 0 ≤ β) : TemperedRouterFam
   hβ := hβ
 
 /-- **Leakage law on the literal attention.** The off-route softmax mass of TorchLean's attention is at most
-`(nK−1)·exp(−β·γ)`. -/
+`(nK−1)·exp(−β·γ)`. A direct instantiation of `TD2_leakage_upper_proof` on `litAttnTempered`, carrying no
+proof content beyond it: it records that the abstract leakage law holds verbatim of the literal attention's
+scores (`Bridge.attentionScoreRouter`), the testbed object. -/
 theorem litAttn_leakage_upper (d nK : ℕ) {β : ℝ} (hβ : 0 ≤ β) (hk : 0 < nK)
     (ρ : (litAttnTempered d nK β hβ).router.Ρ) (x : Fin d → ℝ) :
     offRouteMass (litAttnTempered d nK β hβ) hk ρ x
@@ -51,7 +53,9 @@ theorem litAttn_leakage_upper (d nK : ℕ) {β : ℝ} (hβ : 0 ≤ β) (hk : 0 <
   TD2_leakage_upper_proof (litAttnTempered d nK β hβ) hk ρ x
 
 /-- **Symbol invariance on the literal attention.** For `β > 0` the literal soft attention's `leastArgmax`
-is exactly the hard attention route. -/
+is exactly the hard attention route. A direct instantiation of `TD0_symbol_invariant_proof` on
+`litAttnTempered`, carrying no proof content beyond it: it records that the symbol channel of the abstract
+design law holds verbatim of the literal attention's scores. -/
 theorem litAttn_symbol_invariant (d nK : ℕ) {β : ℝ} (hβ : 0 ≤ β) (hk : 0 < nK) (hβpos : 0 < β)
     (ρ : (litAttnTempered d nK β hβ).router.Ρ) (x : Fin d → ℝ) :
     leastArgmax (softWeights (litAttnTempered d nK β hβ) ρ x) hk
@@ -59,7 +63,9 @@ theorem litAttn_symbol_invariant (d nK : ℕ) {β : ℝ} (hβ : 0 ≤ β) (hk : 
   TD0_symbol_invariant_proof (litAttnTempered d nK β hβ) hk hβpos ρ x
 
 /-- **Route stability on the literal attention.** The executed route (from rounded scores within budget `b`)
-equals the hard route whenever `2·b` is below the margin — exact decision off the `u`-shell. -/
+equals the hard route whenever `2·b` is below the margin — exact decision off the `u`-shell. A direct
+instantiation of `TD7_route_stable_proof` on `litAttnTempered`, carrying no proof content beyond it: it
+records that route stability holds verbatim of the literal attention's scores. -/
 theorem litAttn_route_stable (d nK : ℕ) {β : ℝ} (hβ : 0 ≤ β) (hk : 0 < nK)
     (ρ : (litAttnTempered d nK β hβ).router.Ρ) (x : Fin d → ℝ) (sExec : Fin nK → ℝ) (b : ℝ)
     (hb : ∀ i, |sExec i - (litAttnTempered d nK β hβ).router.score ρ x i| ≤ b)
