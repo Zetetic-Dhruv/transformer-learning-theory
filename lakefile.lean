@@ -122,6 +122,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.TemperedDesignLaw.TwoLedger,
     `TLT_Proofs.TemperedDesignLaw.ZeroSharpness,
     `TLT_Proofs.TemperedDesignLaw.SymbolChannel,
+    `TLT_Proofs.TemperedDesignLaw.TemperedFloatCone,
     `TLT_Proofs.TemperedDesignLaw.Stability,
     `TLT_Proofs.Tame.FiniteCellRouter,
     `TLT_Proofs.Tame.SigmaCompactParam,
