@@ -60,6 +60,21 @@ lemma rrρ_le_of_le_Tmax {T : ℝ} (hT : T ≤ Tmax) : rrρ T ≤ 1 / 8 := by
   have hmul : T * δinv ≤ Tmax * δinv := mul_le_mul_of_nonneg_right hT δinv_pos.le
   linarith
 
+/-- **The certificate region is sharp at the cone ceiling (TD8 numerical-cliff boundary).** The range
+reduction stays in the cone regime EXACTLY up to `Tmax`: `rrρ T ≤ 1/8 ↔ T ≤ Tmax`. The `←` direction is
+`rrρ_le_of_le_Tmax`; the strict `→` shows the certified region for the tempered float envelope ENDS at `Tmax`
+— above it the cone hypothesis is unsatisfiable, so the numerical certificate has a sharp boundary, the
+`β`-axis twin of the measurability cliff. -/
+theorem rrρ_le_iff_le_Tmax {T : ℝ} : rrρ T ≤ 1 / 8 ↔ T ≤ Tmax := by
+  rw [← rrρ_Tmax, rrρ, rrρ]
+  constructor
+  · intro h
+    have hmul : T * δinv ≤ Tmax * δinv := by linarith
+    exact le_of_mul_le_mul_right hmul δinv_pos
+  · intro h
+    have hmul : T * δinv ≤ Tmax * δinv := mul_le_mul_of_nonneg_right h δinv_pos.le
+    linarith
+
 /-- **`TD5_envelope_monotone`.** The tempered `exp`-cone envelope is monotone in the sharpness: for `S ≥ 0`
 and `β₁ ≤ β₂`, `δexpCone (β₁·S) η ≤ δexpCone (β₂·S) η`. Only the range-reduction term `2·eᶭ·rrρ(β·S)` moves,
 and it moves up. -/
