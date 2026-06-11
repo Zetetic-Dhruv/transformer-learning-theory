@@ -98,6 +98,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Numerics.LayerNormVarianceCancellation,
     `TLT_Proofs.Routing.MeasurableScoreRouting,
     `TLT_Proofs.Strictness.AttentionNonBorelWitness,
+    `TLT_Proofs.TemperedDesignLaw.CommutingSquare,
     `TLT_Proofs.TemperedDesignLaw.Conjectures,
     `TLT_Proofs.TemperedDesignLaw.DecisionCascade,
     `TLT_Proofs.TemperedDesignLaw.DecisionForwardSlack,
