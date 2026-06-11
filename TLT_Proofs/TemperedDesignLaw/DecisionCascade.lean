@@ -6,22 +6,28 @@ Authors: Dhruv Gupta
 import TLT_Proofs.TemperedDesignLaw.Stability
 
 /-!
-# Decision exactness at depth (the u-edge, transcendental-free)
+# Decision exactness at depth (the u-edge composition)
 
-The symbol channel is a *jump* map — `y ↦ val y (route y)` is discontinuous at decision boundaries, so it
-carries no Lipschitz constant and does not fit the metric region telescope. But it does not need one: off
-the `u`-shell the executed route equals the ideal route *exactly* (route stability, `TD7`), so the executed
-and ideal symbol cascades coincide exactly — a pure equality induction over a metric-free layer:
+The symbol map `y ↦ val y (route y)` is discontinuous at decision boundaries, so it carries no Lipschitz
+constant and is not a `RegionExecLayer`. It is composed with a metric-free exact telescope instead.
+
+Scope and honesty. The single non-trivial piece here is `regionMap_exact_telescope`, and even that is the
+degenerate (zero-gap) case of the metric telescope `regionEnvelope_telescope`: a `propext`-only equality
+induction with no error transport. The two `route*` facts are short corollaries of `TD7`
+(`leastArgmax_stable_of_half_margin`) and of that telescope — proofs of three lines each. Crucially,
+`trajInRegions` (the executed trajectory remains in the half-margin regions) is taken as a **hypothesis**:
+discharging it is the genuinely hard u-edge content (it needs the per-layer forward-error coupling that
+keeps the executed state close enough to the ideal for the margin to survive), and that is **not** done
+here. So this file states the per-layer route stability lifted to depth *conditionally on* the margin
+trajectory; it does not establish the trajectory condition.
 
 * `RegionMapLayer` — a depth layer with an ideal map, an executed map, and a region (no metric).
 * `regionMap_exact_telescope` — if every executed map equals its ideal on its region and the executed
   trajectory stays in the regions, the compositions coincide exactly.
-* `routeRegionLayer` / `routeRegionLayer_exact_on_region` — the symbol layer: ideal route from the exact
-  scores, executed route from the rounded scores; on the region where the score perturbation is below half
-  the margin, the two routes (hence the two maps) agree, discharged by `TD7`.
-* `routeCascade_replicate_exact` — the depth-`L` decision exactness: the executed symbol cascade equals the
-  ideal symbol cascade exactly on the joint margin interior. No transcendental, kernel-decidable — the
-  carrier-tower fixed point of the `u`-edge.
+* `routeRegionLayer` / `routeRegionLayer_exact_on_region` — the symbol layer, and the `TD7` corollary that
+  the routes agree on the half-margin region.
+* `routeCascade_replicate_exact` — the conditional depth-`L` statement: given the margin trajectory, the
+  executed symbol cascade equals the ideal symbol cascade exactly.
 -/
 
 open scoped BigOperators
@@ -95,9 +101,11 @@ lemma routeRegionLayer_exact_on_region {k : ℕ} [NeZero k] {X : Type*} [Measura
   exact congrArg (val y)
     (leastArgmax_stable_of_half_margin (A.router.score ρ y) (execScore y) hk hbudget hmargin)
 
-/-- **Decision exactness at depth (u-edge).** A depth-`L` homogeneous symbol cascade: on the joint margin
-interior (the executed trajectory stays in the half-margin regions) the executed symbol cascade equals the
-ideal symbol cascade **exactly** — no transcendental, kernel-decidable. The carrier-tower fixed point. -/
+/-- **Conditional decision exactness at depth.** For a depth-`L` homogeneous symbol cascade, *given* that
+the executed trajectory stays in the half-margin regions (`trajInRegions`, not established here), the
+executed symbol cascade equals the ideal symbol cascade exactly. A short corollary of `TD7` and
+`regionMap_exact_telescope`; the unconditional statement awaits the forward-error discharge of the margin
+trajectory. -/
 theorem routeCascade_replicate_exact {k : ℕ} [NeZero k] {X : Type*} [MeasurableSpace X]
     (A : TemperedRouterFamily X k) (hk : 0 < k) (ρ : A.router.Ρ) (execScore : X → Fin k → ℝ)
     (val : X → Fin k → X) (b : ℝ) (L : ℕ) (x : X)
