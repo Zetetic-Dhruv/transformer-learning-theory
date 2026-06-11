@@ -99,6 +99,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Routing.MeasurableScoreRouting,
     `TLT_Proofs.Strictness.AttentionNonBorelWitness,
     `TLT_Proofs.TemperedDesignLaw.Conjectures,
+    `TLT_Proofs.TemperedDesignLaw.SymbolChannel,
     `TLT_Proofs.Tame.FiniteCellRouter,
     `TLT_Proofs.Tame.SigmaCompactParam,
     `TLT_Proofs.Tame.SingletonBadEventBorel,
