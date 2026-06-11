@@ -123,11 +123,13 @@ def TD2_leakage_upper {X : Type u} [MeasurableSpace X] {k : ℕ} (A : TemperedRo
   ∀ (ρ : A.router.Ρ) (x : X),
     offRouteMass A hk ρ x ≤ ((k : ℝ) - 1) * Real.exp (-(A.β * gammaMargin A hk ρ x))
 
-/-- **TD2 (lower) — leakage is not faster than exponential.** The off-route mass is at least
-`exp(−β·γ)/k`: the second-score witness forbids superexponential hardening. -/
+/-- **TD2 (lower) — leakage is not faster than exponential.** With at least two experts (`2 ≤ k`, the
+regime where a second score exists), the off-route mass is at least `exp(−β·γ)/k`: the second-place
+weight alone witnesses it, so softmax cannot harden superexponentially. (At `k = 1` the off-route mass
+is identically `0` while the bound is positive — the degenerate single-expert endpoint, no routing.) -/
 def TD2_leakage_lower {X : Type u} [MeasurableSpace X] {k : ℕ} (A : TemperedRouterFamily X k)
     (hk : 0 < k) : Prop :=
-  ∀ (ρ : A.router.Ρ) (x : X),
+  2 ≤ k → ∀ (ρ : A.router.Ρ) (x : X),
     Real.exp (-(A.β * gammaMargin A hk ρ x)) / (k : ℝ) ≤ offRouteMass A hk ρ x
 
 /-! ## TD7 — float-symbol stability (the u-shell theorem) -/

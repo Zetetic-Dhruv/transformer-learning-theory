@@ -57,4 +57,13 @@ theorem TD0_symbol_invariant_proof {X : Type u} [MeasurableSpace X] {k : ℕ}
   exact ((top1_softmax_eq_argmax A.router hk ρ x).symm).trans
     (congrFun (congrFun (softmaxTop1_eq_route A.router hk) ρ) x)
 
+/-- The hard route is the `leastArgmax` of the scores — the symbol channel reads the score argmax
+directly (`softmaxTop1_eq_route` + `top1_softmax_eq_argmax`). Reusable across the leakage and stability
+nodes. -/
+theorem hardRoute_eq_leastArgmax {X : Type u} [MeasurableSpace X] {k : ℕ}
+    (A : TemperedRouterFamily X k) (hk : 0 < k) (ρ : A.router.Ρ) (x : X) :
+    hardRoute A hk ρ x = leastArgmax (A.router.score ρ x) hk :=
+  (congrFun (congrFun (softmaxTop1_eq_route A.router hk) ρ) x).symm.trans
+    (top1_softmax_eq_argmax A.router hk ρ x)
+
 end TLT.TemperedDesignLaw
