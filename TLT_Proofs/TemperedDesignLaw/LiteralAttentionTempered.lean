@@ -20,13 +20,16 @@ onto the literal attention with no extra hypotheses beyond what the abstract the
   is `≤ (nK−1)·exp(−β·γ)`.
 * `litAttn_symbol_invariant` — for `β > 0` the literal soft attention's `leastArgmax` is the hard attention
   route (the symbol channel does not see the temperature).
-* `litAttn_hardening` — the literal soft attention output is within `(nK−1)·exp(−β·γ)·D` of the hard route's
-  payload (the soft→hard envelope on the literal machine).
+* `litAttn_hardening` — the soft mixture of the literal attention *scores* with payloads `val` is within
+  `(nK−1)·exp(−β·γ)·D` of the hard route's payload (the soft→hard envelope, on the literal scores).
 * `litAttn_route_stable` — the executed route equals the ideal route off the `u`-shell.
 
 These are the abstract theorems applied to `litAttnTempered`; the content is in those theorems and in the
 `attentionScoreRouter` binding. What they establish is the *statement* — the β-axis tempered design law holds
-of TorchLean's literal attention scores, the testbed object.
+of TorchLean's literal attention scores, the testbed object. Scope: the routing results (leakage, symbol
+invariance, route stability) are about the literal scores `Bridge.attentionScoreRouter` binds directly; the
+hardening uses an abstract payload `val` (its identification with the literal value vectors, so the mixture
+*is* `Spec.scaledDotProductAttention`'s output, is a further binding not made here).
 -/
 
 open scoped BigOperators
@@ -58,8 +61,10 @@ theorem litAttn_symbol_invariant (d nK : ℕ) {β : ℝ} (hβ : 0 ≤ β) (hk : 
       = hardRoute (litAttnTempered d nK β hβ) hk ρ x :=
   TD0_symbol_invariant_proof (litAttnTempered d nK β hβ) hk hβpos ρ x
 
-/-- **The hardening envelope on the literal attention.** The literal soft attention output is within
-`(nK−1)·exp(−β·γ)·D` of the hard route's payload, where `D` bounds the payload diameter. -/
+/-- **The hardening envelope on the literal scores.** The soft mixture of the literal attention scores with
+payloads `val` is within `(nK−1)·exp(−β·γ)·D` of the hard route's payload, where `D` bounds the payload
+diameter. (`val` is an abstract payload; identifying it with the literal value vectors so the mixture is
+`Spec.scaledDotProductAttention`'s output is a further binding.) -/
 theorem litAttn_hardening (d nK : ℕ) [NeZero nK] {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V]
     {β : ℝ} (hβ : 0 ≤ β) (hk : 0 < nK) (ρ : (litAttnTempered d nK β hβ).router.Ρ) (x : Fin d → ℝ)
     (val : Fin nK → V) {D : ℝ}
