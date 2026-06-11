@@ -130,4 +130,17 @@ def TD2_leakage_lower {X : Type u} [MeasurableSpace X] {k : ℕ} (A : TemperedRo
   ∀ (ρ : A.router.Ρ) (x : X),
     Real.exp (-(A.β * gammaMargin A hk ρ x)) / (k : ℝ) ≤ offRouteMass A hk ρ x
 
+/-! ## TD7 — float-symbol stability (the u-shell theorem) -/
+
+/-- **TD7 — the executed route equals the ideal route off the u-shell.** Whenever the per-coordinate
+score-rounding budget `b` satisfies `2·b < γ` (the margin), the `leastArgmax` of any executed scores
+`sExec` (within `b` of the exact scores) is exactly the hard route: the symbol channel is the
+carrier-tower fixed point — exact decision on the margin interior, no transcendental, decidable.
+(The instance `b := scoreRndBudget` from `rdotBudget` lands this at `IEEE32Exec`.) -/
+def TD7_route_stable {X : Type u} [MeasurableSpace X] {k : ℕ} (A : TemperedRouterFamily X k)
+    (hk : 0 < k) : Prop :=
+  ∀ (ρ : A.router.Ρ) (x : X) (sExec : Fin k → ℝ) (b : ℝ),
+    (∀ i, |sExec i - A.router.score ρ x i| ≤ b) → 2 * b < gammaMargin A hk ρ x →
+    leastArgmax sExec hk = hardRoute A hk ρ x
+
 end TLT.TemperedDesignLaw
