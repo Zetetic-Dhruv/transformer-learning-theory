@@ -100,6 +100,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.Strictness.AttentionNonBorelWitness,
     `TLT_Proofs.TemperedDesignLaw.Conjectures,
     `TLT_Proofs.TemperedDesignLaw.DecisionCascade,
+    `TLT_Proofs.TemperedDesignLaw.DecisionForwardSlack,
     `TLT_Proofs.TemperedDesignLaw.Expressivity,
     `TLT_Proofs.TemperedDesignLaw.HardeningCascade,
     `TLT_Proofs.TemperedDesignLaw.HardeningCascadeDepth,
