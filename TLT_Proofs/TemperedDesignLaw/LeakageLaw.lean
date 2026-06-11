@@ -28,7 +28,7 @@ noncomputable section
 namespace TLT.TemperedDesignLaw
 
 /-- Off-route scores are bounded by the second score: for `i ≠ top`, `sᵢ ≤ secondScore`. -/
-private lemma score_le_secondScore {k : ℕ} (s : Fin k → ℝ) (top i : Fin k) (hi : i ≠ top) :
+lemma score_le_secondScore {k : ℕ} (s : Fin k → ℝ) (top i : Fin k) (hi : i ≠ top) :
     s i ≤ secondScore s top := by
   have hmem : i ∈ Finset.univ.filter (fun j => j ≠ top) :=
     Finset.mem_filter.mpr ⟨Finset.mem_univ _, hi⟩
