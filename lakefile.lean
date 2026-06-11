@@ -120,6 +120,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.TemperedDesignLaw.RegionTelescope,
     `TLT_Proofs.TemperedDesignLaw.RegionTelescopeLinear,
     `TLT_Proofs.TemperedDesignLaw.SharpnessLowerBound,
+    `TLT_Proofs.TemperedDesignLaw.SoftOutputCorrespondence,
     `TLT_Proofs.TemperedDesignLaw.TwoLedger,
     `TLT_Proofs.TemperedDesignLaw.ZeroSharpness,
     `TLT_Proofs.TemperedDesignLaw.SymbolChannel,
