@@ -25,6 +25,11 @@ weight families coincide exactly when `β = 1/scale`. With the payload taken to 
 * `mixtureOutput_softWeights_eq_litAttention` — the end-to-end statement: composing the previous identity with
   the shipped coordinate binding `matCoords_scaledDotProductAttention`, the mixture equals the literal
   `Spec.scaledDotProductAttention` output (read in coordinates) at the standard scale `√d`.
+* `litAttn_hardening_literal` — the hardening envelope on the *literal* attention output: the literal
+  `Spec.scaledDotProductAttention` output is within `(nK−1)·exp(−βγ)·D` of the hard route's value vector. This
+  is the genuine literal-attention strengthening of the abstract `softMixture_sub_hardPayload_le_exp` (the
+  payload is now the literal value vectors, the output the actual attention), superseding the abstract-payload
+  wrapper.
 -/
 
 open scoped BigOperators
@@ -78,5 +83,31 @@ theorem mixtureOutput_softWeights_eq_litAttention {n d : ℕ}
       = matCoords (Spec.scaledDotProductAttention ctx) i := by
   rw [matCoords_scaledDotProductAttention Y W ctx hQ hK hV hmask]
   exact mixtureOutput_softWeights_eq_attnHead hβ rfl W Y i
+
+open Spec in
+/-- **The hardening envelope on the literal attention output.** The literal
+`Spec.scaledDotProductAttention` output (read in coordinates) is within `(nK−1)·exp(−βγ)·D` of the hard
+route's value vector, where `D` bounds the value-vector diameter and `β = 1/√d`. This is the genuine
+literal-attention strengthening of the abstract `softMixture_sub_hardPayload_le_exp`: the soft mixture is
+identified with the literal output via `mixtureOutput_softWeights_eq_litAttention`, and the payload is the
+literal value vectors `matMulCoord W Y`. -/
+theorem litAttn_hardening_literal {n d : ℕ}
+    (Y : Fin (n + 1) → Fin d → ℝ) (W : Fin d → Fin d → ℝ)
+    (ctx : AttentionContext ℝ (n + 1) (n + 1) d (Nat.succ_ne_zero n) (Nat.succ_ne_zero n))
+    (hQ : ctx.Q = matrixTensor Y) (hK : ctx.K = matrixTensor Y)
+    (hV : ctx.V = matrixTensor (matMulCoord W Y)) (hmask : ctx.mask = none)
+    (hβ : 0 ≤ 1 / MathFunctions.sqrt (d : ℝ)) (hk : 0 < n + 1) (i : Fin (n + 1)) {D : ℝ}
+    (hD : ∀ j, ‖matMulCoord W Y j
+        - matMulCoord W Y
+            (hardRoute (litAttnTempered d (n + 1) (1 / MathFunctions.sqrt (d : ℝ)) hβ) hk Y (Y i))‖ ≤ D) :
+    ‖matCoords (Spec.scaledDotProductAttention ctx) i
+        - matMulCoord W Y
+            (hardRoute (litAttnTempered d (n + 1) (1 / MathFunctions.sqrt (d : ℝ)) hβ) hk Y (Y i))‖
+      ≤ (((n + 1 : ℕ) : ℝ) - 1)
+        * Real.exp (-(1 / MathFunctions.sqrt (d : ℝ)
+            * gammaMargin (litAttnTempered d (n + 1) (1 / MathFunctions.sqrt (d : ℝ)) hβ) hk Y (Y i))) * D := by
+  rw [← mixtureOutput_softWeights_eq_litAttention Y W ctx hQ hK hV hmask hβ i]
+  exact softMixture_sub_hardPayload_le_exp
+    (litAttnTempered d (n + 1) (1 / MathFunctions.sqrt (d : ℝ)) hβ) hk Y (Y i) (matMulCoord W Y) hD
 
 end TLT.TemperedDesignLaw
