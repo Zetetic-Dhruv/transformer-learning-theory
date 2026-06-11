@@ -124,6 +124,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.TemperedDesignLaw.RegionTelescopeLinear,
     `TLT_Proofs.TemperedDesignLaw.SharpnessLowerBound,
     `TLT_Proofs.TemperedDesignLaw.SoftOutputCorrespondence,
+    `TLT_Proofs.TemperedDesignLaw.TwoCertificateCrossover,
     `TLT_Proofs.TemperedDesignLaw.TwoLedger,
     `TLT_Proofs.TemperedDesignLaw.WitnessBinding,
     `TLT_Proofs.TemperedDesignLaw.ZeroSharpness,
