@@ -112,6 +112,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.TemperedDesignLaw.MarginTransport,
     `TLT_Proofs.TemperedDesignLaw.MarginShell,
     `TLT_Proofs.TemperedDesignLaw.MixtureCapacity,
+    `TLT_Proofs.TemperedDesignLaw.MixtureCapacityDudley,
     `TLT_Proofs.TemperedDesignLaw.MixtureLayer,
     `TLT_Proofs.TemperedDesignLaw.MixtureParamLayer,
     `TLT_Proofs.TemperedDesignLaw.MixtureLipschitz,
