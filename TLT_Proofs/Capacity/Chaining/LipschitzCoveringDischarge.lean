@@ -541,4 +541,31 @@ theorem empiricalCapacityReal_le_computable {X : Type*} {d m : ℕ} [Nonempty (F
   le_trans (capacityReal_le_dudley_of_lipschitz hm hR F hb hFb S hL hlip)
     (mul_le_mul_of_nonneg_left (entropyIntegral_lossValueSet_le hR F S hL hlip hb) (by positivity))
 
+/-- **The computable Dudley capacity bound, as a function of the parameter-Lipschitz constant `L`.**
+This names the closed quantity on the right of `empiricalCapacityReal_le_computable`: `12√2·(1/√m)`
+times the affine entropy integral `∫₍₀,₂ᵦ₎ √(log 2) + √(d·4RL)·ε^{−1/2}`.  Isolating it as a function
+of `L` exposes the only dependence that varies with the model's Lipschitz modulus. -/
+def dudleyCapBound (d m : ℕ) (R b L : ℝ) : ℝ :=
+  (12 * Real.sqrt 2) * (1 / Real.sqrt m)
+    * (∫⁻ ε in Set.Ioc (0 : ℝ) (2 * b),
+        ENNReal.ofReal (Real.sqrt (Real.log 2)
+          + Real.sqrt ((d : ℝ) * (4 * R * L)) * ε ^ (-(1 / 2) : ℝ))).toReal
+
+/-- **The computable Dudley capacity bound is monotone in the parameter-Lipschitz constant.** A larger
+Lipschitz modulus `L` pays a larger statistical price.  The `L`-dependence is isolated in `√(d·4RL)`,
+so this is monotonicity of one explicit affine entropy integral, discharged by the same
+`toReal`/`lintegral`/`ofReal` ladder as `entropyIntegral_lossValueSet_le`, with finiteness of the
+upper integral supplied by `affineLintegral_lt_top`. -/
+theorem dudleyCapBound_mono_L (d m : ℕ) {R b : ℝ} (hR : 0 ≤ R) (hb : 0 < b) :
+    Monotone (dudleyCapBound d m R b) := by
+  intro L L' hLL'
+  simp only [dudleyCapBound]
+  refine mul_le_mul_of_nonneg_left ?_ (by positivity)
+  refine ENNReal.toReal_mono
+    (ne_of_lt (affineLintegral_lt_top (Real.sqrt_nonneg _) (Real.sqrt_nonneg _) (by linarith))) ?_
+  refine lintegral_mono_ae ((ae_restrict_iff' measurableSet_Ioc).mpr (ae_of_all _ fun ε hε => ?_))
+  refine ENNReal.ofReal_le_ofReal (add_le_add (le_refl _)
+    (mul_le_mul_of_nonneg_right (Real.sqrt_le_sqrt ?_) (Real.rpow_nonneg hε.1.le _)))
+  nlinarith [mul_nonneg (mul_nonneg (Nat.cast_nonneg d) hR) (sub_nonneg.mpr hLL')]
+
 end TLT.Capacity
