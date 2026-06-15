@@ -14,8 +14,8 @@ Instead of routing each input to one subtree (argmax), the soft cascade margin *
 subtree margins. Two facts carry the lift:
 
 * **Separability of the tree, uniform in depth.** `CascadeParam (witnessCascade g hg) n` is a finite
-  iterated product of the Polish base `β` and `ℝ`, hence second-countable — so it is a separable
-  topological space at *every* depth. The recursive instances below supply
+  iterated product of the Polish base `β` and `ℝ`, hence second-countable (so separable)
+  at *every* depth. The recursive instances below supply
   `TopologicalSpace`/`SecondCountableTopology`/`Nonempty` for variable `n`.
 * **Continuity survives the blend.** A finite convex combination of continuous functions is
   continuous, so `softCascadeMargin` is continuous in the tree parameter at every depth (proved by
@@ -28,9 +28,9 @@ surviving (null-measurable).
 
 ## Main results
 
-- `softCascadeMargin` — the temperature-`τ` soft margin over the depth-`L` cascade tree parameter.
-- `softCascadeMargin_isKW` — its ghost-gap supremum is measurable at every depth `L`.
-- `depthTemperatureCliff` — soft Borel ghost-gap ∧ non-Borel argmax cascade ∧ null-measurable, at
+- `softCascadeMargin`: the temperature-`τ` soft margin over the depth-`L` cascade tree parameter.
+- `softCascadeMargin_isKW`: its ghost-gap supremum is measurable at every depth `L`.
+- `depthTemperatureCliff`: soft Borel ghost-gap ∧ non-Borel argmax cascade ∧ null-measurable, at
   every depth `L`, on one tree object.
 -/
 
@@ -38,12 +38,6 @@ surviving (null-measurable).
 ## References
 - [Vaswani 2017] softmax attention and the temperature/sharpening reading; [42] hierarchical MoE tree.
 - [1][4] analytic non-Borel set / continuous image of a Polish space; [57] FLT cascade bad event.
-- Provenance: Innovation — the depth-uniform soft cascade margin over the MoE tree parameter, lifting
-  the temperature cliff to every routing depth on the same object.
-- TLT contribution (Dhruv Gupta), `depthTemperatureCliff`: the routing-temperature toggle between a
-  Borel soft ghost-gap and the non-Borel argmax cascade holds at every depth `L`, over the tree
-  parameter, by softmax-blending subtree margins. Method: recursive separability instances for the
-  tree + continuity-of-the-blend induction feeding the continuity-collapse engine.
 -/
 
 open MeasureTheory Set TopologicalSpace
@@ -138,7 +132,7 @@ noncomputable def softCascadeMargin (τ : ℝ) (g : β → ℝ) (hg : Continuous
   | 0 => softWitnessMargin τ g
   | n + 1 => fun p x => ∑ i, softBlendWeight τ g p.1 x i * softCascadeMargin τ g hg n (p.2 i) x
 
-/-- For each input `x`, the soft cascade margin is continuous in the tree parameter — at every depth.
+/-- For each input `x`, the soft cascade margin is continuous in the tree parameter, at every depth.
 The successor step is a finite sum of products of (the blend, continuous in `p.1`) and (the subtree
 margin, continuous by induction in `p.2 i`). -/
 theorem softCascadeMargin_continuous_param (τ : ℝ) (g : β → ℝ) (hg : Continuous g) [Nonempty β] :
@@ -165,7 +159,7 @@ theorem softCascadeMargin_continuous_input (τ : ℝ) (g : β → ℝ) (hg : Con
       · exact (softBlendWeight_continuous τ g hg i).comp (continuous_const.prodMk continuous_id)
       · exact softCascadeMargin_continuous_input τ g hg n (p.2 i)
 
-/-- The soft cascade margin lands in `[0, 1]` at nonnegative temperature — at every depth (a convex
+/-- The soft cascade margin lands in `[0, 1]` at nonnegative temperature, at every depth (a convex
 combination of `[0,1]` values with weights summing to one). -/
 theorem softCascadeMargin_mem {τ : ℝ} (hτ : 0 ≤ τ) (g : β → ℝ) (hg : Continuous g) [Nonempty β] :
     ∀ (n : ℕ) (p : CascadeParam (witnessCascade g hg) n) (x : ℝ),
@@ -183,7 +177,7 @@ theorem softCascadeMargin_mem {τ : ℝ} (hτ : 0 ≤ τ) (g : β → ℝ) (hg :
         _ = 1 := by rw [Finset.sum_congr rfl (fun i _ => mul_one _)]; exact softBlendWeight_sum τ g p.1 x
 
 /-- **The soft endpoint at every depth `L`.** The soft cascade ghost-gap supremum over the tree
-parameter is measurable — the Borel ghost-gap condition, depth-uniform on the witness cascade tree. -/
+parameter is measurable, i.e. the Borel ghost-gap condition holds, depth-uniform on the witness cascade tree. -/
 theorem softCascadeMargin_isKW {τ : ℝ} (hτ : 0 ≤ τ) (g : β → ℝ) (hg : Continuous g) [Nonempty β]
     (L : ℕ) :
     Measurable (fun p : (Fin 1 → ℝ) × (Fin 1 → ℝ) =>

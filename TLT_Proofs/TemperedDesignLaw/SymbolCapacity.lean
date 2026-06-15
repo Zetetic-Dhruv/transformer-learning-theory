@@ -9,37 +9,36 @@ import FLT_Proofs.Complexity.VCDimension
 /-!
 # The symbol channel and its combinatorial capacity (TD10)
 
-The hard routing decision of a `FiniteScoreRouterCode` — the *symbol channel* — sends each input to
+The hard routing decision of a `FiniteScoreRouterCode` (the *symbol channel*) sends each input to
 the least-index argmax of its `k` scores. As the parameter varies this produces the **symbol class**
-`symbolClass A`, a family of `Fin k`-valued functions on the input space. This file bounds the
-combinatorial capacity of the symbol class by the capacity of the underlying **pairwise score
-comparisons**.
+`symbolClass A`, a family of `Fin k`-valued functions on the input space. The combinatorial capacity
+of the symbol class is bounded by the capacity of the underlying **pairwise score comparisons**.
 
 The mechanism is that the route is a *deterministic function of the pairwise comparison pattern*:
 `leastArgmax v` is determined by the relations `vᵢ ≤ vⱼ` alone (`leastArgmax_eq_of_le_iff`). Hence on
 any finite sample the number of distinct routing-label patterns is at most the number of distinct
 joint comparison patterns (`symbolRestr_ncard_le_cmpRestr`). Each ordered pair `(i, j)` contributes a
-Boolean comparison class `comparisonClass A i j`, to which the shipped Sauer–Shelah growth bound
-applies; the symbol channel's capacity is thereby reduced to the VC dimension of these comparison
-classes — the geometry of the score-comparison arrangement.
+Boolean comparison class `comparisonClass A i j`, to which the Sauer–Shelah growth bound applies;
+the symbol channel's capacity is thereby reduced to the VC dimension of these comparison classes,
+the geometry of the score-comparison arrangement.
 
 ## Main definitions
 
-* `symbolClass A hk` — the class of routing-label functions `X → Fin k` realized by the router.
-* `comparisonClass A i j` — the Boolean class of the score comparison `sᵢ ≤ sⱼ`.
-* `routeRestr` / `cmpRestr` / `singleCmpRestr` — restrictions of the route / joint-comparison /
+* `symbolClass A hk`: the class of routing-label functions `X → Fin k` realized by the router.
+* `comparisonClass A i j`: the Boolean class of the score comparison `sᵢ ≤ sⱼ`.
+* `routeRestr` / `cmpRestr` / `singleCmpRestr`: restrictions of the route / joint-comparison /
   per-pair-comparison maps to a finite sample.
 
 ## Main results
 
-* `leastArgmax_eq_of_le_iff` — the argmax is determined by the pairwise `≤` pattern.
-* `symbolRestr_ncard_le_cmpRestr` — on a finite sample, the count of routing-label patterns is at
+* `leastArgmax_eq_of_le_iff`: the argmax is determined by the pairwise `≤` pattern.
+* `symbolRestr_ncard_le_cmpRestr`: on a finite sample, the count of routing-label patterns is at
   most the count of joint comparison patterns (the composition step).
-* `cmpRestr_ncard_le_prod` — the joint comparison count is at most the product of the `k²` per-pair
+* `cmpRestr_ncard_le_prod`: the joint comparison count is at most the product of the `k²` per-pair
   comparison counts (the arrangement decomposition step).
-* `symbolRestr_ncard_le_prod` — the symbol-channel capacity bound: the routing-label pattern count is
+* `symbolRestr_ncard_le_prod`: the symbol-channel capacity bound; the routing-label pattern count is
   at most the product of the per-pair score-comparison pattern counts. Each factor is bounded by the
-  shipped Sauer–Shelah growth bound (`growth_function_le_sum_choose_set`) at the VC dimension of
+  Sauer–Shelah growth bound (`growth_function_le_sum_choose_set`) at the VC dimension of
   `comparisonClass A i j`, the geometry of the score-comparison arrangement.
 -/
 
@@ -70,8 +69,8 @@ theorem leastArgmax_eq_of_le_iff (v v' : Fin k → ℝ) (hk : 0 < k)
 /-! ### The symbol class and the comparison classes -/
 
 /-- **The symbol class.** The family of routing-label functions `X → Fin k` realized by the argmax
-route of `A` as the parameter ranges over `A.Ρ`. This is the hard routing decision — the symbol
-channel — whose capacity this file bounds. -/
+route of `A` as the parameter ranges over `A.Ρ`. This is the hard routing decision (the symbol
+channel) whose combinatorial capacity is bounded in this file. -/
 def symbolClass (A : FiniteScoreRouterCode X k) (hk : 0 < k) : Set (X → Fin k) :=
   Set.range (A.route hk)
 
@@ -82,7 +81,7 @@ def comparisonConcept (A : FiniteScoreRouterCode X k) (ρ : A.Ρ) (i j : Fin k) 
 
 /-- **The comparison class** for the ordered pair `(i, j)`: the Boolean concept class of the score
 comparison `sᵢ ≤ sⱼ` as the parameter varies. The route is a deterministic function of the joint
-pattern of these `k²` classes, and the shipped Sauer–Shelah bound applies to each. -/
+pattern of these `k²` classes, and the Sauer–Shelah bound applies to each. -/
 def comparisonClass (A : FiniteScoreRouterCode X k) (i j : Fin k) : ConceptClass X Bool :=
   Set.range (fun ρ => comparisonConcept A ρ i j)
 
@@ -107,7 +106,7 @@ def singleCmpRestr (A : FiniteScoreRouterCode X k) (S : Finset X) (p : Fin k × 
 
 /-- **The symbol channel factors through the comparison pattern.** On any finite sample `S`, the
 number of distinct routing-label patterns realized by the symbol class is at most the number of
-distinct joint pairwise-comparison patterns — because the route is a deterministic function of the
+distinct joint pairwise-comparison patterns, because the route is a deterministic function of the
 comparison pattern (`leastArgmax_eq_of_le_iff`). This reduces the symbol channel's combinatorial
 capacity to that of the `k²` Boolean comparison classes. -/
 theorem symbolRestr_ncard_le_cmpRestr (A : FiniteScoreRouterCode X k) (hk : 0 < k) (S : Finset X) :
@@ -172,7 +171,7 @@ over the `k²` ordered coordinate pairs of the per-pair score-comparison pattern
 factors of the argument: the route is determined by the joint comparison pattern
 (`symbolRestr_ncard_le_cmpRestr`, the composition), and that joint pattern injects into the product of
 the per-pair comparison patterns (`cmpRestr_ncard_le_prod`, the arrangement decomposition). Bounding
-each factor `(Set.range (singleCmpRestr A S (i, j))).ncard` by the shipped Sauer–Shelah growth bound
+each factor `(Set.range (singleCmpRestr A S (i, j))).ncard` by the Sauer–Shelah growth bound
 `growth_function_le_sum_choose_set` at `VCDim X (comparisonClass A i j)` then yields the symbol
 channel's capacity as a polynomial in `S.card` of degree the total comparison VC dimension. -/
 theorem symbolRestr_ncard_le_prod (A : FiniteScoreRouterCode X k) (hk : 0 < k) (S : Finset X) :

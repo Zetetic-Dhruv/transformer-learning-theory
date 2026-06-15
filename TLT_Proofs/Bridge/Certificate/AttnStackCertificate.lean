@@ -14,13 +14,13 @@ attention sublayer. It is forward-invariant on the supremum-norm ball (layer-nor
 input-Lipschitz there (layer-norm ∘ residual ∘ self-attention, each Lipschitz on the ball), and
 weight-Lipschitz in its affine parameters. So a depth-`L` stack of these blocks is a `ParamLayerLocal`
 list, and `paramComp_param_lipschitz_on'` (depth-uniform) yields the depth-`L` value-vector Lipschitz
-constant `lparamLipBound` — the soft side of the depth-graded boundary.
+constant `lparamLipBound`, the soft side of the depth-graded boundary.
 
 ## Main results
 
-- `normAttnBlock_input_lip` — the block is input-Lipschitz on the ball.
-- `normAttnBlock_param_lip` — the block is Lipschitz in its `γ, β` weights.
-- `normAttnBlock_forward_inv` — the block maps the ball into itself.
+- `normAttnBlock_input_lip`: the block is input-Lipschitz on the ball.
+- `normAttnBlock_param_lip`: the block is Lipschitz in its `γ, β` weights.
+- `normAttnBlock_forward_inv`: the block maps the ball into itself.
 -/
 
 /-!
@@ -28,8 +28,6 @@ constant `lparamLipBound` — the soft side of the depth-graded boundary.
 - [31] self-attention on-ball Lipschitz `4ndB²/scale+1`; [32] attention capacity; [33] seq-length-
   free depth/head; [41] weight-tied universal-transformer; [16][54][26] Dudley/covering; LayerNorm
   Lipschitz.
-- Provenance: Innovation (executed instantiation) — the depth-L pure-attention (post-norm) stack
-  certified bound (the soft, cascaded quadrant); capacity matched/vendored.
 -/
 
 open MeasureTheory
@@ -148,7 +146,7 @@ lemma continuous_normAttnBlock_weight {n d q : ℕ} [NeZero n] {scale : ℝ}
 
 /-- **Continuity in `(weights, input)` of the threaded layer composition.** Given that each layer map
 is jointly continuous, the composed `lparamComp` (threading one weight through all layers) is jointly
-continuous — by induction on the layer list. -/
+continuous, by induction on the layer list. -/
 lemma continuous_lparamComp_uncurry {Θ V : Type*} [PseudoMetricSpace Θ] [PseudoMetricSpace V]
     (Ls : List (ParamLayerLocal Θ V))
     (hc : ∀ L ∈ Ls, Continuous (fun p : Θ × V => L.map p.1 p.2)) :
@@ -180,7 +178,7 @@ noncomputable def normAttnBlock {n d p : ℕ} [NeZero n] {scale Cγ Cβ Lγ Lβ 
 /-- **Depth-graded soft-attention weight-Lipschitz (the headline).** A depth-`L` stack of post-norm
 attention blocks (shared affine weights) is `lparamLipBound`-Lipschitz in the weights, on the
 forward-invariant activation ball `↥(closedBall 0 (√d·Cγ + Cβ))`. The constant `lparamLipBound (replicate
-L block)` grows with the depth `L` — the soft side of the depth-graded boundary, discharged through the
+L block)` grows with the depth `L`, the soft side of the depth-graded boundary, discharged through the
 depth-uniform `paramComp_param_lipschitz_on'`. -/
 theorem normAttnStack_weight_lip {n d p : ℕ} [NeZero n] (hd : 0 < d) {scale R Cγ Cβ Lγ Lβ : ℝ}
     (hscale : 0 < scale) (hCγ0 : 0 ≤ Cγ) (hCβ0 : 0 ≤ Cβ) (hLγ0 : 0 ≤ Lγ) (hLβ0 : 0 ≤ Lβ)
@@ -226,10 +224,10 @@ as the executed layer list `Ls` whose ideal forward at the certified weights is 
 (`hagree`): except on a sample event of McDiarmid-small probability, the executed true risk is at most
 the executed empirical risk plus the closed capacity budget `2·(12√2·(1/√m)·B_int) + ε` and the rounding
 correction `2·Lℓ·envBound`. The capacity constant `lparamLipBound (replicate L block)` **grows with the
-depth `L`** — the soft side of the depth-graded boundary, the weight-Lipschitz envelope of the stack
+depth `L`, the soft side of the depth-graded boundary; the weight-Lipschitz envelope of the stack is
 discharged through the depth-uniform composition. The input cap (clamp to the activation ball of radius
-`√d·Cγ + Cβ`, the layer-norm output bound) is the hypothesis self-attention's lack of a global Lipschitz
-constant forces. -/
+`√d·Cγ + Cβ`, the layer-norm output bound) follows from self-attention's lack of a global Lipschitz
+constant. -/
 theorem normAttnStack_certified_generalization {n d p m : ℕ} [NeZero n] [Nonempty (Fin p)]
     [MeasurableSpace (Fin n → Fin d → ℝ)] [BorelSpace (Fin n → Fin d → ℝ)]
     {P : Measure (Fin n → Fin d → ℝ)} [IsProbabilityMeasure P]

@@ -11,21 +11,15 @@ import TLT_Proofs.Capacity.Discretization.SymmetrizationBaseInvariantBound
 
 The empirical mean of a bounded function has the bounded-differences property with constant `2b/m`:
 altering a single sample point changes exactly one of the `m` averaged terms, so the average moves by
-at most `2b/m`. The uniform gap `⨆_w (trueRisk w − empMean w S)` inherits this — a supremum of
-functions that each move by at most `2b/m` itself moves by at most `2b/m` — so McDiarmid's inequality
+at most `2b/m`. The uniform gap `⨆_w (trueRisk w − empMean w S)` inherits this (a supremum of
+functions that each move by at most `2b/m` itself moves by at most `2b/m`), so McDiarmid's inequality
 converts the in-expectation uniform-deviation bound into a per-sample high-probability bound.
 
 ## Main results
 
-- `empMean_boundedDifferences` — the empirical mean has bounded differences `2b/m`.
-- `gapSup_boundedDifferences` — the uniform gap inherits bounded differences `2b/m`.
-- `gapSup_concentration` — McDiarmid concentration of the uniform gap above its mean.
--/
-
-/-!
-## References
-- [18] McDiarmid bounded differences; [19] symmetrization (2·capacity); [24] Thm 3.3; [21] Ch. 6.
-- Provenance: Classical-instantiation (textbook symmetrization + McDiarmid generalization tail).
+- `empMean_boundedDifferences`: the empirical mean has bounded differences `2b/m`.
+- `gapSup_boundedDifferences`: the uniform gap inherits bounded differences `2b/m`.
+- `gapSup_concentration`: McDiarmid concentration of the uniform gap above its mean.
 -/
 
 open MeasureTheory

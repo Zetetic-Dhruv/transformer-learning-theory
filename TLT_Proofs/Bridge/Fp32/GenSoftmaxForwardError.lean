@@ -11,16 +11,16 @@ import TLT_Proofs.Bridge.Fp32.AttentionForwardError
 The model's rounded softmax (`AttentionForwardError`) is hard-wired to `rexp z = fp32Round ∘ Real.exp`.
 This file abstracts the exponential channel: `genSoftmax e = fun i => fp32Round (e i / genDenom e)` for
 an arbitrary positive exp-value vector `e`, and bounds `∑ⱼ |genSoftmax e j − softmax z j|` given only
-`e j > 0` and a per-key error `|e j − Real.exp (z j)| ≤ ε j` (plus the honest normal-range conditions).
+`e j > 0` and a per-key error `|e j − Real.exp (z j)| ≤ ε j` (plus the standard normal-range conditions).
 
 The model's `rsoftmax z = genSoftmax (rexp z)` is the instance `e = rexp z`, `ε j = u·exp zⱼ`. The
 **literal** fp32 attention softmax is the instance `e = litExp` (`= toReal ∘ IEEE32Exec.exp ∘ shifted`),
-`ε j = δ_exp` (the bit-level exp atom). One generalized lemma binds both — strengthening the model.
+`ε j = δ_exp` (the bit-level exp atom). One generalized lemma covers both instances.
 
 ## Main results
-- `genSoftmax`/`genDenom` — the exp-value-parametric rounded softmax.
-- `sum_abs_qtilde_gen` — the un-rounded weight total error in terms of `∑ε` and the denominator gap.
-- `genSoftmaxTV` — the closed total-variation bound `∑ⱼ |genSoftmax e j − softmax z j| ≤ …`.
+- `genSoftmax`/`genDenom`: the exp-value-parametric rounded softmax.
+- `sum_abs_qtilde_gen`: the un-rounded weight total error in terms of `∑ε` and the denominator gap.
+- `genSoftmaxTV`: the closed total-variation bound `∑ⱼ |genSoftmax e j − softmax z j| ≤ …`.
 -/
 
 open TorchLean.Floats (neuralMagnitude neuralBpow binaryRadix)
@@ -55,10 +55,9 @@ lemma rdenom_eq_genDenom (z : Fin n → ℝ) : rdenom z = genDenom (rexp z) := r
 lemma rsoftmax_eq_genSoftmax (z : Fin n → ℝ) : rsoftmax z = genSoftmax (rexp z) := rfl
 
 /-- **Softmax shift-invariance.** Subtracting a constant `c` from every logit leaves `softmax`
-unchanged: `softmax (z − c) = softmax z`. This is the exactness behind the max-stabilized literal
-kernel — it subtracts the row maximum before exponentiating, and the ideal target it is compared to
-does not. Classical (Goodfellow–Bengio–Courville, *Deep Learning* §4.1, numerical stability of
-softmax). -/
+unchanged: `softmax (z − c) = softmax z`. The max-stabilized literal kernel subtracts the row maximum
+before exponentiating, while the ideal target does not. Classical (Goodfellow–Bengio–Courville,
+*Deep Learning* §4.1, numerical stability of softmax). -/
 lemma softmax_shift_invariant [NeZero n] (z : Fin n → ℝ) (c : ℝ) :
     softmax (fun j => z j - c) = softmax z := by
   funext i
@@ -210,7 +209,7 @@ lemma genSoftmaxTV [NeZero n] {z e : Fin n → ℝ} {ε : Fin n → ℝ} (h : Ge
 `≤ tv` and whose ℓ¹-mass is `≤ 1 + tv`, the rounded value-mix `rdot w (V·c)` is within
 `rdotBudget n (bV·(1+tv)) + bV·tv` of the ideal mix `∑ⱼ softmax z j · V j c`. The model's `omixRow_error`
 is the `w = rsoftmax z`, `tv = softmaxTV` instance; the literal kernel is the `w = genSoftmax (litExp)`,
-`tv = τ(δ_exp)` instance — one lemma binds both. -/
+`tv = τ(δ_exp)` instance. -/
 lemma rdot_mix_error {d : ℕ} [NeZero n] (w z : Fin n → ℝ) (V : Fin n → Fin d → ℝ) (c : Fin d)
     (hmix : RdotNormal w (fun j => V j c)) (hnu : (n : ℝ) * u < 1)
     {bV tv : ℝ} (hbV0 : 0 ≤ bV) (hbV : ∀ j, |V j c| ≤ bV)
@@ -244,7 +243,7 @@ lemma rdot_mix_error {d : ℕ} [NeZero n] (w z : Fin n → ℝ) (V : Fin n → F
     _ ≤ rdotBudget n (bV * (1 + tv)) + bV * tv := add_le_add hStep1 hStep2
 
 /-- **`genSoftmax` ℓ¹-mass bound.** Given the total-variation bound `tv` (from `genSoftmaxTV`), the
-exp-value-parametric weights have ℓ¹-mass `≤ 1 + tv` — the `rsoftmax_sum_le` analog, feeding the
+exp-value-parametric weights have ℓ¹-mass `≤ 1 + tv`, the `rsoftmax_sum_le` analog, feeding the
 generic mix lemma `rdot_mix_error`'s `hsum`. -/
 lemma genSoftmax_sum_le [NeZero n] {e z : Fin n → ℝ} {tv : ℝ}
     (htv : ∑ j, |genSoftmax e j - softmax z j| ≤ tv) :

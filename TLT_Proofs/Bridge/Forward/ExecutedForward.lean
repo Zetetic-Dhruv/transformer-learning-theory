@@ -15,29 +15,28 @@ import Mathlib.MeasureTheory.Integral.Bochner.Basic
 # The IEEE-754-executed transformer forward map: measurable, and risk-stable under its rounding envelope
 
 Executed in IEEE-754 binary32, the transformer forward pass rounds every operation to the float grid.
-Read over real coordinates, the executed map is piecewise constant on the rounding cells — a step
-function, hence discontinuous — yet it is **measurable**: IEEE round-to-nearest is measurable, because
-it decomposes into measurable atoms (the base-2 magnitude `⌊log₂⌋`, the canonical-exponent selection,
-the base-power scaling, and round-to-nearest-even) with no appeal to continuity. The executed forward,
-a composition of measurable maps, is therefore measurable.
+Read over real coordinates, the executed map is piecewise constant on the rounding cells, hence
+discontinuous, yet it is **measurable**: IEEE round-to-nearest is measurable, because it decomposes
+into measurable atoms (the base-2 magnitude `⌊log₂⌋`, the canonical-exponent selection, the base-power
+scaling, and round-to-nearest-even) with no appeal to continuity. The executed forward, a composition
+of measurable maps, is therefore measurable.
 
 Measurability is what makes the expected risk a well-defined integral. Consequently, given a uniform
 bound `ε` between the executed and ideal forward maps (a rounding envelope) and an `L`-Lipschitz loss,
-the executed expected risk lies within `L · ε` of the ideal expected risk — a transfer that rests on
+the executed expected risk lies within `L · ε` of the ideal expected risk; this transfer rests on
 the measurability of both maps. The continuity of the real forward map needs the layer-normalization
-regularizer; the executed map has no continuity, but measurability — and hence this risk bound —
-survives regardless.
+regularizer, but measurability, and hence this risk bound, survives regardless.
 
 ## Main results
 
-- `measurable_fp32Round` — IEEE-754 round-to-nearest, as a real function, is measurable.
-- `fp32RoundCoord` / `measurable_fp32RoundCoord` — elementwise fp32 rounding of a coordinate matrix is
+- `measurable_fp32Round`: IEEE-754 round-to-nearest, as a real function, is measurable.
+- `fp32RoundCoord` / `measurable_fp32RoundCoord`: elementwise fp32 rounding of a coordinate matrix is
   measurable.
-- `ForwardMapExecutedMeasurable` / `transformerForwardMap_executed_measurable` — the executed forward
+- `ForwardMapExecutedMeasurable` / `transformerForwardMap_executed_measurable`: the executed forward
   map (fp32-rounded embedding, a stack of measurable executed layers, fp32-rounded projection) is
   measurable.
-- `transformerForwardMap_executed_measurable_resolution` — the discharged `Resolution`.
-- `executed_risk_transfer` — under the rounding envelope and an `L`-Lipschitz loss, the executed and
+- `transformerForwardMap_executed_measurable_resolution`: the discharged `Resolution`.
+- `executed_risk_transfer`: under the rounding envelope and an `L`-Lipschitz loss, the executed and
   ideal expected risks differ by at most `L · ε`.
 -/
 
@@ -45,8 +44,6 @@ survives regardless.
 ## References
 - step/piecewise-constant maps are Borel; Lipschitz-loss bounded-perturbation risk transfer; [53]
   IEEE32 execution; [55] SLT measurability scaffolding context.
-- Provenance: Innovation — `measurable_fp32Round` (Borel-measurability of IEEE-754 round-to-nearest
-  via measurable atoms) ⇒ executed forward measurable; the principle is classical.
 -/
 
 open MeasureTheory
@@ -61,7 +58,7 @@ namespace TLT
 
 `fp32Round = neuralRound binaryRadix fexp32 rnd32` is `rnd32(x · β^(-cexp x)) · β^(cexp x)`. Each piece
 is measurable: the magnitude `⌊log|x|⌋`, the integer-valued canonical exponent, the base power, and the
-round-to-nearest-even — none of which requires monotonicity or continuity of the rounding. -/
+round-to-nearest-even; none of which requires monotonicity or continuity of the rounding. -/
 
 private lemma measurable_intCastR : Measurable (fun n : ℤ => (n : ℝ)) :=
   continuous_of_discreteTopology.measurable
@@ -100,7 +97,7 @@ private lemma measurable_neuralScaledMantissa (β : NeuralRadix) (fexp : ℤ →
 
 /-- **IEEE-754 round-to-nearest is measurable.** `fp32Round` is a totally discontinuous step function
 on the float grid, but it decomposes into measurable atoms (magnitude, exponent, base power,
-round-to-nearest-even), so it is Borel measurable — no continuity required. -/
+round-to-nearest-even), so it is Borel measurable; no continuity is required. -/
 theorem measurable_fp32Round : Measurable fp32Round := by
   unfold fp32Round neuralRound neuralToReal
   refine Measurable.mul ?_ ?_
@@ -150,8 +147,8 @@ def transformerForwardMap_executed_measurable_resolution (T : RealTransformer) :
 /-- **Executed-model risk transfer.** If the executed predictor `G` is uniformly within `ε` of the
 ideal predictor `F` (the rounding envelope) and the loss `ℓ` is `L`-Lipschitz, then the executed
 expected risk differs from the ideal expected risk by at most `L · ε`. Both risks are well-defined
-integrals precisely because `F` and `G` are measurable — the hypothesis supplied for the executed
-forward by `transformerForwardMap_executed_measurable`. -/
+integrals precisely because `F` and `G` are measurable (the hypothesis supplied for the executed
+forward by `transformerForwardMap_executed_measurable`). -/
 theorem executed_risk_transfer {Ω P : Type*} [MeasurableSpace Ω] [PseudoMetricSpace P]
     {μ : Measure Ω} [IsProbabilityMeasure μ] {F G : Ω → P} (ℓ : P → ℝ) {L ε : ℝ} (hL0 : 0 ≤ L)
     (hLip : ∀ p q, |ℓ p - ℓ q| ≤ L * dist p q) (henv : ∀ x, dist (G x) (F x) ≤ ε)

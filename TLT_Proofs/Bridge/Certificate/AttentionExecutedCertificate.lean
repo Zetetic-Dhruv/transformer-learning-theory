@@ -11,12 +11,12 @@ import TLT_Proofs.Bridge.Spec.ScaledDotProductAttentionCorrespondence
 The final assembly. The certified bound `attnHead_certified_generalization` is instantiated against the
 **executed** (IEEE binary32) attention operation by wrapping it as a single `ExecLayer`:
 
-* its `ideal` is the clamped coordinate attention `x ↦ attnHead scale W (clampCoord B x)` over ℝ —
+* its `ideal` is the clamped coordinate attention `x ↦ attnHead scale W (clampCoord B x)` over ℝ,
   which is exactly TorchLean's literal `Spec.scaledDotProductAttention` in coordinates
   (`matCoords_scaledDotProductAttention`), made globally Lipschitz by the clamp;
 * its `exec` is the executed IEEE32 attention map read over ℝ;
-* its `rnd` is the per-layer rounding bound, and `exec_close` the float32 envelope for the operation —
-  supplied by the rounding machinery (`fp32Sum_error_le`, the per-op `SpecExecLayer`s), exactly the
+* its `rnd` is the per-layer rounding bound, and `exec_close` the float32 envelope for the operation,
+  supplied by the rounding machinery (`fp32Sum_error_le`, the per-op `SpecExecLayer`s): the
   executed-model interface the capstone consumes.
 
 With this single-layer list `Ls = [L]`, `idealComp Ls` is the ideal attention by construction (so
@@ -27,7 +27,7 @@ With this single-layer list `Ls = [L]`, `idealComp Ls` is the ideal attention by
 
 ## Main results
 
-- `attnHead_executed_certified_generalization` — the certified computable float32 generalization bound
+- `attnHead_executed_certified_generalization`: the certified computable float32 generalization bound
   for the executed attention head.
 -/
 
@@ -35,8 +35,6 @@ With this single-layer list `Ls = [L]`, `idealComp Ls` is the ideal attention by
 ## References
 - [31] clamp-induced Lipschitzness / boundary; [53] literal `scaledDotProductAttention` + IEEE32
   execution; [16][54][26] Dudley/covering; [32] attention capacity.
-- Provenance: Innovation (executed instantiation) — generalization bound about the literal
-  finite-precision attention kernel the hardware runs.
 -/
 
 open MeasureTheory

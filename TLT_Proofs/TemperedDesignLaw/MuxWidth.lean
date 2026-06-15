@@ -8,15 +8,15 @@ import TLT_Proofs.TemperedDesignLaw.MuxDepthLadderGeneral
 /-!
 # The WIDTH separation: fixed depth 1, varying mux ARITY (`constArityGrade n ⊂ constArityGrade (n+1)`)
 
-This module establishes the **second** hierarchy direction of the affine-mux argmax calculus —
+This module establishes the **second** hierarchy direction of the affine-mux argmax calculus:
 complementary to the landed VARYING-DEPTH, FIXED-ARITY ladder (`binCascadeGrade_ssubset_succ` in
 `MuxDepthLadderGeneral.lean`). Here DEPTH is fixed at `1` and the mux **arity** varies: a wider mux
 (arity `n+1`) realizes strictly more 1-D route functions than a narrower one (arity `n`).
 
-Together, the two are *depth and width proved separately* (Dhruv's spec): the depth ladder buys
+Together, the two separate hierarchy directions complement each other: the depth ladder buys
 expressivity by stacking layers; the width separation buys it by widening a single layer.
 
-## The mechanism — the SAME region-count idea, now indexed by ARITY instead of DEPTH
+## The mechanism: the SAME region-count idea, now indexed by ARITY instead of DEPTH
 
 Everything reuses the 1-D linear-region calculus already proved in `MuxDepthLadderGeneral.lean`:
 `AffineLines`, `AffineLines.arg` (their `leastArgmax`), `affineArg_alternations_le` (the active index
@@ -29,25 +29,24 @@ plus the alternation-combinatorics engine (`seqChanges`, `seqChanges_comp_le`,
   Fixing arity `= n` is what makes "increasing `n`" meaningful.
 
 * **BOUND** (`constArityRoute_alternations_le`): a depth-1 arity-`n` route changes value at most
-  `2 · n − 1` times along any strictly-increasing grid. Proof, genuinely from the calculus: at depth 1
-  `runUpTo 0 = id`, so the single gate sees `t` directly and IS `affineArg` of `n` affine lines,
-  switching `≤ n − 1` times (`affineArg_alternations_le`); on each gate-piece the run is one fixed
-  affine branch, so the 2-way readout is `affineArg` of 2 lines and switches `≤ once`
-  (`seqChanges_blockRefine_le`). Hence `≤ 2 · (n − 1) + 1 = 2n − 1`.
+  `2 · n − 1` times along any strictly-increasing grid. At depth 1 `runUpTo 0 = id`, so the single
+  gate sees `t` directly and IS `affineArg` of `n` affine lines, switching `≤ n − 1` times
+  (`affineArg_alternations_le`); on each gate-piece the run is one fixed affine branch, so the 2-way
+  readout is `affineArg` of 2 lines and switches `≤ once` (`seqChanges_blockRefine_le`). Hence
+  `≤ 2 · (n − 1) + 1 = 2n − 1`.
 
 * **WITNESS** (`fanRoute n`): an explicit depth-1 arity-`(n+1)` "fan/staircase" fold whose readout
   alternates `2n + 1` times on the explicit increasing half-integer grid `k ↦ k / 2`,
   `k = 0 … 2n+1`. The fan scores `2 i · t − i²` have an upper envelope that steps the gate through
-  `0,1,…,n`; branch `i` is `t ↦ 1 − 2(t − i)`, so the route reads exactly `k mod 2` at `t = k/2` — a
+  `0,1,…,n`; branch `i` is `t ↦ 1 − 2(t − i)`, so the route reads exactly `k mod 2` at `t = k/2`, a
   full alternation. `2n + 1 > 2n − 1`, beyond every arity-`n` route's reach.
 
 * **SEPARATION** (`constArityGrade_ssubset_succ`): `constArityGrade n ⊂ constArityGrade (n+1)` for all
   `n ≥ 1`. `⊆` via a width-monotone embedding (`constArityGrade_subset_succ`): an arity-`n` layer
-  embeds into arity-`(n+1)` by appending a DUPLICATE of its last score+branch — a never-winning extra
+  embeds into arity-`(n+1)` by appending a DUPLICATE of its last score+branch, a never-winning extra
   index that leaves the gate (hence the route) unchanged (`leastArgmax_dupLast_eq`). `≠` via the
-  witness — a REAL proved non-membership, NOT `⊆` relabeled.
+  witness, a proved non-membership, not a relabeling of `⊆`.
 
-All proofs `sorry`-free, `native_decide`-free; axiom audit at the foot of the file.
 -/
 
 open scoped BigOperators
@@ -110,7 +109,7 @@ theorem layer_gate_eq_arg {n : ℕ} (hn : 0 < n) (Lyr : AffineMuxLayer 1 n) (t :
 /-! ## (C) The trace-bit (gate) alternation bound `≤ n − 1` -/
 
 /-- **THE GATE/TRACE ALTERNATION BOUND `≤ n − 1`.** Along any increasing sample, the depth-1 arity-`n`
-gate bit changes value at most `n − 1` times — directly from `affineArg_alternations_le`, since the
+gate bit changes value at most `n − 1` times, directly from `affineArg_alternations_le`, since the
 gate IS `affineArg` of `n` lines. -/
 theorem arityCascade_gate_alternations_le {n : ℕ} (hn : 0 < n) (Lyr : AffineMuxLayer 1 n)
     {M : ℕ} (pts : Fin (M + 1) → ℝ) (hinc : Increasing pts) :
@@ -190,12 +189,11 @@ theorem arityRoute_block_noReturn {n : ℕ} (hn : 0 < n) (Lyr : AffineMuxLayer 1
 /-! ## (E) THE ROUTE ALTERNATION BOUND `≤ 2n − 1` (the block-refine on top of the gate bound) -/
 
 /-- **THE DEPTH-1 ARITY-`n` ROUTE ALTERNATION BOUND `≤ 2n − 1`.** Along any strictly-increasing
-sample, a depth-1 arity-`n` route changes value at most `2n − 1` times. Proof: the route is a function
-of the pair `(gate, route)`; the gate changes `≤ n − 1` times
-(`arityCascade_gate_alternations_le`) and the route has block-no-return on gate-pieces
-(`arityRoute_block_noReturn`), so `seqChanges_blockRefine_le` gives one doubling:
-`≤ 2 · (n − 1) + 1 = 2n − 1`. This is the genuine arity-parameterized analogue of the depth file's
-route bound at `L = 1`. -/
+sample, a depth-1 arity-`n` route changes value at most `2n − 1` times. The route is a function of
+the pair `(gate, route)`; the gate changes `≤ n − 1` times (`arityCascade_gate_alternations_le`) and
+the route has block-no-return on gate-pieces (`arityRoute_block_noReturn`), so
+`seqChanges_blockRefine_le` gives one doubling: `≤ 2 · (n − 1) + 1 = 2n − 1`. This is the
+arity-parameterized analogue of the depth file's route bound at `L = 1`. -/
 theorem constArityRoute_alternations_le {n : ℕ} (hn : 0 < n) (Lyr : AffineMuxLayer 1 n)
     (rs : Fin 2 → AffineFunctional 1)
     {M : ℕ} (pts : Fin (M + 1) → ℝ) (hinc : Increasing pts) :
@@ -362,7 +360,7 @@ theorem fanLayer_gate_at_half (n : ℕ) (k : ℕ) (hk : k ≤ 2 * n + 1) :
 /-- **THE FAN ROUTE AT `t = k/2` is `k mod 2`.** For `k ≤ 2n + 1`: the gate selects branch
 `m = ⌊k/2⌋`, whose affine action is `t ↦ 1 − 2(t − m)`, so the folded coordinate at `t = k/2` is
 `1 − (k − 2m) = 1 − (k mod 2)`. The readout (`route = 0` iff state `≥ ½`) then reads `0` when `k` is
-even and `1` when `k` is odd — i.e. exactly `k mod 2`. -/
+even and `1` when `k` is odd, i.e. exactly `k mod 2`. -/
 theorem fanRoute_at_half (n : ℕ) (k : ℕ) (hk : k ≤ 2 * n + 1) :
     fanRoute n (fun _ => (k : ℝ) / 2) = if k % 2 = 0 then 0 else 1 := by
   set m : ℕ := k / 2 with hm
@@ -568,10 +566,10 @@ theorem constArityGrade_subset_succ {n : ℕ} (hn : 0 < n) :
 
 /-! ## (H) THE WIDTH SEPARATION: `constArityGrade n ⊂ constArityGrade (n+1)` -/
 
-/-- **NON-MEMBERSHIP (a REAL proved non-membership).** The arity-`(n+1)` fan route is NOT in
-`constArityGrade n`. If it were a depth-1 arity-`n` route, then along the increasing half-integer grid
-`halfGrid n` it would change `≤ 2n − 1` times (`constArityRoute_alternations_le`); but it changes
-`2n + 1` times (`fanRoute_alternations_eq`) — a contradiction. -/
+/-- **NON-MEMBERSHIP.** The arity-`(n+1)` fan route is NOT in `constArityGrade n`. If it were a
+depth-1 arity-`n` route, then along the increasing half-integer grid `halfGrid n` it would change
+`≤ 2n − 1` times (`constArityRoute_alternations_le`); but it changes `2n + 1` times
+(`fanRoute_alternations_eq`), a contradiction. -/
 theorem fanRoute_not_mem_grade {n : ℕ} (hn : 0 < n) :
     fanRoute n ∉ constArityGrade n hn := by
   rintro ⟨Lyr, rs, hf⟩
@@ -588,14 +586,14 @@ theorem fanRoute_not_mem_grade {n : ℕ} (hn : 0 < n) :
   rw [hwit] at hbound
   omega
 
-/-- **THE WIDTH SEPARATION (the second hierarchy direction, proved SEPARATELY from depth).** For every
-`n ≥ 1`, `constArityGrade n ⊂ constArityGrade (n+1)`: at fixed depth 1, a wider mux (arity `n+1`)
-realizes strictly more 1-D route functions than a narrower one (arity `n`). The `⊆` is the
-width-monotone duplicate-last embedding (`constArityGrade_subset_succ`); the strictness is the fan
-witness: the arity-`(n+1)` fan route lies in arity `(n+1)` (`fanRoute_mem_grade`) but NOT in arity `n`
-(`fanRoute_not_mem_grade`, via the genuinely-proved arity-`n` alternation bound `≤ 2n − 1` from
-`affineArg_alternations_le`, exceeded by the witness's `2n + 1`). Width genuinely buys expressivity —
-the fixed-depth, varying-arity hierarchy, complementary to the varying-depth, fixed-arity ladder. -/
+/-- **THE WIDTH SEPARATION (the second hierarchy direction).** For every `n ≥ 1`,
+`constArityGrade n ⊂ constArityGrade (n+1)`: at fixed depth 1, a wider mux (arity `n+1`) realizes
+strictly more 1-D route functions than a narrower one (arity `n`). The `⊆` is the width-monotone
+duplicate-last embedding (`constArityGrade_subset_succ`); the strictness is the fan witness: the
+arity-`(n+1)` fan route lies in arity `(n+1)` (`fanRoute_mem_grade`) but NOT in arity `n`
+(`fanRoute_not_mem_grade`, via the arity-`n` alternation bound `≤ 2n − 1` from
+`affineArg_alternations_le`, exceeded by the witness's `2n + 1`). Width buys expressivity: the
+fixed-depth, varying-arity hierarchy, complementary to the varying-depth, fixed-arity ladder. -/
 theorem constArityGrade_ssubset_succ {n : ℕ} (hn : 0 < n) :
     constArityGrade n hn ⊂ constArityGrade (n + 1) (by omega) := by
   refine ⟨constArityGrade_subset_succ hn, ?_⟩
@@ -605,9 +603,3 @@ theorem constArityGrade_ssubset_succ {n : ℕ} (hn : 0 < n) :
   exact fanRoute_not_mem_grade hn h1
 
 end TLT.TemperedDesignLaw.MuxHierarchy
-
--- Axiom audit (must be {propext, Classical.choice, Quot.sound}):
--- #print axioms TLT.TemperedDesignLaw.MuxHierarchy.constArityGrade_ssubset_succ
--- #print axioms TLT.TemperedDesignLaw.MuxHierarchy.constArityRoute_alternations_le
--- #print axioms TLT.TemperedDesignLaw.MuxHierarchy.fanRoute_alternations_eq
--- #print axioms TLT.TemperedDesignLaw.MuxHierarchy.constArityGrade_subset_succ

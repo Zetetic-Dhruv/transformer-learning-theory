@@ -11,18 +11,17 @@ import TLT_Proofs.TemperedDesignLaw.RegionForwardSlack
 
 The depth-`L` hardening bound rests on the ideal trajectory staying deep in the regions (`idealDeep`), whose
 conjuncts are abstract ball-containments `∀ z, dist z (M^[ℓ] i) ≤ δ_ℓ → z ∈ region`. `marginInterior_of_margin_slack`
-discharges *one* such conjunct from a margin inequality `γ(i) ≥ g + 2Ks·δ`. This file lifts that through the
-homogeneous depth recursion so the whole `idealDeep` for a replicated layer reduces to a checkable family of
+discharges one such conjunct from a margin inequality `γ(i) ≥ g + 2Ks·δ`. Lifting this through the
+homogeneous depth recursion reduces the whole `idealDeep` for a replicated layer to a checkable family of
 per-depth margin inequalities along the ideal trajectory.
 
-* `hardeningRadius` — the ideal-ball radius at depth `ℓ`: `δ₀ = δ`, `δ_{ℓ+1} = rnd + lip·δ_ℓ`, the same
+* `hardeningRadius`: the ideal-ball radius at depth `ℓ` is `δ₀ = δ`, `δ_{ℓ+1} = rnd + lip·δ_ℓ`, the same
   recursion `idealDeep` runs along `List.replicate L hl`.
-* `hardeningRadius_shift` — one ideal step shifts the radius sequence (`δ'_ℓ = δ_{ℓ+1}` for `δ' = rnd + lip·δ`).
-* `idealDeep_of_trajectoryMargins` — if the scores are `Ks`-Lipschitz, the layer's region is the margin
+* `hardeningRadius_shift`: one ideal step shifts the radius sequence (`δ'_ℓ = δ_{ℓ+1}` for `δ' = rnd + lip·δ`).
+* `idealDeep_of_trajectoryMargins`: if the scores are `Ks`-Lipschitz, the layer's region is the margin
   interior `{γ ≥ g}`, and the ideal trajectory's margin at each depth exceeds `g` by `2Ks·δ_ℓ`, then `idealDeep`
-  holds. This turns the abstract ball-containments into the per-network margin inequalities
-  `γ(M^[ℓ] i) ≥ g + 2Ks·δ_ℓ` along the soft trajectory `M = hl.ideal`; a concrete weight configuration
-  discharges them by exhibiting its own trajectory margins.
+  holds. This reduces the abstract ball-containments to the per-network margin inequalities
+  `γ(M^[ℓ] i) ≥ g + 2Ks·δ_ℓ` along the soft trajectory `M = hl.ideal`.
 -/
 
 universe u

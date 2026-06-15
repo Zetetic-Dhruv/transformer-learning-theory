@@ -114,6 +114,7 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.TemperedDesignLaw.MuxDepthLadder,
     `TLT_Proofs.TemperedDesignLaw.MuxDepthLadderGeneral,
     `TLT_Proofs.TemperedDesignLaw.MuxWidth,
+    `TLT_Proofs.TemperedDesignLaw.MuxCertificate,
     `TLT_Proofs.TemperedDesignLaw.CertificateAssembly,
     `TLT_Proofs.TemperedDesignLaw.SymbolRouteFactoredLoss,
     `TLT_Proofs.TemperedDesignLaw.CertificateReal,

@@ -19,11 +19,11 @@ process over an `ε`-net and `σ` is the scale.
 
 ## Main results
 
-* `expMulSup'_le_sum` — the soft-max bound `exp(t · sup f) ≤ ∑ᵢ exp(t · fᵢ)`.
-* `absSup'_le_sum` — the bound `|sup f| ≤ ∑ᵢ |fᵢ|` on a finite set.
-* `meanLeLogMgf` — the Cramér–Jensen estimate `E[X] ≤ (1/t) · log E[exp(tX)]` for `t > 0`, the
+* `expMulSup'_le_sum`: the soft-max bound `exp(t · sup f) ≤ ∑ᵢ exp(t · fᵢ)`.
+* `absSup'_le_sum`: the bound `|sup f| ≤ ∑ᵢ |fᵢ|` on a finite set.
+* `meanLeLogMgf`: the Cramér–Jensen estimate `E[X] ≤ (1/t) · log E[exp(tX)]` for `t > 0`, the
   exponential form of Jensen's inequality for the convex function `exp`.
-* `subGaussianFiniteMax` — for `N ≥ 2` centered random variables whose cumulant generating function
+* `subGaussianFiniteMax`: for `N ≥ 2` centered random variables whose cumulant generating function
   is bounded by `t²σ²/2`, the expected maximum is at most `σ · √(2 log N)`.
 
 ## References

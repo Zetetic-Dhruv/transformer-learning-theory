@@ -10,20 +10,17 @@ import NN.Floats.IEEEExec.DirectedRoundingSoundness
 import NN.Floats.IEEEExec.ErrorBounds
 
 /-!
-# Executed `Exec32.exp` — wrapping the L3 polynomial into the bit-level value
+# Executed `Exec32.exp`: wrapping the L3 polynomial into the bit-level value
 
-L3 (`evalExp2Poly_error`) certifies the executed fixed-point Taylor polynomial against `2ᵗ`. This file
-wraps it into the executed value: the output dyadic `⟨false, pFixed, k−48⟩` decodes to
-`(pFixed/2⁴⁸)·2ᵏ`, so with L3 the rounded output `toReal(roundDyadicToIEEE32 ⟨…⟩)` is within
-`eps₃₂ + 2ᵏ·10⁻⁶` of `2ᵏ·2ᶠ`.
+L3 (`evalExp2Poly_error`) certifies the executed fixed-point Taylor polynomial against `2ᵗ`. The
+output dyadic `⟨false, pFixed, k−48⟩` decodes to `(pFixed/2⁴⁸)·2ᵏ`, so with L3 the rounded output
+`toReal(roundDyadicToIEEE32 ⟨…⟩)` is within `eps₃₂ + 2ᵏ·10⁻⁶` of `2ᵏ·2ᶠ`.
 -/
 
 /-!
 ## References
-- [46] reconstruction by 2ᵏ; [44] ½-ulp; [50] dyadic value model; [51] correctly-rounded fp32 round;
-  [47] range-reduction value error.
-- Provenance: Innovation — the executed `Exec32.exp` value-level error certificate (carries L3
-  through the dyadic decode + final fp32 round). Nearest published: Tang 0.54-ulp hand proof [46].
+- [46] reconstruction by 2ᵏ (Tang); [44] ½-ulp; [50] dyadic value model; [51] correctly-rounded
+  fp32 round; [47] range-reduction value error.
 -/
 
 namespace TLT.ExpError
@@ -49,7 +46,7 @@ lemma bpow_eq_exp (k : ℤ) : bpow k = Real.exp ((k : ℝ) * Real.log 2) := by
 
 /-- **The executed exp value.** With the range-reduced fraction `fFixed` (`|fFixed| ≤ 2⁴⁷`) and integer
 `k`, the rounded output `toReal(roundDyadicToIEEE32 ⟨false, pFixed, k−48⟩)` is within
-`eps₃₂ + 2ᵏ·10⁻⁶` of `2^(k + fFixed/2⁴⁸)` — combining L3 (`evalExp2Poly_error`), the dyadic decode
+`eps₃₂ + 2ᵏ·10⁻⁶` of `2^(k + fFixed/2⁴⁸)`, combining L3 (`evalExp2Poly_error`), the dyadic decode
 (`dyadicToReal_exp_output`), and the final round (L5 `toReal_roundDyadicToIEEE32_eq_fp32Round` +
 `fp32Round_abs_error`). This is L3 carried through the IEEE round into the executed number. -/
 lemma exec32_exp_value_error (fFixed k : ℤ) (hf : |(fFixed : ℝ)| ≤ 2 ^ 47)
@@ -96,10 +93,9 @@ lemma exec32_exp_value_error (fFixed k : ℤ) (hf : |(fFixed : ℝ)| ≤ 2 ^ 47)
 /-- **The executed `Exec32.exp` error.** For a finite input reaching the main branch (`hbranch`: the
 range reduction produces `fFixed`, `k` with `pFixed > 0`), the executed bit-level exponential
 `toReal(Exec32.exp x)` is within `eps₃₂ + 2ᵏ·10⁻⁶ + δ` of `Real.exp(toReal x)`, where `δ` bounds the
-range-reduction value error. Combines the executed-value reconstruction (`exec32_exp_value_error`,
-carrying L3 through the IEEE round) with the range-reduction relation. `hbranch` and `hval` are the
-TorchLean plumbing (unfolding `Exec32.exp`'s branches and the `x/ln2` range reduction); the
-mathematical content (polynomial = `2ᵗ`, the round, the dyadic decode) is discharged. -/
+range-reduction value error. Combines `exec32_exp_value_error` (L3 carried through the IEEE round)
+with the range-reduction relation. `hbranch` unfolds `Exec32.exp`'s main branch; `hval` supplies the
+range-reduction error bound. -/
 lemma exec32_exp_error (x : IEEE32Exec) (fFixed k : ℤ) (hf : |(fFixed : ℝ)| ≤ 2 ^ 47)
     (hp : 0 < evalExp2Poly fFixed)
     (hbranch : IEEE32Exec.exp x

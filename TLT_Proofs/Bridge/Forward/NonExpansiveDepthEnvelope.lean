@@ -10,8 +10,8 @@ import TLT_Proofs.Bridge.Forward.ExecutedStackAtDepth
 
 The generic network rounding envelope `envBound = ∑ᵢ rndᵢ · ∏_{j>i} Λⱼ` (`ForwardEnvelope`) amplifies
 each layer's local rounding error by the product of its downstream ideal Lipschitz constants. When the
-per-layer constants exceed `1` — as for a layer-normalization layer, whose constant scales like
-`1/√ε` — that product is exponential in depth, and the certified executed bound is non-vacuous only
+per-layer constants exceed `1` (as for a layer-normalization layer, whose constant scales like
+`1/√ε`), that product is exponential in depth, and the certified executed bound is non-vacuous only
 for shallow stacks.
 
 This file isolates the exact condition under which the envelope is instead **linear** in depth: every
@@ -19,7 +19,7 @@ layer is *non-expansive*, `lip ≤ 1`. Then the downstream product is `≤ 1` (`
 the envelope collapses to the *sum* of the per-layer rounding bounds (`envBound_le_sum_rnd_of_nonexpansive`),
 and under a uniform per-layer bound `ρ` it is at most `(#layers) · ρ` (`envBound_le_length_mul_of_nonexpansive`).
 The forward and risk transfers inherit this: `execComp_envelope_linear` and `execComp_risk_transfer_linear`
-give a correction that grows linearly, not exponentially, in depth — non-vacuous at every depth.
+give a correction that grows linearly, not exponentially, in depth.
 
 Non-expansiveness is the sharp dividing line. Reset layers (the coordinatewise activation clamp,
 `clampExecLayer`) are non-expansive by construction, and `nonexpansiveExecLayer` packages any
@@ -27,18 +27,17 @@ Non-expansiveness is the sharp dividing line. Reset layers (the coordinatewise a
 (tight in `ρ`). For the post-norm multi-head block the ideal Lipschitz constant is
 `Cγ·(2√d+2)/√ε · (1 + L_mha)`; `normMultiHeadBlock_nonexpansive` shows the block is non-expansive
 exactly when that constant is `≤ 1`, the certified-non-expansive regime (small `‖γ‖`, residual scaling,
-or large `ε` — the stabilization studied in deep-transformer signal-propagation analyses, e.g. Wang et
-al., *DeepNet*, 2022; Takase et al., 2023).
+or large `ε`; see the stabilization studied in deep-transformer signal-propagation analyses, e.g. Wang et
+al., *DeepNet*, 2022; Takase et al., 2023.
 
 ## Main results
 
-- `lipProd_le_one_of_nonexpansive` — a non-expansive stack has downstream Lipschitz product `≤ 1`.
-- `envBound_le_sum_rnd_of_nonexpansive` — the envelope is at most the sum of per-layer rounding bounds.
-- `envBound_le_length_mul_of_nonexpansive` — under a uniform bound `ρ`, the envelope is `≤ (#layers)·ρ`.
-- `execComp_envelope_linear` / `execComp_risk_transfer_linear` — linear-in-depth forward / risk transfer.
-- `nonexpansiveExecLayer`, `replicate_nonexpansive_envelope_linear` — a non-trivial witness with
-  nonzero rounding.
-- `normMultiHeadBlock_nonexpansive` — the post-norm multi-head block is non-expansive when its
+- `lipProd_le_one_of_nonexpansive`: a non-expansive stack has downstream Lipschitz product `≤ 1`.
+- `envBound_le_sum_rnd_of_nonexpansive`: the envelope is at most the sum of per-layer rounding bounds.
+- `envBound_le_length_mul_of_nonexpansive`: under a uniform bound `ρ`, the envelope is `≤ (#layers)·ρ`.
+- `execComp_envelope_linear` / `execComp_risk_transfer_linear`: linear-in-depth forward / risk transfer.
+- `nonexpansiveExecLayer`, `replicate_nonexpansive_envelope_linear`: a witness with nonzero rounding.
+- `normMultiHeadBlock_nonexpansive`: the post-norm multi-head block is non-expansive when its
   input-Lipschitz constant is `≤ 1`.
 -/
 
@@ -46,8 +45,6 @@ al., *DeepNet*, 2022; Takase et al., 2023).
 ## References
 - [38][43] forward-error envelope + relative-rounding (`γₙ`) model; [31] LayerNorm `1/√ε` Lipschitz
   + signal cap; [39][40] DeepNet/Takase non-expansive deep stabilization.
-- Provenance: Innovation — the exponential-vs-linear depth dichotomy at the `lip ≤ 1` boundary and
-  the machine-ε × depth non-vacuous envelope; constituent facts are classical.
 -/
 
 open MeasureTheory
@@ -75,8 +72,8 @@ lemma lipProd_le_one_of_nonexpansive {Ls : List (ExecLayer V)}
         _ = 1 := mul_one 1
 
 /-- **Non-expansive stacks have a summed (not amplified) rounding envelope.** When every layer is
-non-expansive, the network envelope is at most the sum of the per-layer rounding bounds — the
-amplifying downstream product is gone. -/
+non-expansive, the network envelope is at most the sum of the per-layer rounding bounds; the
+amplifying downstream product is `≤ 1`. -/
 lemma envBound_le_sum_rnd_of_nonexpansive [Nonempty V] {Ls : List (ExecLayer V)}
     (h : ∀ L ∈ Ls, L.lip ≤ 1) : envBound Ls ≤ (Ls.map (·.rnd)).sum := by
   induction Ls with
@@ -92,8 +89,8 @@ lemma envBound_le_sum_rnd_of_nonexpansive [Nonempty V] {Ls : List (ExecLayer V)}
       linarith
 
 /-- **Linear-in-depth envelope under a uniform per-layer rounding bound.** If every layer is
-non-expansive and rounds within `ρ`, the network envelope is at most `(#layers) · ρ` — linear in
-depth, with no exponential blow-up. -/
+non-expansive and rounds within `ρ`, the network envelope is at most `(#layers) · ρ`: linear in
+depth with no exponential blow-up. -/
 lemma envBound_le_length_mul_of_nonexpansive [Nonempty V] {Ls : List (ExecLayer V)} {ρ : ℝ}
     (hlip : ∀ L ∈ Ls, L.lip ≤ 1) (hrnd : ∀ L ∈ Ls, L.rnd ≤ ρ) :
     envBound Ls ≤ Ls.length * ρ := by
@@ -112,9 +109,8 @@ lemma envBound_le_length_mul_of_nonexpansive [Nonempty V] {Ls : List (ExecLayer 
       have hexp : ((Ls.length : ℝ) + 1) * ρ = Ls.length * ρ + ρ := by ring
       rw [hexp]; linarith
 
-/-- **The executed forward is within `(#layers)·ρ` of the ideal for non-expansive stacks** — the
-depth-uniform-rounding correction is *linear* in depth, in contrast to the generic exponential
-`envBound`. -/
+/-- **The executed forward is within `(#layers)·ρ` of the ideal for non-expansive stacks.** The
+depth-uniform-rounding correction is linear in depth when every layer satisfies `lip ≤ 1`. -/
 theorem execComp_envelope_linear [Nonempty V] {Ls : List (ExecLayer V)} {ρ : ℝ}
     (hlip : ∀ L ∈ Ls, L.lip ≤ 1) (hrnd : ∀ L ∈ Ls, L.rnd ≤ ρ) (x : V) :
     dist (execComp Ls x) (idealComp Ls x) ≤ Ls.length * ρ :=
@@ -122,8 +118,7 @@ theorem execComp_envelope_linear [Nonempty V] {Ls : List (ExecLayer V)} {ρ : �
 
 /-- **Linear-in-depth executed risk transfer.** For an `Lℓ`-Lipschitz loss and a non-expansive stack
 with uniform per-layer rounding `ρ`, the executed expected risk is within `Lℓ·(#layers)·ρ` of the
-ideal — the certified executed bound is non-vacuous at every depth, its correction growing linearly,
-not exponentially, in depth. -/
+ideal; the correction grows linearly in depth. -/
 theorem execComp_risk_transfer_linear [Nonempty V] {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
     [IsProbabilityMeasure μ] {Ls : List (ExecLayer V)} {ρ : ℝ}
     (hlip : ∀ L ∈ Ls, L.lip ≤ 1) (hrnd : ∀ L ∈ Ls, L.rnd ≤ ρ)
@@ -137,8 +132,8 @@ theorem execComp_risk_transfer_linear [Nonempty V] {Ω : Type*} [MeasurableSpace
     (mul_le_mul_of_nonneg_left (envBound_le_length_mul_of_nonexpansive hlip hrnd) hLℓ0)
 
 /-- A non-expansive executed layer with a genuine rounding bound `ρ`: any `1`-Lipschitz ideal map
-paired with an executed map within `ρ`. Witnesses that the linear-envelope hypotheses are inhabited by
-layers with *nonzero* rounding, so the `(#layers)·ρ` bound is non-trivial and tight in `ρ`. -/
+paired with an executed map within `ρ`. The `(#layers)·ρ` envelope is inhabited by layers with nonzero
+rounding, so the bound is non-trivial and tight in `ρ`. -/
 def nonexpansiveExecLayer (ideal exec : V → V) (ρ : ℝ)
     (hlip : ∀ a b, dist (ideal a) (ideal b) ≤ dist a b)
     (hclose : ∀ y, dist (exec y) (ideal y) ≤ ρ) : ExecLayer V where
@@ -155,9 +150,8 @@ def nonexpansiveExecLayer (ideal exec : V → V) (ρ : ℝ)
     (hclose : ∀ y, dist (exec y) (ideal y) ≤ ρ) :
     (nonexpansiveExecLayer ideal exec ρ hlip hclose).lip = 1 := rfl
 
-/-- **Non-trivial linear non-vacuity witness.** A depth-`Ln` stack of identical non-expansive layers
-each rounding within `ρ` has executed-vs-ideal forward error `≤ Ln·ρ` — linear in depth and tight in
-`ρ`, the behaviour the generic exponential envelope cannot express. -/
+/-- **Replicated non-expansive stack.** A depth-`Ln` stack of identical non-expansive layers each
+rounding within `ρ` has executed-vs-ideal forward error `≤ Ln·ρ`: linear in depth and tight in `ρ`. -/
 theorem replicate_nonexpansive_envelope_linear [Nonempty V]
     (E : ExecLayer V) (hE : E.lip ≤ 1) {ρ : ℝ} (hEρ : E.rnd ≤ ρ) (Ln : ℕ) (x : V) :
     dist (execComp (List.replicate Ln E) x) (idealComp (List.replicate Ln E) x) ≤ Ln * ρ := by
@@ -175,7 +169,7 @@ variable {E : Type*} [NormedAddCommGroup E]
 
 /-- A non-expansive executed layer whose ideal map has **bounded image** (`‖ideal y‖ ≤ R`) and whose
 executed map rounds *relatively* (`dist (exec y) (ideal y) ≤ u·‖ideal y‖`, with `u` the unit roundoff):
-the absolute per-layer rounding is then uniformly `≤ u·R`. The image bound is the post-norm reset —
+the absolute per-layer rounding is then uniformly `≤ u·R`. The image bound is the post-norm reset,
 layer normalization caps the signal, so relative rounding becomes a uniform absolute bound that does
 *not* grow with the upstream activation norm. -/
 def boundedRelRoundExecLayer (ideal exec : E → E) (u R : ℝ) (hu : 0 ≤ u)
@@ -190,10 +184,9 @@ def boundedRelRoundExecLayer (ideal exec : E → E) (u R : ℝ) (hu : 0 ≤ u)
   exec_close := fun y => le_trans (hrel y) (mul_le_mul_of_nonneg_left (himg y) hu)
 
 /-- **Machine-epsilon × depth envelope.** A depth-`Ln` stack of identical bounded-output, relatively
-rounded, non-expansive layers has executed-vs-ideal forward error `≤ Ln·(u·R)` — linear in depth and
-proportional to the unit roundoff `u`, hence non-vacuous for any realistic depth (`Ln ≲ 1/(u·R)`). This
-is the *useful*, not merely finite, depth bound: the generic exponential `∏lip` is gone and the
-per-layer scale is the machine epsilon times the post-norm signal cap `R`. -/
+rounded, non-expansive layers has executed-vs-ideal forward error `≤ Ln·(u·R)`: linear in depth and
+proportional to the unit roundoff `u`, hence non-vacuous for any realistic depth (`Ln ≲ 1/(u·R)`).
+The per-layer scale is the machine epsilon times the post-norm signal cap `R`. -/
 theorem replicate_boundedRelRound_envelope [Nonempty E]
     (ideal exec : E → E) (u R : ℝ) (hu : 0 ≤ u)
     (hlip : ∀ a b, dist (ideal a) (ideal b) ≤ dist a b) (himg : ∀ y, ‖ideal y‖ ≤ R)
@@ -223,11 +216,11 @@ lemma clampExecLayer_nonexpansive (ρ : ℝ) :
 
 /-- **The post-norm multi-head block is non-expansive exactly in the certified-non-expansive regime.**
 Its input-Lipschitz constant is `K = Cγ·(2√d+2)/√ε · (1 + L_mha)` with
-`L_mha = H·(2·bV·(d·B/scale)·(2·γW) + γW)`. When `K ≤ 1` — small `‖γ‖`, residual scaling, or large `ε`
-— the block contracts (`dist (block Xa) (block Xb) ≤ dist Xa Xb`), so a stack of such blocks satisfies
-the linear-envelope hypothesis `lip ≤ 1` and the certified executed correction is linear, not
-exponential, in depth. The constant `K` is `> 1` for typical regularizers `ε`, which is the source of
-the generic envelope's exponential depth dependence; `K ≤ 1` is the sharp condition that removes it. -/
+`L_mha = H·(2·bV·(d·B/scale)·(2·γW) + γW)`. When `K ≤ 1` (small `‖γ‖`, residual scaling, or large `ε`),
+the block contracts (`dist (block Xa) (block Xb) ≤ dist Xa Xb`), so a stack of such blocks satisfies
+the linear-envelope hypothesis `lip ≤ 1` and the correction grows linearly in depth. The constant `K`
+is `> 1` for typical regularizers `ε`, which is the source of the generic envelope's exponential depth
+dependence; `K ≤ 1` is the sharp condition that removes it. -/
 lemma normMultiHeadBlock_nonexpansive {H : ℕ} [NeZero n] (hd : 0 < d) {scale B bV γW : ℝ}
     (hscale : 0 < scale) (hB : 0 ≤ B) (hbV0 : 0 ≤ bV) (hγW0 : 0 ≤ γW)
     (WQ WK WVO : Fin H → Fin d → Fin d → ℝ)
@@ -246,8 +239,8 @@ lemma normMultiHeadBlock_nonexpansive {H : ℕ} [NeZero n] (hd : 0 < d) {scale B
 
 /-- **The post-norm multi-head block has uniformly bounded output.** Layer normalization caps every
 output coordinate at `√d·Cγ + Cβ` regardless of the input, so the block's image lies in that ball no
-matter how far upstream maps have grown the activation norm — this is the bounded signal scale `R` that
-makes the per-layer rounding `≤ u·R` in `replicate_boundedRelRound_envelope`, hence the depth-`L` error
+matter how large the upstream activation norm. This supplies the bounded signal scale `R` that makes
+the per-layer rounding `≤ u·R` in `replicate_boundedRelRound_envelope`, giving depth-`L` error
 `≤ L·u·(√d·Cγ + Cβ)` for a non-expansive (`K ≤ 1`), relatively rounded tied block stack. -/
 lemma normMultiHeadBlock_image_le {H : ℕ} (hd : 0 < d) (γ β : Fin d → ℝ) {Cγ Cβ : ℝ}
     (hCγ : ∀ j, |γ j| ≤ Cγ) (hCβ : ∀ j, |β j| ≤ Cβ) {scale : ℝ}

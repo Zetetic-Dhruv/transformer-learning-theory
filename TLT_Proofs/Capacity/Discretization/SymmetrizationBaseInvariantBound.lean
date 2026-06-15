@@ -15,20 +15,18 @@ contains every executed float value), the expected uniform deviation of true ris
 is at most twice the **real** ball's empirical Rademacher complexity.
 
 This is the experiment→theory bridge for the generalization gap: the gap of the (countable, executed)
-dyadic class is controlled by the capacity of the (continuous, theoretical) real class. Crucially, the
-measurability hypotheses of symmetrization are discharged for free — the dyadic ball is **countable**,
-so each supremum envelope is a countable supremum of measurable functions.
+dyadic class is controlled by the capacity of the (continuous, theoretical) real class. The
+measurability hypotheses of symmetrization are discharged by countability of the dyadic ball:
+each supremum envelope is a countable supremum of measurable functions.
 
 ## Main results
 
-- `expectedGap_le_two_capacityReal` — expected uniform deviation ≤ 2 · real-ball capacity.
+- `expectedGap_le_two_capacityReal`: expected uniform deviation ≤ 2 · real-ball capacity.
 -/
 
 /-!
 ## References
 - [19] symmetrization (≤ 2·Rademacher); [16][26] Dudley (12√2); dense base-change [§DenseBaseChange].
-- Provenance: Classical-instantiation (assembly of symmetrization + base-change; components
-  matched, only the composition is project-specific).
 -/
 
 open MeasureTheory

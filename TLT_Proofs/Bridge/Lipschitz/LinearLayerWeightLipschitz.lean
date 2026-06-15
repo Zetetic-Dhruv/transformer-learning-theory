@@ -11,23 +11,22 @@ import TLT_Proofs.Bridge.Forward.ForwardContinuity
 The forward-pass layers are Lipschitz in their *weights*, with constants conditioned on a bound on
 the layer's input. For the matrix-multiply layer this is the exact transpose of the input-Lipschitz
 estimate: where the input map `X ↦ W·X` is Lipschitz with the column-ℓ¹ norm of `W`, the weight map
-`W ↦ W·X` is Lipschitz — globally in the weights — with the row-ℓ¹ norm of `X`. The ReLU layer
+`W ↦ W·X` is Lipschitz, globally in the weights, with the row-ℓ¹ norm of `X`. The ReLU layer
 carries no weights, so it is `0`-weight-Lipschitz. These are the per-layer constants that the
 parameter-Lipschitz composition amplifies, conditioned on the bounded activation domain that a
 bounded weight ball and bounded network input produce.
 
 ## Main results
 
-- `matMulCoord_param_lipschitz` — `W ↦ matMulCoord W X` is `β`-Lipschitz in the weights when the
+- `matMulCoord_param_lipschitz`: `W ↦ matMulCoord W X` is `β`-Lipschitz in the weights when the
   input `X` has row-ℓ¹ norms bounded by `β`.
-- `reluCoord_param_lipschitz` — the ReLU layer is constant in any weight argument.
+- `reluCoord_param_lipschitz`: the ReLU layer is constant in any weight argument.
 -/
 
 /-!
 ## References
 - induced operator norm = Lipschitz constant of `W↦WX` (row-ℓ¹ of X in sup metric); [35] Lem 2
   one-layer specialization; weightless ReLU.
-- Provenance: Classical-instantiation (textbook induced-norm fact).
 -/
 
 namespace TLT

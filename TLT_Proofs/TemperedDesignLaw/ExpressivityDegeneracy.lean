@@ -6,11 +6,11 @@ Authors: Dhruv Gupta
 import TLT_Proofs.TemperedDesignLaw.ExpressivityLattice
 
 /-!
-# The expressivity-lattice degeneracy (a Pl-kill of the S4 strict-separation bound)
+# The expressivity-lattice degeneracy: the S4 strict-separation bound does not hold
 
 The `(L, K)` lattice of `ExpressivityLattice.lean` is built from a genuine `(L, K)`-shaped index type
 (a width-`K` expert pool and a length-`L` selector), and its monotone ladders are real cascade
-embeddings. One might hope that this yields a *strict* expressivity lower bound — that
+embeddings. One might hope that this yields a *strict* expressivity lower bound, namely that
 `expressivityGrade L K ⊊ expressivityGrade (L+1) (K+1)`, i.e. that growing depth/width strictly
 enlarges the realizable route class. This file proves that **no such strict separation holds for any
 measurable route function**, because the router family `A` in the existential defining
@@ -23,20 +23,19 @@ so its `leastArgmax` route *is* `f`. The cascade adds nothing on top of an alrea
 
 ## Main results
 
-* `leastArgmax_indicator` — the `leastArgmax` of a one-hot score vector is its hot index.
-* `indicatorRouter` — the `FiniteScoreRouterCode` whose route is exactly `f` (parameter `Ρ := PUnit`).
-* `bareRouter_realizes_measurable` — **THE DEGENERACY.** Every measurable `f` lies in
+* `leastArgmax_indicator`: the `leastArgmax` of a one-hot score vector is its hot index.
+* `indicatorRouter`: the `FiniteScoreRouterCode` whose route is exactly `f` (parameter `Ρ := PUnit`).
+* `bareRouter_realizes_measurable` (**THE DEGENERACY**): every measurable `f` lies in
   `expressivityGrade 0 0`.
-* `measurable_mem_expressivityGrade` — hence every measurable `f` lies in *every* grade.
-* `expressivityGrade_zero_eq_measurable` — the exact base characterization:
+* `measurable_mem_expressivityGrade`: every measurable `f` lies in *every* grade.
+* `expressivityGrade_zero_eq_measurable`: the exact base characterization,
   `expressivityGrade 0 0 = {f | Measurable f}` (⊇ from the indicator router; ⊆ from
   `FiniteScoreRouterCode.route_measurable`).
-* `strict_separation_not_genuine` — **THE CONCLUSION.** On measurable functions the two grades
-  `(L, K)` and `(L+1, K+1)` coincide, so the claimed `⊊` can only ever be witnessed by a *non-measurable*
+* `strict_separation_not_genuine` (**THE CONCLUSION**): on measurable functions the two grades
+  `(L, K)` and `(L+1, K+1)` coincide, so the claimed `⊊` can only be witnessed by a *non-measurable*
   route function (an unconstrained region map). It is not a genuine expressivity bound.
 
-This is an honest negative result: it *proves* why the stated separation fails, rather than fabricating
-a fake non-membership.
+This is a negative result: it proves why the stated separation fails.
 -/
 
 open scoped BigOperators
@@ -94,7 +93,7 @@ unique maximizer is `f x`, recovered by `leastArgmax_indicator`. -/
   show leastArgmax (fun i => if f x = i then (1 : ℝ) else 0) hk = f x
   exact leastArgmax_indicator hk (f x)
 
-/-! ### (3) THE DEGENERACY — the bare router already realizes every measurable `f` -/
+/-! ### (3) THE DEGENERACY: the bare router already realizes every measurable `f` -/
 
 /-- **THE DEGENERACY (the core).** Every measurable route function `f : X → Fin k` already lies in the
 base grade `expressivityGrade 0 0`: no cascade layers, no width, just the bare argmax router. The
@@ -118,7 +117,7 @@ theorem bareRouter_realizes_measurable (hk : 0 < k) (f : X → Fin k) (hf : Meas
   show f x = (indicatorRouter f hf).route hk PUnit.unit x
   rw [indicatorRouter_route hk f hf]
 
-/-! ### (4) The monotone corollary — every well-shaped grade contains every measurable function -/
+/-! ### (4) The monotone corollary: every well-shaped grade contains every measurable function -/
 
 /-- **The monotone corollary.** Whenever the grade is well-shaped (`L ≤ K`, so the pool `Fin K` can
 host the length-`L` selector), every measurable `f` lies in `expressivityGrade L K`. It is already in
@@ -162,7 +161,7 @@ measurable route functions:
   section at the fixed parameter `ρ` (precomposition with `fun x => (ρ, x)`, i.e.
   `measurable_prodMk_left`) is measurable.
 
-So the lattice's base already *equals* the full measurable route class — the strongest possible form of
+So the lattice's base already *equals* the full measurable route class; this is the strongest possible form of
 the degeneracy. -/
 theorem expressivityGrade_zero_eq_measurable (hk : 0 < k) :
     (expressivityGrade 0 0 hk : Set (X → Fin k)) = {f | Measurable f} := by
@@ -178,7 +177,7 @@ theorem expressivityGrade_zero_eq_measurable (hk : 0 < k) :
     intro hf
     exact bareRouter_realizes_measurable hk f hf
 
-/-! ### (6) The conclusion — the strict separation is not a genuine expressivity bound -/
+/-! ### (6) The conclusion: the strict separation is not a genuine expressivity bound -/
 
 /-- **THE CONCLUSION (the negative result, made explicit).** On *measurable* route functions the two
 grades `(L, K)` and `(L+1, K+1)` coincide: for every measurable `f` (and any well-shaped `L ≤ K`),
@@ -186,11 +185,11 @@ grades `(L, K)` and `(L+1, K+1)` coincide: for every measurable `f` (and any wel
 the monotone corollary.
 
 Consequently the hoped-for strict separation `expressivityGrade L K ⊊ expressivityGrade (L+1) (K+1)`
-can be witnessed **only by a non-measurable route function** — i.e. by an unconstrained (non-measurable)
-region map, never by an honest measurable transformer route. The separation, as stated over the
+can be witnessed **only by a non-measurable route function**, specifically by an unconstrained (non-measurable)
+region map, never by a measurable transformer route. The separation, as stated over the
 unconstrained router family, is therefore **not a genuine expressivity lower bound**: it reflects the
 freedom of the existential's router argument, not any depth/width-induced gain in realizable measurable
-behaviour. This is the Pl-kill: the bound does not hold meaningfully. -/
+behaviour. -/
 theorem strict_separation_not_genuine (hk : 0 < k) (L K : ℕ) (hLK : L ≤ K) (f : X → Fin k)
     (hf : Measurable f) :
     f ∈ expressivityGrade L K hk ↔ f ∈ expressivityGrade (L + 1) (K + 1) hk := by
@@ -218,18 +217,12 @@ theorem stepRoute_nonconstant : stepRoute 1 ≠ stepRoute (-1) := by
   rw [h1, h2]
   decide
 
-/-- The concrete non-constant `stepRoute` lies in the *base* grade `expressivityGrade 0 0` — the
-indicator router realizes it with no cascade at all. Witnessing that the degeneracy is real, not a
-vacuous/constant phenomenon. -/
+/-- The concrete non-constant `stepRoute` lies in the *base* grade `expressivityGrade 0 0`: the
+indicator router realizes it with no cascade at all. This witnesses that the degeneracy is not a
+vacuous or constant phenomenon. -/
 theorem stepRoute_mem_base :
     stepRoute ∈ expressivityGrade 0 0 (by norm_num : 0 < 2) :=
   bareRouter_realizes_measurable (by norm_num) stepRoute stepRoute_measurable
 
 end TLT.TemperedDesignLaw
 
--- Axiom audit (must be {propext, Classical.choice, Quot.sound}):
--- #print axioms TLT.TemperedDesignLaw.bareRouter_realizes_measurable
--- #print axioms TLT.TemperedDesignLaw.strict_separation_not_genuine
--- #print axioms TLT.TemperedDesignLaw.expressivityGrade_zero_eq_measurable
--- #print axioms TLT.TemperedDesignLaw.measurable_mem_expressivityGrade
--- All seven public declarations depend only on {propext, Classical.choice, Quot.sound}.

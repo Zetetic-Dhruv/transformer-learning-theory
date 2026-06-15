@@ -17,30 +17,29 @@ measurability is the strong "Borel ghost-gap" regularity invoked at the symmetri
 VC learning. For a parameterized family in which the gap is **continuous in the parameter** over
 a **separable** parameter space, that supremum is Borel: continuity collapses the uncountable
 supremum to a countable dense one, and a countable supremum of measurable functions is
-measurable. No σ-compactness, Kσ-section, or measurable-selection analysis is used here —
+measurable. No σ-compactness, Kσ-section, or measurable-selection analysis is used;
 continuity alone delivers the Borel level.
 
 This is the **soft endpoint** of the softmax/argmax descriptive-complexity boundary, and it lands
 directly on the library's most general transformer. The certified-generalization framework states
 every transformer the library bounds as a weight-functional `F : (Fin d → ℝ) → V → ℝ` (the weight
-space `Fin d → ℝ` is `ParamSpace d`) carrying, exactly, `hFcont : ∀ x, Continuous (fun θ => F θ x)`
-— continuity in the weights — and `hFmeas : ∀ θ, Measurable (F θ)`. `transformerFunctional_isKW`
+space `Fin d → ℝ` is `ParamSpace d`) carrying `hFcont : ∀ x, Continuous (fun θ => F θ x)`
+(continuity in the weights) and `hFmeas : ∀ θ, Measurable (F θ)`. `transformerFunctional_isKW`
 discharges the Borel ghost-gap condition from precisely those hypotheses, so it covers the **full
 multi-head encoder stack** `transformerEncoderStackMH` (multi-head attention ∘ FFN ∘ layer-norm ∘
-residual, depth-graded, tied and untied) — the most general object certified — and every
+residual, depth-graded, tied and untied, the most general object certified) and every
 single-head, multi-head, and FFN instance below it.
 
 The **hard** (argmax) routing has no such continuity: there the supremum map's superlevel set is
-the analytic, non-Borel bad event of `TLT.Boundary.cascadeNonInvariance`. The two endpoints are
-reached by different mechanisms — continuity-collapse here; the failure of σ-compact (Kσ)
-parameter fibers there — and crossing from one to the other is forced by the argmax limit itself,
-which discretizes the routing and removes the continuity this argument depends on.
+the analytic, non-Borel bad event of `TLT.Boundary.cascadeNonInvariance`. The two endpoints are reached by different mechanisms: continuity-collapse here; the failure
+of σ-compact (Kσ) parameter fibers there. Crossing from one to the other is forced by the
+argmax limit, which discretizes the routing and removes the continuity this argument depends on.
 
 ## Main results
 
-- `measurable_iSup_gap_of_continuous` — the supremum gap of a per-sample-measurable,
+- `measurable_iSup_gap_of_continuous`: the supremum gap of a per-sample-measurable,
   parameter-continuous, uniformly-bounded family over a separable parameter space is measurable.
-- `transformerFunctional_isKW` — the soft endpoint on the general transformer weight-functional:
+- `transformerFunctional_isKW`: the soft endpoint on the general transformer weight-functional;
   the supremum one-sided ghost gap is measurable (the Borel ghost-gap condition).
 -/
 
@@ -74,7 +73,7 @@ private lemma iSup_eq_iSup_subtype_of_dense
 /-- **Borel ghost-gap from parameter-continuity (the soft endpoint of the cliff).** If the
 per-sample gap `θ ↦ gap θ p` is continuous on a separable parameter space, `p ↦ gap θ p` is
 measurable for each parameter, and the family is uniformly bounded above, then the supremum-gap
-`p ↦ ⨆_θ gap θ p` is measurable — the Borel ghost-gap condition. Continuity collapses the
+`p ↦ ⨆_θ gap θ p` is measurable, i.e. the Borel ghost-gap condition holds. Continuity collapses the
 supremum to a countable dense one (`iSup_eq_iSup_subtype_of_dense`); a countable supremum of
 measurable functions is measurable. -/
 theorem measurable_iSup_gap_of_continuous
@@ -95,11 +94,11 @@ theorem measurable_iSup_gap_of_continuous
   exact Measurable.iSup fun (θ : D) => hmeas (θ : Θ)
 
 /-- **The soft endpoint, on the library's most general transformer: the Borel ghost-gap condition
-(KW).** For a transformer weight-functional `F : (Fin d → ℝ) → V → ℝ` — the form in which the
+(KW).** For a transformer weight-functional `F : (Fin d → ℝ) → V → ℝ` (the form in which the
 certified-generalization framework states every transformer it bounds, with `Fin d → ℝ` the weight
-space `ParamSpace d` — that is measurable in its input (`hFmeas`) and continuous in its weights
+space `ParamSpace d`) that is measurable in its input (`hFmeas`) and continuous in its weights
 (`hFcont`), and a continuous loss `ℓ` with a uniform bound on the one-sided ghost gap (which holds
-over a bounded weight ball, the domain on which attention is bounded — Kim et al. 2021), the
+over a bounded weight ball, the domain on which attention is bounded, Kim et al. 2021), the
 supremum of the ghost gap over the weight space is measurable.
 
 Because `hFcont`/`hFmeas` are exactly the hypotheses `transformerEncoderStackMH_certified_generalization`
@@ -124,8 +123,8 @@ theorem transformerFunctional_isKW
   · exact hbdd
 
 /-- **The measurability cliff (capstone).** At the softmax/argmax boundary of attention routing the
-descriptive regularity of the one-sided ghost-gap drops, strictly, and the drop is genuine new
-content — not a trivial conjunction of the two endpoints.
+descriptive regularity of the one-sided ghost-gap drops, strictly: this is not a trivial
+conjunction of the two endpoints.
 
 * **Soft side (the strong condition holds).** For the library's most general transformer
   weight-functional `F` (continuous in the weights, `transformerFunctional_isKW`), the ghost-gap
@@ -133,18 +132,18 @@ content — not a trivial conjunction of the two endpoints.
 * **Hard side (only the weak condition survives, strictly).** For the argmax MoE cascade over the
   non-Borel witness, the bad event is still null-measurable under every finite measure
   (`universalRepair`: learnability survives via WB_meas, arXiv:2604.25028 Prop. 2.3), yet **no
-  measurable function has it as a `½`-superlevel set** — so no measurable ghost-gap supremum exists
+  measurable function has it as a `½`-superlevel set**, so no measurable ghost-gap supremum exists
   and KW fails.
 
 **Why this is non-trivial.** The third conjunct is proven, not assumed: a measurable `G` with
 `badEvent = G⁻¹(Ici ½)` would make the bad event Borel, contradicting `cascadeNonInvariance`. This
 is the strict separation `KW ⊊ WB_meas` (the paper's Theorem 4.1) *located at the attention
-regularization boundary*. The failure is **not** a route-measurability artifact — the routing is
-measurable; the non-Borelness is the parameter *projection* (a Suslin operation), which does not
-preserve Borelness and so survives the closure of Borel functions under pointwise limits. Nor is it
-ill-posedness: analytic ⇒ universally measurable (Luzin), so the hard model stays learnable. The
-cliff is purely a Borel→analytic descriptive-complexity drop forced by the smooth-to-discrete
-argmax limit — the temperature instance of arXiv:2604.25028 Theorem 4.1, on the objects the library
+regularization boundary*. The failure is **not** a route-measurability artifact; the routing is
+measurable, and the non-Borelness is the parameter *projection* (a Suslin operation), which does
+not preserve Borelness and so survives the closure of Borel functions under pointwise limits. Nor is
+it ill-posedness: analytic ⇒ universally measurable (Luzin), so the hard model stays learnable.
+The cliff is a Borel→analytic descriptive-complexity drop forced by the smooth-to-discrete argmax
+limit: the temperature instance of arXiv:2604.25028 Theorem 4.1, on the objects the library
 actually certifies. -/
 theorem measurabilityCliff
     {d : ℕ} {V : Type*} [MeasurableSpace V]
@@ -160,7 +159,7 @@ theorem measurabilityCliff
     Measurable (fun p : V × V => ⨆ θ : Fin d → ℝ, ℓ (F θ p.2) - ℓ (F θ p.1)) ∧
     -- HARD: learnability survives (WB_meas, null-measurable under every finite measure) …
     NullMeasurableSet (cascadeBadEvent (witnessCascade g hg) L) μ ∧
-    -- … yet no measurable ghost-gap supremum represents the bad event (KW fails) — strict separation
+    -- … yet no measurable ghost-gap supremum represents the bad event (KW fails; strict separation)
     ¬ ∃ G : GhostPairs1 → ℝ, Measurable G ∧
         cascadeBadEvent (witnessCascade g hg) L = G ⁻¹' Set.Ici (1 / 2) := by
   refine ⟨transformerFunctional_isKW F hFmeas hFcont hℓ hbdd,

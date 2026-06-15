@@ -9,14 +9,14 @@ import TLT_Proofs.TemperedDesignLaw.MixtureLipschitz
 # The mixture output and its modulus (the product-rule bound)
 
 The mixture channel's *output* is the convex-style combination `∑ᵢ wᵢ • valᵢ` of the per-head payloads
-`val` under the mixture weights `w`. Its modulus is the product-rule shape — the output moves by the weight
+`val` under the mixture weights `w`. Its modulus has the product-rule shape: the output moves by the weight
 change times the payload size plus the weight size times the payload change:
 
-* `mixtureOutput_dist_le` — the general two-input bound
+* `mixtureOutput_dist_le`: the general two-input bound
   `‖mix w val − mix w' val'‖ ≤ dist w w' · Σ‖valᵢ‖ + Σ‖w'ᵢ‖ · dist val val'`.
-* `norm_mixtureOutput_sub_le` — the constant-payload corollary: with the payloads fixed, the output is
+* `norm_mixtureOutput_sub_le`: the constant-payload corollary. With the payloads fixed, the output is
   `Σ‖valᵢ‖`-Lipschitz in the weights.
-* `mixtureOutput_param_dist_le` — the sharpness-coupled form: composing with the `2β` mixture-weight modulus,
+* `mixtureOutput_param_dist_le`: the sharpness-coupled form. Composing with the `2β` mixture-weight modulus,
   the mixture output at two parameters differs by at most `2β · Σ‖valᵢ‖` times the score-read difference.
 
 The sharpness `β` enters only through the weights; the payload size `Σ‖valᵢ‖` is the `β`-independent factor
@@ -31,7 +31,7 @@ noncomputable section
 
 namespace TLT.TemperedDesignLaw
 
-/-- **The mixture output.** The payload combination `∑ᵢ wᵢ • valᵢ` under the mixture weights `w` — the
+/-- **The mixture output.** The payload combination `∑ᵢ wᵢ • valᵢ` under the mixture weights `w`: the
 mixture channel's value, the soft counterpart of selecting a single payload. -/
 def mixtureOutput {k : ℕ} {V : Type*} [AddCommMonoid V] [Module ℝ V]
     (w : Fin k → ℝ) (val : Fin k → V) : V :=
@@ -74,8 +74,8 @@ theorem norm_mixtureOutput_sub_le {k : ℕ} {V : Type*} [NormedAddCommGroup V] [
 
 /-- **The sharpness-coupled mixture-output modulus.** At a fixed input and fixed payloads, the mixture
 outputs at two parameters differ by at most `2β · Σ‖valᵢ‖` times the score-read difference:
-composing the `2β` mixture-weight modulus (`softWeights_param_dist_le`) with the constant-payload
-modulus. The per-layer modulus the soft-capacity chaining bound consumes — linear in the sharpness `β`. -/
+the `2β` mixture-weight modulus (`softWeights_param_dist_le`) composed with the constant-payload
+modulus. The per-layer modulus is linear in the sharpness `β`. -/
 theorem mixtureOutput_param_dist_le {X : Type u} [MeasurableSpace X] {k : ℕ} [NeZero k]
     {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V]
     (A : TemperedRouterFamily X k) (x : X) (ρ ρ' : A.router.Ρ) (val : Fin k → V) :

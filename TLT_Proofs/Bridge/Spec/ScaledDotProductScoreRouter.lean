@@ -24,15 +24,14 @@ reduced to a coordinate sum by `Spec.dot_vec_eq_sum`.
 
 ## Main results
 
-- `attentionScoreRouter` — TorchLean's `Spec.dot` attention score as a `FiniteScoreRouterCode`.
-- `attentionRouting_wellBehaved` — its patched class satisfies `WellBehavedVCMeasTarget`.
+- `attentionScoreRouter`: TorchLean's `Spec.dot` attention score as a `FiniteScoreRouterCode`.
+- `attentionRouting_wellBehaved`: its class satisfies `WellBehavedVCMeasTarget`.
 -/
 
 /-!
 ## References
 - [27] §3.2.1 scaled dot-product score `QKᵀ`; [53] `Spec.dot`/`matMulSpec`; standard measurability
   of coordinate sums; [57] FLT/TLT tame lemmas (instantiated, not proved here).
-- Provenance: Vendored-glue (binds the literal TorchLean score to the tame router).
 -/
 
 open MeasureTheory Set
@@ -55,7 +54,7 @@ private lemma dot_dimScalarEquivSymm_eq_sum (x y : Fin d → ℝ) :
 
 /-- TorchLean's scaled-dot-product attention score as a `FiniteScoreRouterCode`: the input is a
 query coordinate vector `Fin d → ℝ`, the parameter is the key matrix `Fin nK → Fin d → ℝ`, and the
-score for head/key `i` is `Spec.dot x Kᵢ` — exactly `attentionScores`'s `(·, i)` entry. -/
+score for head/key `i` is `Spec.dot x Kᵢ`, the `(·, i)` entry of `attentionScores`. -/
 def attentionScoreRouter (d nK : ℕ) : FiniteScoreRouterCode (Fin d → ℝ) nK where
   Ρ := Fin nK → Fin d → ℝ
   instMeasΡ := inferInstance
@@ -68,8 +67,8 @@ def attentionScoreRouter (d nK : ℕ) : FiniteScoreRouterCode (Fin d → ℝ) nK
     exact ((measurable_pi_apply j).comp measurable_snd).mul
       ((measurable_pi_apply j).comp ((measurable_pi_apply i).comp measurable_fst))
 
-/-- With Borel-parameterized experts, the patched class of the scaled-dot-product attention argmax
-router satisfies `WellBehavedVCMeasTarget`, via `finiteCellRouter_wellBehaved`. -/
+/-- With Borel-parameterized experts, the scaled-dot-product attention argmax router satisfies
+`WellBehavedVCMeasTarget`, via `finiteCellRouter_wellBehaved`. Vaswani et al. 2017, §3.2.1. -/
 theorem attentionRouting_wellBehaved (hnK : 0 < nK) {Θ : Type}
     [MeasurableSpace Θ] [StandardBorelSpace Θ]
     (e : Θ → Fin nK → Concept (Fin d → ℝ) Bool)
@@ -87,12 +86,10 @@ theorem continuous_attentionScore (d nK : ℕ) (x : Fin d → ℝ) (i : Fin nK) 
   exact continuous_finset_sum Finset.univ (fun j _ =>
     continuous_const.mul ((continuous_apply j).comp (continuous_apply i)))
 
-/-- **The concrete attention bad event is Borel.** Instantiating the abstract tame result
-(`singletonBadEvent_measurable_of_sigmaCompact`) on the *actual* finite-dimensional attention
-parameter space `Fin nK → Fin d → ℝ`: that space is σ-compact, and the scaled-dot-product score map
-over it is continuous, so the singleton-class empirical-process bad event of the attention scores is
-Borel. This is the end-to-end instantiation on a concrete finite-dimensional transformer parameter
-space — the tame side realized for the actual attention scoring, not an abstract score map. -/
+/-- **The concrete attention bad event is Borel.** On the finite-dimensional attention parameter
+space `Fin nK → Fin d → ℝ` (which is σ-compact), the scaled-dot-product score map is continuous, so
+the singleton-class empirical-process bad event of the attention scores is Borel. This instantiates
+`singletonBadEvent_measurable_of_sigmaCompact` on the actual transformer parameter space. -/
 theorem attentionScore_badEvent_measurable (d nK : ℕ) (x : Fin d → ℝ) (i : Fin nK) :
     MeasurableSet (singletonBadEvent
       (Set.range (fun K : Fin nK → Fin d → ℝ => (attentionScoreRouter d nK).score K x i))) :=

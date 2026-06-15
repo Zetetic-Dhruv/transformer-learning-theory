@@ -20,10 +20,10 @@ output to be Lipschitz in its scores, which factors through the Lipschitz consta
 
 ## Main results
 
-- `softmax` — the coordinate softmax map.
-- `softmax_pos` / `softmax_nonneg` — each coordinate is positive.
-- `softmax_sum_one` — the coordinates sum to one (for a nonempty index).
-- `softmax_le_one` — each coordinate is at most one.
+- `softmax`: the coordinate softmax map.
+- `softmax_pos` / `softmax_nonneg`: each coordinate is positive.
+- `softmax_sum_one`: the coordinates sum to one (for a nonempty index).
+- `softmax_le_one`: each coordinate is at most one.
 
 ## References
 
@@ -69,8 +69,8 @@ lemma softmax_le_one [NeZero n] (z : Fin n → ℝ) (i : Fin n) : softmax z i �
 Softmax is globally Lipschitz: its Jacobian `J z = diag(p) − ppᵀ` (with `p = softmax z`) has, in the
 supremum norm of `Fin n → ℝ`, operator norm bounded by an absolute constant. We take the elementary
 bound `2` (each Jacobian coordinate is `pᵢ(vᵢ − ⟨p,v⟩)`, of size `≤ 2‖v‖∞`); the optimal sup-norm
-constant is `1/2`. The crucial point against a weaker route is that this constant is *absolute* — it
-does **not** grow with the score scale — so the downstream capacity stays polynomial in the weights. -/
+constant is `1/2`. This constant is absolute: it does **not** grow with the score scale, so the
+downstream capacity stays polynomial in the weights. -/
 
 open ContinuousLinearMap in
 /-- The softmax Jacobian as a continuous linear map: `v ↦ (i ↦ pᵢ·(vᵢ − ∑ₖ pₖ vₖ))`, `p = softmax z`. -/
@@ -133,8 +133,8 @@ theorem softmaxJac_opNorm_le_two [NeZero n] (z : Fin n → ℝ) : ‖softmaxJac 
   exact (pi_norm_le_iff_of_nonneg (x := softmaxJac z v)
     (show (0:ℝ) ≤ 2 * ‖v‖ by positivity)).mpr key
 
-/-- **Softmax is globally `2`-Lipschitz** (supremum norm). The constant is absolute — independent of
-the score scale — which is what keeps the downstream attention capacity bound polynomial. -/
+/-- **Softmax is globally `2`-Lipschitz** (supremum norm). The constant is absolute, independent of
+the score scale, which is what keeps the downstream attention capacity bound polynomial. -/
 theorem softmax_lipschitz [NeZero n] :
     LipschitzWith 2 (softmax : (Fin n → ℝ) → (Fin n → ℝ)) := by
   refine lipschitzWith_of_nnnorm_fderiv_le

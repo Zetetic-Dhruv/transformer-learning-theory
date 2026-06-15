@@ -10,8 +10,8 @@ import Mathlib.Analysis.SpecialFunctions.Integrability.Basic
 # Finiteness of the Dudley entropy integral
 
 The Dudley entropy integral `∫₀^D √(log N(ε, s)) dε` is finite whenever the square-root entropy is
-controlled by an integrable singularity `K·ε^(−1/2)` near zero. For a polynomially covered class —
-metric entropy `O(log(1/ε))`, hence `√entropy = O(√(log(1/ε)))` and in particular `O(ε^{−1/2})` —
+controlled by an integrable singularity `K·ε^(−1/2)` near zero. For a polynomially covered class:
+metric entropy `O(log(1/ε))`, hence `√entropy = O(√(log(1/ε)))` and in particular `O(ε^{−1/2})`,
 the exponent `−1/2 > −1` makes the singularity integrable, so the entropy integral does not blow up.
 
 This discharges the finiteness side condition `entropyIntegralENNReal s D ≠ ⊤` that the Dudley
@@ -19,8 +19,8 @@ chaining bound carries as a hypothesis.
 
 ## Main results
 
-- `entropyIntegralENNReal_ne_top_of_sqrtEntropy_le` — finiteness from a `K·ε^(−1/2)` envelope.
-- `entropyIntegralENNReal_ne_top_of_coveringNumber_le` — finiteness from a polynomial covering bound
+- `entropyIntegralENNReal_ne_top_of_sqrtEntropy_le`: finiteness from a `K·ε^(−1/2)` envelope.
+- `entropyIntegralENNReal_ne_top_of_coveringNumber_le`: finiteness from a polynomial covering bound
   `N(ε) ≤ (1 + C/ε)^d`.
 -/
 
@@ -28,7 +28,6 @@ chaining bound carries as a hypothesis.
 ## References
 - [26] §8.1 Dudley integral; [25] Ch. 5 parametric entropy `d·log(1/ε)`; integrability of
   `ε^{-1/2}` near 0.
-- Provenance: Classical-instantiation (finiteness for polynomially-covered classes).
 -/
 
 open MeasureTheory Set

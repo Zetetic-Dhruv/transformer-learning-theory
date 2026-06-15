@@ -11,15 +11,14 @@ import TLT_Proofs.Boundary.CascadeNullMeasurable
 /-!
 # The measurability dichotomy for attention routers (Location)
 
-This file is the leaf of the `P0_settle_debate` pipeline.  It conjoins the two
-halves of the measurability question for attention routers into a **single
-theorem**, settling the "agent vs. witness" debate:
+This file conjoins the two halves of the measurability question for attention
+routers into a **single theorem**:
 
 * **Tame half (the agent's world).** For *any* σ-compact parameter space `β`
   and *any* continuous score map `g : β → ℝ`, the range `Set.range g` is
   measurable (`TLT_Proofs.Tame.SigmaCompactParam`) **and** the induced singleton
   empirical-process bad event is Borel (`TLT_Proofs.Tame.SingletonBadEventBorel`).
-  Every finite-dimensional transformer — every finite product of `ℝ^d` blocks —
+  Every finite-dimensional transformer (every finite product of `ℝ^d` blocks)
   has a σ-compact parameter space, so its routing pathology is *measurability-free*.
 
 * **Wild half (the witness's world).** There nonetheless *exists* a binary
@@ -30,24 +29,22 @@ theorem**, settling the "agent vs. witness" debate:
 
 The dichotomy is governed by the single toggle `SigmaCompactSpace β`: its
 presence forces measurability; only its absence admits the analytic-non-Borel
-pathology.  This is the honest *location* theorem — it pins exactly where the
+pathology.  This is the *location* theorem: it pins exactly where the
 boundary sits, rather than over-claiming non-measurability for σ-compact
-architectures (the error that started the debate).
+architectures.
 
-This makes precise — and machine-checks — the measurability assumption that
+This makes precise (and machine-checks) the measurability assumption that
 Krapp–Wirth (2024, arXiv:2410.10243) identify as tacit in the Fundamental Theorem of
 Statistical Learning (their *well-behavedness*, i.e. measurability of the
 uniform-convergence bad event `U⁻¹([0,ε])`): the tame half is exactly where it holds,
 the wild half a concrete instance where it fails.  (`hex` is the classical existence of
-an analytic non-Borel subset of ℝ — Suslin–Lusin 1917 — assumed, as is standard.)
+an analytic non-Borel subset of ℝ (Suslin–Lusin 1917), assumed as standard.)
 -/
 
 /-!
 ## References
 - [1][2][4][5] analytic/Borel + universal measurability; [7] well-behavedness toggle; [42]
   hierarchical MoE; [57] FLT separation kernel.
-- Provenance: Innovation — the σ-compactness-toggled attention-router measurability dichotomy.
-- TLT contribution (Dhruv Gupta), `attention_router_measurability_dichotomy`: the conjoined attention-router measurability dichotomy with σ-compactness as the exact tame/wild toggle, uniform in depth. Method: conjoin the σ-compact-Borel tame leg, the Suslin-witness wild leg and the depth-graded cascade leg under the single hypothesis of an analytic non-Borel set.
 -/
 
 namespace TLT.Boundary
@@ -62,7 +59,7 @@ analytic non-Borel subset of `ℝ`:
    measurable range;
 2. (wild) there is a Polish-parametrised binary attention router with jointly
    measurable experts whose empirical-process bad event is not Borel; and
-3. (depth-graded wild) there is a *genuine* base-up MoE cascade (`witnessCascade` —
+3. (depth-graded wild) there is a *genuine* base-up MoE cascade (`witnessCascade`,
    the witness's own quadratic-cost router stacked as real 2-head routing layers)
    whose depth-`L` bad event is, at *every* routing depth, analytic and non-Borel
    yet `NullMeasurableSet` for every finite measure (`cascadeNonInvariance`,

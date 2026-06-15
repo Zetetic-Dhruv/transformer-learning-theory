@@ -14,14 +14,13 @@ route plus a penalty controlled by how far the mixture sits from the route's one
 
 `RouteFactoredLoss` packages the cleanest sufficient condition: the loss is `Lℓ`-Lipschitz in the output.
 Then `mixture_le_route` gives the factored bound with the route loss the loss at the route's payload and the
-penalty `Lℓ · ‖mixtureOutput − payload(route)‖` — which the hardening envelope (TD3/TD2) bounds by
+penalty `Lℓ · ‖mixtureOutput − payload(route)‖`, which the hardening envelope (TD3/TD2) bounds by
 `Lℓ · (k−1)·exp(−βγ)·D`. Two instances (`distLoss`, `scaledDistLoss`) witness non-vacuity.
 
-MODELLING NOTE (operator decision pending): this is the *output-Lipschitz* factorization. It admits the
-clipped/Lipschitz regression losses but NOT the 0-1 routing loss (discontinuous in the output). Admitting the
-0-1 symbol-channel loss needs the weaker form where the route loss lives on `Fin k` (the symbol) and the
-penalty absorbs the off-route mass — a strictly weaker structure. Which form the design law commits to is the
-factorization-strength choice flagged for ratification.
+This is the *output-Lipschitz* factorization: it admits clipped and Lipschitz regression losses but
+not the 0-1 routing loss, which is discontinuous in the output. Admitting the 0-1 symbol-channel loss
+requires the weaker form where the route loss lives on `Fin k` (the symbol) and the penalty absorbs
+the off-route mass.
 -/
 
 noncomputable section
@@ -62,7 +61,7 @@ def distLoss (V : Type*) [NormedAddCommGroup V] : RouteFactoredLoss V V where
     rw [sub_sub_sub_cancel_right] at h
     rwa [one_mul]
 
-/-- **Instance: the scaled distance loss `c·‖output − y‖`** (`c ≥ 0`), `c`-Lipschitz — a second witness
+/-- **Instance: the scaled distance loss `c·‖output − y‖`** (`c ≥ 0`), `c`-Lipschitz, a second witness
 with a tunable modulus. -/
 def scaledDistLoss (V : Type*) [NormedAddCommGroup V] {c : ℝ} (hc : 0 ≤ c) : RouteFactoredLoss V V where
   loss p y := c * ‖p - y‖

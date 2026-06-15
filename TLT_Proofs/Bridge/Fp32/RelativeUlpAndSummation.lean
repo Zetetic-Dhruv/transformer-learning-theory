@@ -18,7 +18,7 @@ the missing piece that turns TorchLean's `neuralUlp` into a relative bound on th
 
 ## Main result
 
-- `neuralBpow_magnitude_sub_one_le_abs` — `neuralBpow binaryRadix (neuralMagnitude binaryRadix x − 1)
+- `neuralBpow_magnitude_sub_one_le_abs`: `neuralBpow binaryRadix (neuralMagnitude binaryRadix x − 1)
   ≤ |x|` for `x ≠ 0`.
 -/
 
@@ -26,8 +26,6 @@ the missing piece that turns TorchLean's `neuralUlp` into a relative bound on th
 ## References
 - [43] §4 standard model + recursive summation; [44] ulp / ½-ulp; [45] normal-number magnitude;
   [50] FLT_exp/cexp/mag/ulp format machinery; [51] round-to-nearest-ties-to-even.
-- Provenance: Classical-instantiation (relative-ulp + summation enclosure; the normal-range guard
-  is TLT bookkeeping, not a theorem).
 -/
 
 open TorchLean.Floats
@@ -87,7 +85,7 @@ private lemma neuralBpow_half :
   rw [neuralBpow_add, neuralBpow_neg_one]; ring
 
 /-- **Normal-range add bound.** When `a + b` is normal, fp32-rounding `a + b` is within
-`2⁻²⁴·(|a|+|b|)` of `a + b` — the `LocalAddBound` envelope, valid on the normal range. -/
+`2⁻²⁴·(|a|+|b|)` of `a + b`; this is the `LocalAddBound` envelope, valid on the normal range. -/
 theorem fp32_addBound_on_normal (a b : ℝ) (hab : a + b ≠ 0)
     (hnorm : (-125 : ℤ) ≤ neuralMagnitude binaryRadix (a + b)) :
     |fp32Round (a + b) - (a + b)| ≤ neuralBpow binaryRadix (-24) * (|a| + |b|) := by
@@ -104,8 +102,8 @@ theorem fp32_addBound_on_normal (a b : ℝ) (hab : a + b ≠ 0)
 
 /-- **General relative round-to-nearest bound on the normal range.** For any normal `x`, fp32-rounding
 `x` is within `2⁻²⁴·|x|` of `x`. This is the standard-model relative bound `|fl(x) − x| ≤ u·|x|`,
-`u = 2⁻²⁴`, valid wherever `x` is in the binary32 normal range — the foundation that turns *every*
-round-to-nearest operation (add, multiply, divide, reciprocal) into a relative error envelope, not only
+`u = 2⁻²⁴`, valid wherever `x` is in the binary32 normal range. This is the foundation that turns every
+round-to-nearest operation (add, multiply, divide, reciprocal) into a relative error envelope, beyond
 the summation channel of `fp32_addBound_on_normal`. -/
 theorem fp32Round_rel_on_normal (x : ℝ) (hx : x ≠ 0)
     (hnorm : (-125 : ℤ) ≤ neuralMagnitude binaryRadix x) :
@@ -137,8 +135,8 @@ noncomputable def fp32SumErrorBudget : List ℝ → ℝ
 
 /-- **Normal-range summation enclosure.** When every accumulation step stays in the binary32 normal
 range, the fp32 fold-sum differs from the exact sum by at most the accumulated rounding-error budget.
-This is the fp32-summation channel bound the attention score (a dot product) performs — derived from
-the per-step bound `fp32_addBound_on_normal` by induction, *without* TorchLean's unconditional
+This is the fp32-summation channel bound for the attention score (a dot product), derived from
+the per-step bound `fp32_addBound_on_normal` by induction, without TorchLean's unconditional
 `dotTreeResult_enclosure` (which fp32 cannot satisfy). -/
 theorem fp32Sum_error_le :
     ∀ xs : List ℝ, Fp32SumNormal xs → |fp32Sum xs - xs.sum| ≤ fp32SumErrorBudget xs := by

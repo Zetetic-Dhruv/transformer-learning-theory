@@ -8,28 +8,25 @@ import TLT_Proofs.Bridge.Certificate.AttentionTransformerCertificate
 import TLT_Proofs.Bridge.Spec.ScaledDotProductAttentionCorrespondence
 
 /-!
-# The soft-output correspondence — the abstract mixture is the literal attention output
+# The soft-output correspondence: the abstract mixture equals the literal attention output
 
 The tempered design law's hardening envelope is stated for the abstract soft mixture
-`mixtureOutput (softWeights A ρ x) val` with an *abstract* payload `val`. This file identifies that mixture
-with the literal scaled-dot-product attention output, closing the gap flagged in `litAttn_hardening`'s
-docstring (`val` abstract → the literal value vectors).
+`mixtureOutput (softWeights A ρ x) val` with an *abstract* payload `val`. The three theorems below identify
+that mixture with the literal scaled-dot-product attention output.
 
-The hinge is that the **temperature is the inverse attention scale**: TorchLean's attention applies the softmax
-to the scaled scores `⟨q,kⱼ⟩ / scale`, while the tempered router applies it to `β · ⟨q,kⱼ⟩`, so the two soft
-weight families coincide exactly when `β = 1/scale`. With the payload taken to be the literal value vectors
-`matMulCoord W Y` (the V-projection), the mixture is then the ideal head `attnHead`.
+The identification turns on the fact that **the temperature is the inverse attention scale**: TorchLean's
+attention applies the softmax to the scaled scores `⟨q,kⱼ⟩ / scale`, while the tempered router applies it to
+`β · ⟨q,kⱼ⟩`, so the two soft weight families coincide exactly when `β = 1/scale`. With the payload taken to
+be the literal value vectors `matMulCoord W Y` (the V-projection), the mixture equals the ideal head `attnHead`.
 
-* `mixtureOutput_softWeights_eq_attnHead` — at `β = 1/scale`, the soft mixture of the literal attention's
+* `mixtureOutput_softWeights_eq_attnHead`: at `β = 1/scale`, the soft mixture of the literal attention's
   routing weights with the literal value vectors `matMulCoord W Y` equals the ideal head `attnHead scale W Y`.
-* `mixtureOutput_softWeights_eq_litAttention` — the end-to-end statement: composing the previous identity with
-  the shipped coordinate binding `matCoords_scaledDotProductAttention`, the mixture equals the literal
-  `Spec.scaledDotProductAttention` output (read in coordinates) at the standard scale `√d`.
-* `litAttn_hardening_literal` — the hardening envelope on the *literal* attention output: the literal
-  `Spec.scaledDotProductAttention` output is within `(nK−1)·exp(−βγ)·D` of the hard route's value vector. This
-  is the genuine literal-attention strengthening of the abstract `softMixture_sub_hardPayload_le_exp` (the
-  payload is now the literal value vectors, the output the actual attention), superseding the abstract-payload
-  wrapper.
+* `mixtureOutput_softWeights_eq_litAttention`: at standard scale `√d`, the mixture equals the literal
+  `Spec.scaledDotProductAttention` output (read in coordinates), via the coordinate binding
+  `matCoords_scaledDotProductAttention`.
+* `litAttn_hardening_literal`: the hardening envelope on the *literal* attention output; the literal
+  `Spec.scaledDotProductAttention` output is within `(nK−1)·exp(−βγ)·D` of the hard route's value vector,
+  with the payload taken to be the literal value vectors `matMulCoord W Y`.
 -/
 
 open scoped BigOperators
@@ -87,10 +84,10 @@ theorem mixtureOutput_softWeights_eq_litAttention {n d : ℕ}
 open Spec in
 /-- **The hardening envelope on the literal attention output.** The literal
 `Spec.scaledDotProductAttention` output (read in coordinates) is within `(nK−1)·exp(−βγ)·D` of the hard
-route's value vector, where `D` bounds the value-vector diameter and `β = 1/√d`. This is the genuine
-literal-attention strengthening of the abstract `softMixture_sub_hardPayload_le_exp`: the soft mixture is
+route's value vector, where `D` bounds the value-vector diameter and `β = 1/√d`. The soft mixture is
 identified with the literal output via `mixtureOutput_softWeights_eq_litAttention`, and the payload is the
-literal value vectors `matMulCoord W Y`. -/
+literal value vectors `matMulCoord W Y`. This is the literal-attention instance of the abstract
+`softMixture_sub_hardPayload_le_exp`. -/
 theorem litAttn_hardening_literal {n d : ℕ}
     (Y : Fin (n + 1) → Fin d → ℝ) (W : Fin d → Fin d → ℝ)
     (ctx : AttentionContext ℝ (n + 1) (n + 1) d (Nat.succ_ne_zero n) (Nat.succ_ne_zero n))

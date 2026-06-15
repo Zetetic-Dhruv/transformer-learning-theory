@@ -23,14 +23,12 @@ certificate (stated over `idealComp`) refer to the same model at the executed ne
 
 ## Main results
 
-- `idealComp_toExecLayer` — the ideal composition of weight-frozen `ParamLayer`s equals `paramComp`.
+- `idealComp_toExecLayer`: the ideal composition of weight-frozen `ParamLayer`s equals `paramComp`.
 -/
 
 /-!
 ## References
 - [36] input-Lipschitz constant of a layer; internal parametric↔executed view bridge.
-- Provenance: Innovation (minor infra) — `idealComp_toExecLayer` view-consistency lemma; no external
-  referent expected.
 -/
 
 namespace TLT

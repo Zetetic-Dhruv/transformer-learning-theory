@@ -9,19 +9,19 @@ import TLT_Proofs.TemperedDesignLaw.HardeningEnvelope
 /-!
 # The tempered hardening layer as a region-exec layer (the keystone's payoff, TD3-depth)
 
-The per-layer hardening atom (`softMixture_sub_hardPayload_le_exp`) becomes a `RegionExecLayer` whose
-**ideal** is the soft mixture map (smooth, Lipschitz) and whose **executed** map is the hard route (a jump
-map, but within the hardening budget of the soft map *on the margin interior*). The `exec_close_on` field is
-discharged directly from the atom — no new analysis. A stack of these then inherits the depth-`L` hardening
-envelope from `regionEnvelope_telescope_linear`:
+The per-layer hardening atom (`softMixture_sub_hardPayload_le_exp`) is packaged as a `RegionExecLayer`
+whose **ideal** is the soft mixture map (smooth, Lipschitz) and whose **executed** map is the hard route
+(a jump map, within the hardening budget of the soft map on the margin interior). The `exec_close_on`
+field is discharged from the atom via margin-interior monotonicity. A stack of these inherits the
+depth-`L` hardening envelope from `regionEnvelope_telescope_linear`:
 
 > for tempered layers with non-expansive soft maps (`Lsoft ≤ 1`) and margin interiors `{γ ≥ g}` as regions,
 > if the executed (hard-route) trajectory stays in the margin interiors, then
 > `dist (hardCascade x) (softCascade x) ≤ L · (k−1)·exp(−β·g)·D`.
 
 This is TD3-depth: the depth-`L` hardening envelope on the joint margin interior, assembled from the
-per-layer atom and the region telescope keystone — `β` playing the role of precision exactly as the rounding
-envelope does at the `u`-edge.
+per-layer atom and the region telescope keystone, with `β` playing the role of precision analogously to the
+rounding envelope at the `u`-edge.
 -/
 
 open scoped BigOperators

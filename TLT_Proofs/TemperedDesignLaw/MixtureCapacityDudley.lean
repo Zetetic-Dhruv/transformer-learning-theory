@@ -10,16 +10,16 @@ import TLT_Proofs.Capacity.Chaining.LipschitzCoveringDischarge
 # Soft-capacity at depth: the sharpness-scaled Dudley bound (TD9 S4)
 
 The tempered mixture stack's empirical capacity is bounded by the library's Dudley entropy integral with
-the parameter-Lipschitz constant scaling **linearly in the sharpness `β`** per layer — the statistical price
-of sharpness, in closed form, by the shipped chaining apparatus.
+the parameter-Lipschitz constant scaling **linearly in the sharpness `β`** per layer, the statistical price
+of sharpness in closed form, via the chaining apparatus.
 
-* `valueVec_dist_le_of_pointwise` — the reusable bridge: a parameter-Lipschitz *pointwise* bound on `F`
-  transports to the value-vector map (`valueVec` carries the sup metric on `Fin m → ℝ`). This is the
-  `hlip` hypothesis of `capacityReal_le_dudley_of_lipschitz`, factored out of its inline transformer use.
-* `paramStack_empiricalCapacity_le_dudley` — for a loss `ℓ` composed with any `ParamLayer` stack, the
+* `valueVec_dist_le_of_pointwise`: a parameter-Lipschitz *pointwise* bound on `F` transports to the
+  value-vector map (`valueVec` carries the sup metric on `Fin m → ℝ`). This is the `hlip` hypothesis of
+  `capacityReal_le_dudley_of_lipschitz`, factored out of its inline transformer use.
+* `paramStack_empiricalCapacity_le_dudley`: for a loss `ℓ` composed with any `ParamLayer` stack, the
   empirical capacity on the weight ball is at most the Dudley bound at constant `Lℓ · paramLipBound Ls`.
   Instantiated at `List.replicate L temperedParamLayer` (whose per-layer `paramLip = 2βKsθP + Kvθ`), the
-  constant is `Lℓ · paramLipBound (replicate L temperedParamLayer)` — linear in `β`.
+  constant is `Lℓ · paramLipBound (replicate L temperedParamLayer)`, linear in `β`.
 -/
 
 open MeasureTheory
@@ -46,10 +46,10 @@ theorem valueVec_dist_le_of_pointwise {X : Type*} {d m : ℕ} (F : ParamSpace d 
 /-- **Soft capacity at depth: the sharpness-scaled Dudley bound.** A loss `ℓ` (Lipschitz, constant `Lℓ`)
 composed with a `ParamLayer` stack `Ls` has empirical capacity on the radius-`R` weight ball bounded by the
 library's Dudley entropy integral at parameter-Lipschitz constant `Lℓ · paramLipBound Ls`. With
-`Ls = List.replicate L temperedParamLayer` the per-layer `paramLip` is `2·β·Ksθ·P + Kvθ`, so the constant —
-and the whole capacity bound — is linear in the sharpness `β`. The genuine content is the `hlip` discharge
-(`valueVec_dist_le_of_pointwise` over the depth-`L` parameter-Lipschitz telescope `paramComp_param_lipschitz`);
-the Dudley side-conditions are discharged by the shipped `empiricalCapacityReal_le_computable`. -/
+`Ls = List.replicate L temperedParamLayer` the per-layer `paramLip` is `2·β·Ksθ·P + Kvθ`, so the constant
+(and the whole capacity bound) is linear in the sharpness `β`. The `hlip` discharge uses
+`valueVec_dist_le_of_pointwise` over the depth-`L` parameter-Lipschitz telescope `paramComp_param_lipschitz`;
+the Dudley side-conditions are discharged by `empiricalCapacityReal_le_computable`. -/
 def paramStack_empiricalCapacity_le_dudley {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V]
     {d m : ℕ} [Nonempty (Fin d)] (hm : 0 < m) {R : ℝ} (hR : 0 ≤ R)
     (Ls : List (ParamLayer (ParamSpace d) V)) (ℓ : V → ℝ) {Lℓ : ℝ} (hLℓ : 0 ≤ Lℓ)

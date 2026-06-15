@@ -9,18 +9,18 @@ import TLT_Proofs.TemperedDesignLaw.Stability
 # Margin transport (making the region condition concrete, TD3 S3)
 
 The depth bounds rest on the ideal trajectory staying in the margin interior `{γ ≥ g}` by an envelope's
-worth of slack. That is only meaningful if the margin cannot collapse under a small perturbation — i.e. if
-the margin *transports*: a state within `δ` of one with large margin still has a margin not much smaller.
+worth of slack. This requires the margin to transport: a state within `δ` of one with large margin still has
+a margin not much smaller.
 
-The subtlety is that `γ = top − second` is built from order statistics whose witnessing indices can switch.
-The clean route fixes the index: within *half* the margin (the route-stability regime, `TD7`) the top index
-does **not** move, so the second score is a supremum over a **fixed** complement and transports by the raw
+The key point is that `γ = top − second` is built from order statistics whose witnessing indices can switch.
+Fixing the index resolves this: within half the margin (the route-stability regime, `TD7`) the top index
+does not move, so the second score is a supremum over a fixed complement and transports by the raw
 per-coordinate Lipschitz bound. The margin then drops by at most twice the score perturbation.
 
-* `gammaMargin_lower_of_close` — if the scores at `z` differ from those at `i` by at most `Ks·d` per head
+* `gammaMargin_lower_of_close`: if the scores at `z` differ from those at `i` by at most `Ks·d` per head
   and that is below half the margin at `i`, then `γ(z) ≥ γ(i) − 2·Ks·d`.
 
-This is what turns the abstract `idealDeep` (closed balls inside the regions) into a checkable property of
+This turns the abstract `idealDeep` condition (closed balls inside the regions) into a checkable property of
 the ideal trajectory's margins: a ball of radius `δ` around a state with margin `≥ g + 2·Ks·δ` lies in
 `{γ ≥ g}`.
 -/
@@ -64,7 +64,7 @@ theorem gammaMargin_lower_of_close {X : Type u} [MeasurableSpace X] {k : ℕ}
   linarith [h_top, h_sec]
 
 /-- **The concrete region condition.** If the score read is `Ks`-Lipschitz around `i` and the margin at `i`
-exceeds `g` by `2·Ks·δ`, then every state within `δ` of `i` has margin at least `g` — i.e. the closed
+exceeds `g` by `2·Ks·δ`, then every state within `δ` of `i` has margin at least `g`, i.e. the closed
 `δ`-ball around `i` lies in the margin interior `{γ ≥ g}`. This is exactly the first conjunct of `idealDeep`
 for the hardening layer's region, now reduced to a checkable inequality on the ideal trajectory's margin
 (`γ(i) ≥ g + 2·Ks·δ`) rather than an abstract ball-containment. -/

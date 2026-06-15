@@ -18,7 +18,7 @@ import TLT_Proofs.Routing.MeasurableScoreRouting
 The witness is a `FiniteScoreRouterCode ℝ 2` (the binary/2-head case of the library's single
 routing primitive): head `0` carries the constant cost `0`, head `1` the quadratic cost
 `(x - g ρ)²`. Its Boolean route `quadraticCostRoute` (route to head `0`) fires iff
-`(x - g ρ)² ≤ 0`, i.e. `x = g ρ` — recovering the score-comparison decision via
+`(x - g ρ)² ≤ 0`, i.e. `x = g ρ`, recovering the score-comparison decision via
 `FiniteScoreRouterCode.route_two_eq_scoreComparison`.
 
 ## Main results
@@ -35,8 +35,6 @@ routing primitive): head `0` carries the constant cost `0`, head `1` the quadrat
   [4] analytic ⇔ continuous image of a Polish space; [7] the Borel-(V) condition refuted for
   attention; [12] the classical CH measurability-failure ancestor; [57] FLT `singletonClassOn`,
   `singletonBadEvent`, `planarWitnessEvent`, `singleton_badEvent_not_measurable`.
-- Provenance: Innovation — the ZFC analytic-non-Borel attention witness (engine: FLT [57]).
-- TLT contribution (Dhruv Gupta), `attention_nonBorel_badEvent`: first construction tying attention/argmax routing to a descriptive-set-theoretic measurability failure, in ZFC via an analytic non-Borel set. Method: a 2-head quadratic-cost router with zero-set {x = g ρ}; its patchEval class equals singletonClassOn (range g), so the size-1 bad event is a measurable preimage of the analytic non-Borel planar witness.
 -/
 
 open Classical
@@ -61,8 +59,8 @@ A `FiniteScoreRouterCode ℝ 2` with `score ρ x 0 = 0` and `score ρ x 1 = (x -
 By `route_two_eq_scoreComparison` the argmax route is `0` iff `score 1 ≤ score 0`, i.e. `(x - g ρ)² ≤ 0`,
 i.e. `x = g ρ`. The Boolean route `quadraticCostRoute` reads "routed to head `0`".
 
-All typeclass requirements are explicit instance arguments on the def — no inline
-`letI`/`haveI` per project policy.
+All typeclass requirements are explicit instance arguments on the def (no inline
+`letI`/`haveI` per project policy).
 -/
 
 /-- The witness `FiniteScoreRouterCode ℝ 2` from a continuous parameterization `g : β → ℝ`

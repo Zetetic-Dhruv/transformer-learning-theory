@@ -10,22 +10,17 @@ import Mathlib.MeasureTheory.Measure.MeasureSpace
 /-!
 # Tempered design law root contract
 
-This file contains the root contract for the tempered design law.  It is a
-cite-only assembly interface: every field below is a concrete mathematical
-obligation that must be supplied by a landed theorem.  The repository-level
-zero-sorry / axiom audit is intentionally not represented as a mathematical
-`Prop` here; it is recorded by the build/audit JSON.
-
-The root separates three kinds of evidence:
+The root contract for the tempered design law. Every field below is a concrete mathematical
+obligation. The root separates three kinds of evidence:
 
 * the capacity profile, with the smooth and hard certificates for the same gap;
-* the numerical window, whose cone condition is obtained from the cone-boundary
-  theorem in `TemperedFloatCone`;
+* the numerical window, whose cone condition follows from the cone-boundary theorem in
+  `TemperedFloatCone`;
 * the hard-tame mathematical leg, carrying exactness, executable decidability,
   expressivity grading, and statistical certification on the same routed object.
 
-The comparison between the capacity crossover and the numerical ceiling is a
-pair of guarded regime theorems.  The constants decide which guard applies.
+The comparison between the capacity crossover and the numerical ceiling is a pair of guarded
+regime theorems. The constants decide which guard applies.
 -/
 
 open MeasureTheory
@@ -132,10 +127,7 @@ structure MeasurabilityCliffLeg (Ω : Type*) [MeasurableSpace Ω] (μ : Measure 
   crossingCost_eq_outerMass : crossingCost = μ.real hardWildEvent
   crossingCost_nonneg : 0 ≤ crossingCost
 
-/-- Mathematical hard-tame properties on one routed object.
-
-The repository-level Lean audit is deliberately not a field here.  It belongs in the JSON/build
-witness, not inside the object language of the mathematics. -/
+/-- Mathematical hard-tame properties on one routed object. -/
 structure HardTameMathLeg (X Route : Type*) where
   /-- Hard symbolic route. -/
   hardSymbol : X → Route
@@ -151,29 +143,57 @@ structure HardTameMathLeg (X Route : Type*) where
   routeStableCheck_sound : ∀ x, routeStableCheck x = true → executedSymbol x = hardSymbol x
   /-- Symbol class realized by the hard-tame cascade (the base grade of the expressivity lattice). -/
   symbolClass : Set (X → Route)
-  /-- Expressivity grade indexed by depth `L` and width/expert count `K`: a genuine `(L,K)`
-  realizability lattice (cf. `ExpressivityLattice.expressivityGrade`), NOT a constant collapse. -/
+  /-- Expressivity grade indexed by depth `L` and width/expert count `K`: an `(L,K)`-indexed
+  realizability lattice of routed-symbol functions, inhabited by the constrained affine-mux cascade
+  grade `MuxHierarchy.binCascadeGrade`. -/
   expressivityGrade : ℕ → ℕ → Set (X → Route)
-  /-- **Corrected expressivity statement** (NS2/NS3/NS4/TD13).  The shipped field
-  `expressivity_graded : ∀ L K, expressivityGrade L K = symbolClass` was a *degenerate collapse*
-  (constant in `L,K` — the wrong shape for a capacity ladder; flagged by the closure audit and the
-  noological synthesis).  The honest replacement is the genuine **monotone-ladder** shape: the diagonal
-  depth ladder is monotone (deeper cascades realize at least as many routes), each width slice is
-  monotone (more experts realize at least as many routes), and the base grade `(0,0)` is the symbol
-  class.  Inhabited by `ExpressivityLattice.expressivityGrade_monotone_depth` /
-  `expressivityGrade_monotone_width` / `expressivityGrade_zero_depth`.  The *strict* separation (proper
-  inclusion = genuine expressivity growth) is the open expressivity-lower-bound frontier, not asserted
-  here. -/
+  /-- **Monotone ladders** (NS2/NS3/NS4/TD13). The diagonal depth ladder is monotone (deeper cascades
+  realize at least as many routes), each width slice is monotone (more experts realize at least as many
+  routes), and the base grade `(0,0)` is the symbol class. -/
   expressivity_monotone_depth : Monotone (fun L => expressivityGrade L L)
   expressivity_monotone_width : ∀ L, Monotone (fun K => expressivityGrade L K)
   expressivity_base : expressivityGrade 0 0 = symbolClass
-  /-- Statistical quantity for the hard-tame symbolic class. -/
+  /-- **Strict separation** (the type-forcing teeth): some rung of the diagonal depth ladder is a
+  proper inclusion, so the realizable class genuinely grows with depth. A collapsed (constant) family
+  cannot inhabit this `⊂`, which excludes the trivial filler the monotone fields alone admit.
+  Discharged on the constrained cascade by `MuxHierarchy.binCascadeGrade_ssubset_succ`. -/
+  expressivity_strict : ∃ L, expressivityGrade L L ⊂ expressivityGrade (L + 1) (L + 1)
+  /-- Statistical quantity for the hard-tame symbolic class (an expected generalization gap). -/
   symbolGap : ℝ
-  /-- Hard-tame symbolic statistical certificate. -/
+  /-- Hard-tame symbolic statistical bound. -/
   symbolBound : ℝ
   statistically_certified : symbolGap ≤ symbolBound
+  /-- The certified gap is a nonnegative quantity, not a free real. -/
+  symbolGap_nonneg : 0 ≤ symbolGap
+  /-- **The statistical bound is strictly positive** (the type-forcing teeth for the statistical leg).
+  The genuine Sauer envelope is positive for finite sample size, so `symbolGap ≤ symbolBound` cannot be
+  the trivial `0 ≤ 0`: a bound of `0` cannot inhabit this field. -/
+  symbolBound_pos : 0 < symbolBound
 
-/-- The mathematical TD16 certificate.  Lean verification is an external witness in the audit JSON. -/
+/-- **An expressivity ladder**: the data the hard-tame leg's expressivity fields require, bundled so a
+certificate can be parameterized by it without depending on a specific cascade construction. A grade
+indexed by depth `L` and width `K`, monotone along the diagonal depth ladder and along each width
+slice, with a strict depth separation `grade L L ⊂ grade (L+1) (L+1)` for some `L` (which a collapsed
+grade cannot satisfy). The constrained affine-mux cascade supplies a witness on the binary carrier
+(`MuxHierarchy.binCascadeGrade` with `binCascadeGrade_ssubset_succ`). -/
+structure ExpressivityLadder (X Route : Type*) where
+  grade : ℕ → ℕ → Set (X → Route)
+  monotone_depth : Monotone (fun L => grade L L)
+  monotone_width : ∀ L, Monotone (fun K => grade L K)
+  strict : ∃ L, grade L L ⊂ grade (L + 1) (L + 1)
+
+/-- **A statistical certificate**: the data the hard-tame leg's statistical fields require, bundled so a
+certificate carries the real statistical object rather than two free reals. A nonnegative certified gap,
+a strictly positive bound (the genuine Sauer–√(log/m) envelope is positive for finite sample size), and
+the certificate `gap ≤ bound`. The positivity of `bound` is what excludes the trivial `0 ≤ 0`. -/
+structure StatisticalCertificate where
+  gap : ℝ
+  bound : ℝ
+  gap_nonneg : 0 ≤ gap
+  bound_pos : 0 < bound
+  certified : gap ≤ bound
+
+/-- The mathematical TD16 certificate. -/
 structure TemperedDesignLawCertificate (R : RegionData)
     (Ω : Type*) [MeasurableSpace Ω] (μ : Measure Ω) (X Route : Type*) where
   capacity : CapacityProfile R

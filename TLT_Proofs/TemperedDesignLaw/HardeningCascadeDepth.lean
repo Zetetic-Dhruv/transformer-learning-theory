@@ -8,10 +8,10 @@ import TLT_Proofs.TemperedDesignLaw.HardeningCascade
 /-!
 # The depth-`L` envelope of a homogeneous region cascade (TD3-depth, named)
 
-Specialising the non-expansive region telescope to a *homogeneous* stack — depth `L` of one repeated
-region-exec layer — collapses the envelope to `L · rnd`:
+Specialising the non-expansive region telescope to a *homogeneous* stack (depth `L` of one repeated
+region-exec layer) collapses the envelope to `L · rnd`:
 
-* `rExecComp_replicate_le` — for a non-expansive layer (`lip ≤ 1`, `rnd ≥ 0`), if the executed trajectory
+* `rExecComp_replicate_le`: for a non-expansive layer (`lip ≤ 1`, `rnd ≥ 0`), if the executed trajectory
   stays in the per-copy regions, then `dist (execComp …) (idealComp …) ≤ L · rnd`.
 
 **TD3-depth** is the instantiation at the tempered hardening layer: with
@@ -21,7 +21,7 @@ trajectory stays in the margin interiors `{γ ≥ g}`, the depth-`L` hardening e
 
 > `dist (hardCascade x) (softCascade x) ≤ L · (k−1)·exp(−β·g)·D`,
 
-linear in depth, margin-exponential in the sharpness `β` — the `β`-edge twin of the depth-linear rounding
+linear in depth and margin-exponential in the sharpness `β`, the `β`-edge twin of the depth-linear rounding
 envelope `length · ρ` at the `u`-edge.
 -/
 

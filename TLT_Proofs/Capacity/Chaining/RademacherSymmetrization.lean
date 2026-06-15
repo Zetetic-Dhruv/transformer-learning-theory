@@ -12,12 +12,12 @@ import TLT_Proofs.Capacity.SubGaussianRademacher.EmpiricalRademacherIsSubGaussia
 # Symmetrization: the in-expectation bound on the expected uniform deviation
 
 The real-valued (in-expectation) symmetrization inequality bounds the expected uniform deviation
-`E[sup_f (R_true(f) − R̂_emp(f))]` by twice the expected empirical Rademacher complexity. Its
-load-bearing step is that, on the double sample `(S, S') ∼ P^m × P^m`, exchanging the paired
-coordinates `Sᵢ ↔ S'ᵢ` (independently per coordinate, indexed by a sign vector) is measure-preserving
-— because each factor `P` is symmetric under `Prod.swap`. Averaging over all `2^m` sign patterns turns
-the ghost-sample difference into a Rademacher-signed sum, which the supremum's subadditivity and the
-sign symmetry of the uniform sign measure split into two copies of the empirical Rademacher complexity.
+`E[sup_f (R_true(f) − R̂_emp(f))]` by twice the expected empirical Rademacher complexity. The key
+step is that, on the double sample `(S, S') ∼ P^m × P^m`, exchanging the paired coordinates
+`Sᵢ ↔ S'ᵢ` (independently per coordinate, indexed by a sign vector) is measure-preserving, because
+each factor `P` is symmetric under `Prod.swap`. Averaging over all `2^m` sign patterns turns the
+ghost-sample difference into a Rademacher-signed sum, which the supremum's subadditivity and the sign
+symmetry of the uniform sign measure split into two copies of the empirical Rademacher complexity.
 
 The development is for a real-valued function class indexed by `ι`, with the loss family `g : ι → X → ℝ`
 uniformly bounded; measurability of the supremum envelopes is carried as hypotheses (discharged, for a
@@ -25,10 +25,10 @@ separable index, where the family is used).
 
 ## Main results
 
-- `swapAt` — swap the `i`-th paired coordinate of a double sample iff `σ i`.
-- `measurePreserving_swapAt` — the swap preserves the double-sample product measure.
-- `flipSign` / `integral_comp_flipSign` — flipping every sign preserves the uniform sign measure.
-- `symmetrization_le` — the expected uniform deviation is at most twice the expected empirical
+- `swapAt`: swap the `i`-th paired coordinate of a double sample iff `σ i`.
+- `measurePreserving_swapAt`: the swap preserves the double-sample product measure.
+- `flipSign` / `integral_comp_flipSign`: flipping every sign preserves the uniform sign measure.
+- `symmetrization_le`: the expected uniform deviation is at most twice the expected empirical
   Rademacher complexity.
 
 ## References

@@ -10,35 +10,33 @@ import TLT_Proofs.Capacity.Chaining.RademacherSymmetrization
 /-!
 # Numerical bases and the dense base-change capacity invariance
 
-A *numerical base* is a countable subring of `ℝ` — a number system whose arithmetic embeds exactly
+A *numerical base* is a countable subring of `ℝ`, a number system whose arithmetic embeds exactly
 into `ℝ`. A *dense* numerical base additionally has dense image. The point of the abstraction is that
-the statistical capacity of a parametrised function class — the expected supremum of the empirical
-Rademacher process over a weight ball — is **invariant under dense base change**: computing the
+the statistical capacity of a parametrised function class (the expected supremum of the empirical
+Rademacher process over a weight ball) is **invariant under dense base change**: computing the
 capacity with weights drawn from any dense base (e.g. the dyadic rationals, the rationals) gives the
 same number as computing it over the real ball. The only base-dependent quantity is the arithmetic
 error of *executing* in finite precision, which is a separate, additive term.
 
-This file builds the grammar (`NumBase`, `DenseNumBase`) and the density anchors used by the
+This file provides the grammar (`NumBase`, `DenseNumBase`) and the density anchors used by the
 invariance theorem; the invariance theorem itself rests on `Dense.ciSup` for a continuous functional
 over a dense subset of the (compact) weight ball.
 
 ## Main definitions
 
-- `NumBase B` — a countable ring with an injective ring hom `toReal : B →+* ℝ`.
-- `DenseNumBase B` — additionally `DenseRange toReal`.
-- `embedBase` — the coordinatewise embedding of `B`-weights into the real parameter space.
+- `NumBase B`: a countable ring with an injective ring hom `toReal : B →+* ℝ`.
+- `DenseNumBase B`: additionally `DenseRange toReal`.
+- `embedBase`: the coordinatewise embedding of `B`-weights into the real parameter space.
 
 ## Main results (this section)
 
-- `denseRange_embedBase` — `B`-weights are dense in the real parameter space when `B` is dense.
+- `denseRange_embedBase`: `B`-weights are dense in the real parameter space when `B` is dense.
 -/
 
 /-!
 ## References
 - [19] empirical Rademacher complexity; dense-subset supremum reduction (Mathlib `Dense.ciSup'`;
   parallel [55]).
-- Provenance: Innovation (definitional packaging) — `NumBase`/`DenseNumBase` and dense base-change
-  capacity invariance; the underlying reduction is standard.
 -/
 
 open Set Metric MeasureTheory
@@ -50,8 +48,8 @@ namespace TLT.Capacity
 /-! ### The numerical-base grammar -/
 
 /-- A numerical base: a countable ring whose arithmetic embeds *exactly* (as a ring hom) and
-injectively into `ℝ`. The ring-hom requirement is load-bearing — the forward pass composes the base's
-arithmetic, so base-change must commute with the realised computation. -/
+injectively into `ℝ`. The ring-hom requirement ensures that base-change commutes with the realised
+computation, since the forward pass composes the base's arithmetic. -/
 class NumBase (B : Type*) [CommRing B] where
   /-- The exact embedding into `ℝ`, a ring hom. -/
   toReal : B →+* ℝ
@@ -82,9 +80,8 @@ def embedBase (B : Type*) [CommRing B] [NumBase B] {d : ℕ} :
 /-- The closed real weight ball of radius `R`. -/
 def RealBall (d : ℕ) (R : ℝ) : Set (ParamSpace d) := Metric.closedBall 0 R
 
-/-- The experiment-side index: the `B`-weights whose real embedding lies in the ball. This is the
-**preimage** of a real geometric condition under the base embedding, not a geometric domain itself —
-it carries no metric/Lipschitz/covering content and exists only to index the dense base-change. -/
+/-- The `B`-weights whose real embedding lies in the ball. This is the preimage of a real geometric
+condition under the base embedding, and carries no metric/Lipschitz/covering content. -/
 def BaseWeightPreimage (B : Type*) [CommRing B] [NumBase B] {d : ℕ} (R : ℝ) : Set (Fin d → B) :=
   {w | embedBase B w ∈ RealBall d R}
 
@@ -92,7 +89,7 @@ def BaseWeightPreimage (B : Type*) [CommRing B] [NumBase B] {d : ℕ} (R : ℝ) 
 def BaseRealSet (B : Type*) [CommRing B] [NumBase B] {d : ℕ} (R : ℝ) : Set (ParamSpace d) :=
   {θ | ∃ w : Fin d → B, w ∈ BaseWeightPreimage B R ∧ θ = embedBase B w}
 
-/-! ### FR1 — finite-product density of the base embedding -/
+/-! ### FR1: finite-product density of the base embedding -/
 
 /-- **`B`-weights are dense in the real parameter space.** A dense base embeds coordinatewise to a
 dense subset of `ℝᵈ`: approximate each coordinate, the Euclidean error is controlled by `√d` times the
@@ -125,7 +122,7 @@ theorem denseRange_embedBase (B : Type*) [CommRing B] [DenseNumBase B] (d : ℕ)
         rw [mul_div_assoc', div_lt_iff₀ h2]
         nlinarith [Real.sqrt_nonneg (d : ℝ)]
 
-/-! ### FR2 — the base grid is dense in the (closed) weight ball -/
+/-! ### FR2: the base grid is dense in the (closed) weight ball -/
 
 /-- The base-grid points that lie in the real ball, as a subset of the ball. -/
 def BaseGridInBall (B : Type*) [CommRing B] [NumBase B] {d : ℕ} (R : ℝ) :
@@ -199,7 +196,7 @@ theorem dense_baseGridInBall (B : Type*) [CommRing B] [DenseNumBase B] {d : ℕ}
       _ ≤ ε / 4 + ε / 2 := by linarith [min_le_left (ε/2) margin, htn]
       _ < ε := by linarith
 
-/-! ### FR3 — dense supremum over the ball -/
+/-! ### FR3: dense supremum over the ball -/
 
 /-- **The supremum of a continuous functional over the base grid equals its supremum over the whole
 ball.** Immediate from `Dense.ciSup'` (no boundedness needed) given the density of the grid (FR2). -/
@@ -220,7 +217,7 @@ theorem ciSup_comp_surjective {ι ι' : Type*} {f : ι → ι'} (hf : Function.S
   show sSup (Set.range fun x => g (f x)) = sSup (Set.range g)
   rw [hr]
 
-/-! ### FR4 — the Rademacher functional and the pointwise capacity equality -/
+/-! ### FR4: the Rademacher functional and the pointwise capacity equality -/
 
 /-- The empirical Rademacher average is continuous in its value vector (it is linear). -/
 theorem continuous_empRadVec {m : ℕ} (σ : SignVector m) :
@@ -262,7 +259,7 @@ theorem capacity_pointwise_eq (B : Type*) [CommRing B] [DenseNumBase B] {X : Typ
         ciSup_baseGrid_eq_ciSup_realBall B hR (fun θ => radFunctional F S σ θ.1)
           ((continuous_radFunctional F S σ hF).comp continuous_subtype_val)
 
-/-! ### FR5 — the empirical capacity equality (the base-invariance theorem) -/
+/-! ### FR5: the empirical capacity equality (the base-invariance theorem) -/
 
 /-- The empirical Rademacher complexity of the `B`-weight ball on sample `S`. -/
 def empiricalCapacityBase (B : Type*) [CommRing B] [NumBase B] {X : Type*} {d m : ℕ} (R : ℝ)

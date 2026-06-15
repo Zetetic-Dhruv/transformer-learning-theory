@@ -17,15 +17,15 @@ boundedness and a volumetric covering bound.
 
 The covering bound is supplied by the vendored volumetric estimate `coveringNumber_euclideanBall_le`
 (a bound on the *external* covering number), bridged here to Mathlib's *internal*
-`Metric.coveringNumber` — which the entropy machinery uses — through the keystone
+`Metric.coveringNumber` (which the entropy machinery uses) through
 `externalCoveringNumber_le_coveringNumber_ext` and Mathlib's factor-two internal/external comparison.
-Crucially the bridge routes through the internal covering number, so the parameter-Lipschitz estimate
-is only ever applied to net centres lying *inside* the ball: a class that is Lipschitz only on the
-bounded weight ball — not globally — still admits the covering bound.
+The bridge routes through the internal covering number, so the parameter-Lipschitz estimate is only
+ever applied to net centres lying *inside* the ball: a class that is Lipschitz only on the bounded
+weight ball, not globally, still admits the covering bound.
 
 ## Main results
 
-- `externalCoveringNumber_le_coveringNumber_ext` — Mathlib's external covering number is at most the
+- `externalCoveringNumber_le_coveringNumber_ext`: Mathlib's external covering number is at most the
   vendored covering number (every vendored net is a Mathlib cover).
 -/
 
@@ -33,8 +33,6 @@ bounded weight ball — not globally — still admits the covering bound.
 ## References
 - [26] Cor. 4.2.13 Euclidean-ball covering `(1+2R/ε)^d`; [25] Lem. 5.7 volume-ratio; Lipschitz-
   image covering `N(ε,f(S))≤N(ε/L,S)` (standard; weight-ball specialization [33]); [16] Dudley.
-- Provenance: Vendored-glue (bridges the vendored [54] external covering number to Mathlib's
-  internal one; the math is classical, the bridge is TLT engineering — not a new theorem).
 -/
 
 open MeasureTheory Set
@@ -133,7 +131,7 @@ theorem coveringNumber_euclideanBall_toNat_le {d : ℕ} [Nonempty (Fin d)] {R δ
 /-- **Internal Lipschitz-image covering bound (on-domain Lipschitz).** If `f` is `L`-Lipschitz *on*
 `s` (not necessarily globally), then the internal covering number of `f '' s` at radius `L·δ` is at
 most that of `s` at radius `δ`. The internal cover keeps centres inside `s`, so the on-`s` estimate is
-all that is needed — a map Lipschitz only on the bounded weight ball, not globally, still admits the
+all that is needed; a map Lipschitz only on the bounded weight ball, not globally, still admits the
 image bound. -/
 theorem coveringNumber_image_le_of_lipschitzOn {X Y : Type*} [PseudoMetricSpace X]
     [PseudoMetricSpace Y] {f : X → Y} {s : Set X} {L δ : ℝ} (hL : 0 ≤ L) (hδ : 0 ≤ δ)
@@ -180,7 +178,7 @@ theorem coveringNumber_insert_le {X : Type*} [PseudoMetricSpace X] (ε : ℝ≥0
       _ = Metric.coveringNumber ε s + 1 := by rw [hCcard]
 
 /-- **Square-root entropy affine envelope from a `+1` covering bound.** A covering bound
-`(1 + C/ε)^d + 1` — the `+1` being the adjoined Dudley `0` anchor — gives the affine square-root
+`(1 + C/ε)^d + 1` (the `+1` being the adjoined Dudley `0` anchor) gives the affine square-root
 entropy envelope `√(log 2) + √(dC)·ε^{−1/2}`; the `log 2` absorbs the doubling `N + 1 ≤ 2N`. -/
 lemma sqrtEntropy_le_affine_of_coveringNumber_succ_le {A : Type*} [PseudoMetricSpace A]
     {s : Set A} {C : ℝ} (hC : 0 ≤ C) {d : ℕ} {ε : ℝ} (hε : 0 < ε)
@@ -227,7 +225,7 @@ lemma sqrtEntropy_le_affine_of_coveringNumber_succ_le {A : Type*} [PseudoMetricS
         rw [Real.sqrt_inv, Real.rpow_neg hε.le, ← Real.sqrt_eq_rpow]
 
 /-- A `ℕ∞` value below `b + 1` (with `b` finite, real-bounded by `K`) has real `.toNat` at most
-`K + 1` — the insert-anchor bookkeeping. -/
+`K + 1` (the insert-anchor bookkeeping). -/
 lemma toNat_real_le_succ_of_le {a b : ℕ∞} (hab : a ≤ b + 1) (hb : b ≠ ⊤) {K : ℝ}
     (hbK : ((b.toNat : ℕ) : ℝ) ≤ K) : ((a.toNat : ℕ) : ℝ) ≤ K + 1 := by
   lift b to ℕ using hb with n
@@ -253,9 +251,9 @@ theorem coveringNumber_image_euclideanBall_ne_top {Y : Type*} [PseudoMetricSpace
     (lt_top_iff_ne_top.mpr (coveringNumber_euclideanBall_ne_top (div_pos hε hL)))).ne
 
 /-- **Lipschitz-image covering bound for the weight ball.** A map `L`-Lipschitz on the ball sends the
-ball into a set whose covering number at radius `ε` is `≤ (1 + 4RL/ε)^d` — the chained internal
-Lipschitz-image (centres in the ball, so on-ball Lipschitz suffices) and the internal Euclidean-ball
-bound. -/
+ball into a set whose covering number at radius `ε` is `≤ (1 + 4RL/ε)^d`, via the chained internal
+Lipschitz-image bound (centres in the ball, so on-ball Lipschitz suffices) and the internal
+Euclidean-ball bound. -/
 theorem coveringNumber_image_euclideanBall_toNat_le {Y : Type*} [PseudoMetricSpace Y] {d : ℕ}
     [Nonempty (Fin d)] {f : EuclideanSpace ℝ (Fin d) → Y} {R L ε : ℝ} (hR : 0 ≤ R) (hL : 0 < L)
     (hε : 0 < ε)
@@ -280,7 +278,7 @@ def valueVec {X : Type*} {d m : ℕ} (F : ParamSpace d → X → ℝ) (S : Fin m
     ParamSpace d → (Fin m → ℝ) := fun θ j => F θ (S j)
 
 /-- **Finiteness of the Dudley entropy integral for a parameter-Lipschitz class.** If the value-vector
-map is `L`-Lipschitz on the weight ball, the entropy integral of its loss-value set is finite — the
+map is `L`-Lipschitz on the weight ball, the entropy integral of its loss-value set is finite; the
 `+1` of the `0` anchor and the `log 2` doubling absorb into the affine envelope. -/
 theorem entropyIntegralENNReal_lossValueSet_ne_top {X : Type*} {d m : ℕ} [Nonempty (Fin d)]
     {R : ℝ} (hR : 0 ≤ R) (F : ParamSpace d → X → ℝ) (S : Fin m → X) {L : ℝ} (hL : 0 < L)
@@ -331,14 +329,13 @@ theorem diam_lossValueSet_le {X : Type*} {d m : ℕ} {R : ℝ} (F : ParamSpace d
   le_trans (Metric.diam_mono (lossValueSet_subset_closedBall F hb0 hFb S)
     Metric.isBounded_closedBall) (Metric.diam_closedBall hb0)
 
-/-! ### Transfer to the vendored covering number / entropy (the side `capacityReal_le_dudley` uses)
+/-! ### Transfer to the vendored covering number / entropy
 
-The Dudley wrapper carries the *vendored* `entropyIntegralENNReal` (built on the vendored, external
-`coveringNumber`), not Mathlib's internal one the work above discharges. Finiteness (`≠ ⊤`) is a
-one-directional fact: it transfers along the free direction `vendored ≤ Mathlib-internal`, since every
-finite internal Mathlib cover is a valid vendored net (internal centres are centres-anywhere). The
-constructive image bound — which needs centre control and so internal covering — is done once on the
-Mathlib side; only the scalar finiteness crosses the namespace gap. -/
+The Dudley wrapper uses the *vendored* `entropyIntegralENNReal` (built on the vendored, external
+`coveringNumber`). Finiteness (`≠ ⊤`) transfers along the direction `vendored ≤ Mathlib-internal`,
+since every finite internal Mathlib cover is a valid vendored net (internal centres are
+centres-anywhere). The constructive image bound (which requires centre control and internal covering)
+is established on the Mathlib side; only the scalar finiteness transfers across. -/
 
 /-- **The free direction.** Every finite internal Mathlib cover of `s` is a vendored `eps`-net, so the
 vendored covering number is at most Mathlib's internal covering number. -/
@@ -378,7 +375,7 @@ lemma sltMetricEntropy_eq_log {A : Type*} [PseudoMetricSpace A] (eps : ℝ) (s :
   · rename_i n h; rw [metricEntropyOfNat_eq_log, h]; rfl
 
 /-- **Pointwise square-root entropy comparison (finite regime).** Where Mathlib's internal covering
-number is finite, the vendored square-root entropy is at most the Mathlib one — via the free
+number is finite, the vendored square-root entropy is at most the Mathlib one, via the free
 covering direction and `log`/`√` monotonicity. The `.toNat` `⊤ ↦ 0` quirk is avoided exactly because
 the Mathlib covering number is finite. -/
 lemma sltSqrtEntropy_le {A : Type*} [PseudoMetricSpace A] {eps : ℝ} (heps : 0 ≤ eps) {s : Set A}
@@ -416,9 +413,9 @@ theorem metricCoveringNumber_lossValueSet_ne_top {X : Type*} {d m : ℕ} [Nonemp
     (WithTop.add_ne_top.mpr ⟨coveringNumber_image_euclideanBall_ne_top hL heps hlip, ENat.one_ne_top⟩)
     (coveringNumber_insert_le (Real.toNNReal eps) 0 _)
 
-/-- **Finiteness of the *vendored* entropy integral for a parameter-Lipschitz class** — the form
-`capacityReal_le_dudley` consumes. The vendored entropy integral is dominated, pointwise on `(0,D]`
-(where the Mathlib covering number is finite), by Mathlib's; the latter is finite by `FR8b`. -/
+/-- **Finiteness of the vendored entropy integral for a parameter-Lipschitz class.** The vendored
+entropy integral is dominated pointwise on `(0,D]` (where the Mathlib covering number is finite) by
+the Mathlib entropy integral; the latter is finite by `entropyIntegralENNReal_lossValueSet_ne_top`. -/
 theorem sltEntropyIntegralENNReal_lossValueSet_ne_top {X : Type*} {d m : ℕ} [Nonempty (Fin d)]
     {R : ℝ} (hR : 0 ≤ R) (F : ParamSpace d → X → ℝ) (S : Fin m → X) {L : ℝ} (hL : 0 < L)
     (hlip : ∀ θ ∈ (euclideanBall R : Set (EuclideanSpace ℝ (Fin d))),
@@ -432,11 +429,10 @@ theorem sltEntropyIntegralENNReal_lossValueSet_ne_top {X : Type*} {d m : ℕ} [N
   exact ENNReal.ofReal_le_ofReal
     (sltSqrtEntropy_le heps.1.le (metricCoveringNumber_lossValueSet_ne_top F S hL hlip heps.1))
 
-/-- **Dudley capacity bound for a parameter-Lipschitz class.** Discharging all three Dudley
-side-conditions — total boundedness, diameter `≤ 2b`, and finiteness of the (vendored) entropy
-integral — for a uniformly bounded class whose value-vector map is `L`-Lipschitz on the weight ball.
-This removes those hypotheses from `capacityReal_le_dudley`, leaving boundedness and
-parameter-Lipschitzness. -/
+/-- **Dudley capacity bound for a parameter-Lipschitz class.** All three Dudley side-conditions
+(total boundedness, diameter `≤ 2b`, and finiteness of the vendored entropy integral) are discharged
+for a uniformly bounded class whose value-vector map is `L`-Lipschitz on the weight ball. This
+reduces `capacityReal_le_dudley` to boundedness and parameter-Lipschitzness alone. -/
 theorem capacityReal_le_dudley_of_lipschitz {X : Type*} {d m : ℕ} [Nonempty (Fin d)] (hm : 0 < m)
     {R : ℝ} (hR : 0 ≤ R) (F : ParamSpace d → X → ℝ) {b : ℝ} (hb : 0 < b)
     (hFb : ∀ θ x, |F θ x| ≤ b) (S : Fin m → X) {L : ℝ} (hL : 0 < L)
@@ -452,10 +448,10 @@ theorem capacityReal_le_dudley_of_lipschitz {X : Type*} {d m : ℕ} [Nonempty (F
 
 /-! ### Uniform (sample-independent) computable capacity bound
 
-The Dudley capacity of `capacityReal_le_dudley_of_lipschitz` carries the sample-dependent entropy
-integral. Bounding the square-root entropy by the *uniform* affine envelope `√(log2) + √(4dRL)·ε^{−1/2}`
-(uniform because the covering constant `4RL` is sample-independent) turns it into a single closed
-quantity in `(d,R,L,b,m)` — the per-sample capacity bound the computable certificate consumes. -/
+The Dudley capacity from `capacityReal_le_dudley_of_lipschitz` carries a sample-dependent entropy
+integral. Bounding the square-root entropy by the uniform affine envelope `√(log2) + √(4dRL)·ε^{−1/2}`
+(uniform because the covering constant `4RL` is sample-independent) gives a single closed-form
+quantity in `(d,R,L,b,m)`. -/
 
 /-- The affine envelope `c + K·ε^{−1/2}` has finite lower integral on `(0,D]` (the singularity
 `ε^{−1/2}` is integrable since `−1/2 > −1`). -/
@@ -506,7 +502,7 @@ lemma sltSqrtEntropy_lossValueSet_le_affine {X : Type*} {d m : ℕ} [Nonempty (F
       (coveringNumber_lossValueSet_toNat_le hR F S hL hlip heps))
 
 /-- **Uniform computable entropy bound.** The (vendored) entropy integral of the loss-value set at
-scale `2b` is at most the affine envelope's integral — a single quantity in `(d,R,L,b)` independent of
+scale `2b` is at most the affine envelope's integral, a single quantity in `(d,R,L,b)` independent of
 the sample. -/
 theorem entropyIntegral_lossValueSet_le {X : Type*} {d m : ℕ} [Nonempty (Fin d)] {R : ℝ}
     (hR : 0 ≤ R) (F : ParamSpace d → X → ℝ) (S : Fin m → X) {L : ℝ} (hL : 0 < L)
@@ -525,8 +521,7 @@ theorem entropyIntegral_lossValueSet_le {X : Type*} {d m : ℕ} [Nonempty (Fin d
   exact ENNReal.ofReal_le_ofReal (sltSqrtEntropy_lossValueSet_le_affine hR F S hL hlip hε.1)
 
 /-- **Uniform computable capacity bound.** The empirical capacity of every sample is bounded by the
-single closed quantity `12√2·(1/√m)·B`, with `B` the affine entropy integral — the per-sample bound
-the computable certificate (`certified_executed_generalization_computable`) consumes. -/
+single closed quantity `12√2·(1/√m)·B`, with `B` the affine entropy integral. -/
 theorem empiricalCapacityReal_le_computable {X : Type*} {d m : ℕ} [Nonempty (Fin d)] (hm : 0 < m)
     {R : ℝ} (hR : 0 ≤ R) (F : ParamSpace d → X → ℝ) {b : ℝ} (hb : 0 < b) (hFb : ∀ θ x, |F θ x| ≤ b)
     (S : Fin m → X) {L : ℝ} (hL : 0 < L)
@@ -541,21 +536,19 @@ theorem empiricalCapacityReal_le_computable {X : Type*} {d m : ℕ} [Nonempty (F
   le_trans (capacityReal_le_dudley_of_lipschitz hm hR F hb hFb S hL hlip)
     (mul_le_mul_of_nonneg_left (entropyIntegral_lossValueSet_le hR F S hL hlip hb) (by positivity))
 
-/-- **The computable Dudley capacity bound, as a function of the parameter-Lipschitz constant `L`.**
-This names the closed quantity on the right of `empiricalCapacityReal_le_computable`: `12√2·(1/√m)`
-times the affine entropy integral `∫₍₀,₂ᵦ₎ √(log 2) + √(d·4RL)·ε^{−1/2}`.  Isolating it as a function
-of `L` exposes the only dependence that varies with the model's Lipschitz modulus. -/
+/-- The closed-form upper bound from `empiricalCapacityReal_le_computable`: `12√2·(1/√m)` times the
+affine entropy integral `∫₍₀,₂ᵦ₎ √(log 2) + √(d·4RL)·ε^{−1/2}`, as a function of the
+parameter-Lipschitz constant `L`. -/
 def dudleyCapBound (d m : ℕ) (R b L : ℝ) : ℝ :=
   (12 * Real.sqrt 2) * (1 / Real.sqrt m)
     * (∫⁻ ε in Set.Ioc (0 : ℝ) (2 * b),
         ENNReal.ofReal (Real.sqrt (Real.log 2)
           + Real.sqrt ((d : ℝ) * (4 * R * L)) * ε ^ (-(1 / 2) : ℝ))).toReal
 
-/-- **The computable Dudley capacity bound is monotone in the parameter-Lipschitz constant.** A larger
-Lipschitz modulus `L` pays a larger statistical price.  The `L`-dependence is isolated in `√(d·4RL)`,
-so this is monotonicity of one explicit affine entropy integral, discharged by the same
-`toReal`/`lintegral`/`ofReal` ladder as `entropyIntegral_lossValueSet_le`, with finiteness of the
-upper integral supplied by `affineLintegral_lt_top`. -/
+/-- `dudleyCapBound` is monotone in the Lipschitz constant `L`: a larger `L` gives a larger bound.
+The `L`-dependence enters through `√(d·4RL)` inside the affine entropy integral; monotonicity
+follows from the standard `toReal`/`lintegral`/`ofReal` ladder, with finiteness of the upper integral
+from `affineLintegral_lt_top`. -/
 theorem dudleyCapBound_mono_L (d m : ℕ) {R b : ℝ} (hR : 0 ≤ R) (hb : 0 < b) :
     Monotone (dudleyCapBound d m R b) := by
   intro L L' hLL'

@@ -7,32 +7,28 @@ import TLT_Proofs.Bridge.Certificate.CertifiedRiskBound
 import TLT_Proofs.Bridge.Spec.TransformerObjectVocabulary
 
 /-!
-# The certified executed-risk bound, as a discharged resolution
+# The certified executed-risk bound
 
 For the executed (IEEE binary32) forward pass presented as a composition of `ExecLayer`s `Ls`, the
 executed true risk is bounded by the executed empirical risk plus a statistical `capacity` term plus
-`2·L·envBound` — every additional term computable from the layer data. The statistical capacity is the
-generalization bound of the ideal (real-arithmetic) forward map; the rounding envelope carries the
+`2·L·envBound`, with every additional term computable from the layer data. The statistical capacity is
+the generalization bound of the ideal (real-arithmetic) forward map; the rounding envelope carries the
 bound from the ideal to the executed model.
 
-This file states the executed certificate as a property and discharges it from the ideal-side capacity
-bound via the rounding-transfer assembly (`certifiedRiskBound_of_idealRisk`). The capacity bound for
-the ideal forward map is the input of the chaining (Dudley entropy-integral) analysis; here it is the
-explicit hypothesis `hCapacity`, so that the certificate is a theorem about the *executed* model — the
-distinctive content — relative to that ideal-side analysis.
+The capacity bound for the ideal forward map is the input of the chaining (Dudley entropy-integral)
+analysis; it appears here as the explicit hypothesis `hCapacity`, so the certificate is a theorem about
+the executed model relative to that ideal-side analysis.
 
 ## Main results
 
-- `CertifiedExecutedRiskBound` — the executed risk certificate as a property of the executed forward.
-- `certifiedExecutedRiskBound_holds` — the certificate holds given the ideal-side capacity bound.
-- `certifiedExecutedRiskBound_resolution` — the certificate packaged as a discharged `Resolution`.
+- `CertifiedExecutedRiskBound`: the executed risk certificate as a property of the executed forward.
+- `certifiedExecutedRiskBound_holds`: the certificate holds given the ideal-side capacity bound.
+- `certifiedExecutedRiskBound_resolution`: the certificate packaged as a discharged `Resolution`.
 -/
 
 /-!
 ## References
 - [22] Lipschitz-loss transfer; [36][54] ideal capacity; [56] verified-ML context.
-- Provenance: Innovation (packaging) — names the executed-certificate property + discharged
-  Resolution; same executed-transfer content as `CertifiedRiskBound`.
 -/
 
 open MeasureTheory

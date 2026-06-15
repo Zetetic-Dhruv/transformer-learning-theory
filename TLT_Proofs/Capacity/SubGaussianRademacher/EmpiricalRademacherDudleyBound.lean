@@ -16,21 +16,19 @@ entropy integral of `s` in the supremum metric, scaled by `1/√m`:
 `E[⨆_{v∈s} (1/m)∑ᵢ vᵢ·sign(σᵢ)] ≤ 12√2 · (1/√m) · entropyIntegral s D`.
 
 This is the route from a covering-number bound on `s` to a bound on the empirical Rademacher
-complexity, hence — after symmetrization — to a generalization bound. The measurability, integrability
-and continuity hypotheses of `dudley` are discharged here using that the sign-vector space is finite
-and the process is linear in its value vector.
+complexity and, after symmetrization, to a generalization bound. The measurability, integrability,
+and continuity hypotheses of `dudley` are discharged using that the sign-vector space is finite and
+the process is linear in its value vector.
 
 ## Main results
 
-- `empRad_dudley` — the empirical Rademacher complexity is bounded by the Dudley entropy integral.
+- `empRad_dudley`: the empirical Rademacher complexity is bounded by the Dudley entropy integral.
 -/
 
 /-!
 ## References
-- [16] Dudley entropy integral; [21] Ch. 13; [19] Rademacher side; constant 12√2 + the `dudley`
+- [16] Dudley entropy integral; [21] Ch. 13; [19] Rademacher side; constant 12√2 and the `dudley`
   theorem are vendored [54] (Thm 3.8).
-- Provenance: Vendored-glue (instantiation of vendored `dudley` for the finite sign space; bound
-  credited to Zhang–Lee–Liu [54]).
 -/
 
 open MeasureTheory Real

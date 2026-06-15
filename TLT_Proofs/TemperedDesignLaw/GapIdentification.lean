@@ -13,14 +13,14 @@ import SLT.SubGaussian
 import SLT.MetricEntropy
 
 /-!
-# S2 — Gap identification: binding the tempered route's EXPECTED generalization gap
+# S2: Gap identification, binding the tempered route's expected generalization gap
 
-This file lands the analytic crux of S2: the conversion of the symbol route's **tail** bound
+This module converts the symbol route's **tail** bound
 (`symbolRoute_gen_gap`, of the Sauer–exp form `Dᵐ{gap ≥ ε} ≤ 2·(∏Sauer)·exp(−mε²/8)`) into a bound on
 the route's **expected** generalization gap, via the layer-cake formula plus the truncated Gaussian
 tail integral.
 
-## Sub-target 1 — HARD tail → expectation (the analytic crux)
+## Sub-target 1: HARD tail to expectation (the analytic crux)
 
 The crux lemma `truncated_tail_integral_le` is fully self-contained: for a probability measure `μ`, a
 nonnegative measurable real random variable `G`, and a tail bound
@@ -133,18 +133,18 @@ theorem truncated_tail_lintegral_le
       _ = ENNReal.ofReal (C * (2 / Real.sqrt m) * Real.sqrt (2 * Real.pi)) :=
           lintegral_gaussianTail_eq hC hm
 
-/-! ## Sub-target 1 — instantiating the crux at the symbol route
+/-! ## Sub-target 1: instantiating the crux at the symbol route
 
 `symbolRoute_gen_gap` supplies exactly the large-`ε` tail input the crux needs, with
 `C = ∏_{(i,j)} ∑_{r ≤ finrank Wᵢⱼ} (2m choose r)` (a `Nat` cast, hence `≥ 0`) and the split point
 `ε₀ = √(2 log 2 / m)` (where `m·ε₀² = 2 log 2`, the `hm_large` boundary). Below `ε₀` the tail is bounded
 by `1` (probability measure); above it `symbolRoute_gen_gap` applies. The "gap functional" `G` is any
 nonnegative measurable real random variable whose superlevel set `{ε ≤ G}` sits inside the route's
-"some concept's gap exceeds `ε`" event — the genuine uniform routing-gap functional. -/
+"some concept's gap exceeds `ε`" event (the uniform routing-gap functional). -/
 
 open Module
 
-/-- **S2 sub-target 1 — the symbol route's EXPECTED generalization gap is bounded by the explicit
+/-- **S2 sub-target 1: the symbol route's expected generalization gap is bounded by the explicit
 Sauer-`√(log/m)` envelope.**  For any nonnegative measurable real gap functional `G` whose superlevel
 sets sit inside the symbol route's "some route-loss concept's true-minus-empirical gap exceeds `ε`"
 event, the expected gap `E[G⁺] = ∫⁻ ofReal G` (always well-defined) is bounded by
@@ -222,7 +222,7 @@ theorem temperedSymbol_expectedGap_hard_le {X : Type u} [MeasurableSpace X] [Inf
   rw [hμ]
   convert this using 2
 
-/-! ## Sub-target 2 — SMOOTH (Dudley) expected-gap bound
+/-! ## Sub-target 2: SMOOTH (Dudley) expected-gap bound
 
 The soft mixture route's output, composed with the loss, is a real family `F : ParamSpace d → V → ℝ`.
 `expectedGap_le_two_capacityReal` bounds its **expected** uniform deviation by `2·∫ empiricalCapacityReal`.
@@ -232,15 +232,15 @@ supplied as `hExpCap : ∫ empiricalCapacityReal ≤ capBound`) gives the smooth
 
 open TLT.Capacity
 
-/-- **S2 sub-target 2 — the SMOOTH (Dudley) expected-gap bound.**  For a uniformly bounded, measurable,
+/-- **S2 sub-target 2: the SMOOTH (Dudley) expected-gap bound.**  For a uniformly bounded, measurable,
 parameter-continuous real family `F` (the soft mixture route's loss-composed output), the expected
 uniform deviation over the dyadic weight ball is at most `2·capBound`, where `capBound` is any bound on
 the expected empirical capacity `∫ S, empiricalCapacityReal R F S`. With `F` the tempered stack's
 loss-composed family and `capBound = dudleyCapBound …` (the integrated `temperedStack_smooth_cert`), this
 is the smooth-side expected generalization gap of the tempered soft route.
 
-This is `expectedGap_le_two_capacityReal` chained with the expected-capacity bound — binding the soft
-mixture route's **real expected gap** to the Dudley capacity envelope. -/
+The bound follows from `expectedGap_le_two_capacityReal` together with the expected-capacity bound,
+connecting the soft mixture route's expected gap to the Dudley capacity envelope. -/
 theorem temperedSoftRoute_expectedGap_smooth_le
     {X : Type*} [MeasurableSpace X] {P : Measure X} [IsProbabilityMeasure P] {d m : ℕ}
     (hm : 0 < m) {R : ℝ} (hR : 0 ≤ R)
@@ -260,23 +260,22 @@ theorem temperedSoftRoute_expectedGap_smooth_le
     _ ≤ 2 * capBound := by
         exact mul_le_mul_of_nonneg_left hExpCap (by norm_num)
 
-/-! ## Sub-target 3 (partial) — the soft-route loss bridge to the hard route payload
+/-! ## Sub-target 3 (partial): the soft-route loss bridge to the hard route payload
 
 For a **route-factored (output-Lipschitz) loss** `Φ`, the soft mixture output's loss at any point is
 bounded by the hard route payload's loss plus the β-leakage. This is the per-point bridge inequality
-that would let a hard-route certificate dominate the soft-route gap — composing
+that would let a hard-route certificate dominate the soft-route gap, composing
 `RouteFactoredLoss.mixture_le_route` (soft loss ≤ route-payload loss + `Lℓ·‖soft − payload‖`) with
 `softMixture_sub_hardPayload_le_exp` (the deviation `≤ (k−1)·exp(−βγ)·D`).
 
-LIMITATION (honest, recorded). The hard bound of sub-target 1 is stated for the **0-1 routing-loss
-class** (`routeLossClass`, Boolean concepts), while this bridge lives in the **output-Lipschitz** loss
-world (`RouteFactoredLoss`). The project's own `RouteFactoredLoss` MODELLING NOTE flags that the
-output-Lipschitz factorization does NOT accommodate the 0-1 routing loss; matching the two loss structures is
-an unresolved *factorization-strength* design choice, not a mechanical proof gap. So the full bridge —
-"hard 0-1 cert dominates the soft Lipschitz gap" — is not closed here; this leakage-controlled per-point
-loss bridge is the genuine fragment that builds. -/
+Note on scope. The hard bound of sub-target 1 is stated for the **0-1 routing-loss class**
+(`routeLossClass`, Boolean concepts), while this bridge lives in the **output-Lipschitz** loss world
+(`RouteFactoredLoss`). The `RouteFactoredLoss` modelling note records that the output-Lipschitz
+factorization does not accommodate the 0-1 routing loss; aligning the two loss structures is an
+open factorization-strength design choice. The full bridge "hard 0-1 cert dominates the soft Lipschitz
+gap" is not closed here; the present per-point loss inequality is the fragment that compiles. -/
 
-/-- **S2 sub-target 3 (partial) — the soft-route per-point loss bridge.** For a route-factored loss `Φ`,
+/-- **S2 sub-target 3 (partial): the soft-route per-point loss bridge.** For a route-factored loss `Φ`,
 the soft mixture output's loss is within the β-leakage envelope of the hard route payload's loss:
 `Φ.loss(soft mixture) y ≤ Φ.loss(val hardRoute) y + Φ.Lℓ·(k−1)·exp(−βγ)·D`.
 

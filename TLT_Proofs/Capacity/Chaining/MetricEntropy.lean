@@ -13,7 +13,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.Basic
 
 The **metric entropy** of a set `s` at scale `ε` is `log N(ε, s)`, the logarithm of its (internal)
 covering number. Its square root, integrated against `dε` from `0` to the diameter, is the **Dudley
-entropy integral** `∫₀^D √(log N(ε, s)) dε` — the canonical capacity functional bounding the expected
+entropy integral** `∫₀^D √(log N(ε, s)) dε`, the canonical capacity functional bounding the expected
 supremum of a sub-Gaussian process indexed by `s` (Dudley's theorem).
 
 The covering number is Mathlib's internal `Metric.coveringNumber`. The entropy integral is defined as
@@ -22,9 +22,9 @@ unbounded near `0`; finiteness of the integral is an additional hypothesis where
 
 ## Main definitions
 
-* `metricEntropy ε s` — `log N(ε, s)`.
-* `sqrtEntropy ε s` — `√(log N(ε, s))`, the Dudley integrand value.
-* `entropyIntegral s D` — `∫₀^D √(log N(ε, s)) dε`, the Dudley entropy integral.
+* `metricEntropy ε s`: `log N(ε, s)`.
+* `sqrtEntropy ε s`: `√(log N(ε, s))`, the Dudley integrand value.
+* `entropyIntegral s D`: `∫₀^D √(log N(ε, s)) dε`, the Dudley entropy integral.
 
 ## References
 
@@ -47,7 +47,7 @@ variable {A : Type*} [PseudoMetricSpace A]
 def metricEntropy (ε : ℝ) (s : Set A) : ℝ :=
   Real.log ((Metric.coveringNumber ε.toNNReal s).toNat : ℝ)
 
-/-- The square root of the metric entropy — the integrand of the Dudley entropy integral. -/
+/-- The square root of the metric entropy; the integrand of the Dudley entropy integral. -/
 def sqrtEntropy (ε : ℝ) (s : Set A) : ℝ := Real.sqrt (metricEntropy ε s)
 
 /-- The metric entropy is nonnegative (the covering number is a natural number, so its logarithm,

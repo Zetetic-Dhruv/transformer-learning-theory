@@ -1,5 +1,5 @@
 /-
-# The literal executed binding of the fp32 layer-norm — IEEE coordinate reads
+# The literal executed binding of the fp32 layer-norm: IEEE coordinate reads
 
 The `_ie` coordinate reductions for `Spec.layerNorm`'s remaining tensor ops (`subSpec` / `mulSpec` /
 `divSpec` / `sqrtSpec` / `maxSpec` over `IEEE32Exec`), the layer-norm analogues of the `addSpec` / `reluSpec`
@@ -90,7 +90,7 @@ lemma get2_broadcast_row_ie {sq em : ℕ} (v : Tensor IEEE32Exec (.dim sq .scala
 
 /-- **The literal layer-norm reads op-by-op as the executed affine.** `Spec.layerNorm`'s output
 coordinate `[i,j]` at `IEEE32Exec` is exactly the executed `((x − mean)/std · γ + β)` of the literal
-per-row mean `mT` and std `sT` (whatever the bit-level reductions compute them to be) — the literal
+per-row mean `mT` and std `sT` (whatever the bit-level reductions compute them to be): the literal
 IEEE `add`/`mul`/`div`/`sub` composition, read through the shipped `_ie` coordinate reductions. The
 mean/std enter as opaque per-row vectors; their rounding vs the exact `rowMean`/`rowStd` is the `ρm`/`ρs`
 budget that `lnExec_forward_error` carries. This binds `Spec.layerNorm`'s affine pipeline op-by-op,
@@ -112,9 +112,9 @@ lemma get2_layerNorm_litAffine {seqLen embedDim : ℕ} (h1 : seqLen > 0) (h2 : e
 `toReal`-read weights. The executed per-row mean/std (`meanIE`/`stdIE`, the bit-level reductions read over
 `ℝ`) enter with their roundings `ρm`/`ρs`; `δ` bounds the literal per-op affine read against the executed
 model `lnStarExec` (dischargeable from `get2_layerNorm_litAffine` + the shipped `toReal_sub_*`/`toReal_div_*`/
-`toReal_mul_*`/`toReal_add_*` atoms, the honest per-op regime). The ideal bound reuses the shipped
-`lnExec_forward_error` verbatim — the literal layer-norm binds with NO new error machinery, exactly as the
-attention and feed-forward sub-layers do. -/
+`toReal_mul_*`/`toReal_add_*` atoms with the per-op finiteness regime as hypotheses). The ideal bound
+reuses the shipped `lnExec_forward_error` verbatim, with no additional error machinery beyond what the
+attention and feed-forward sub-layers use. -/
 theorem toReal_layerNorm_forward_error {seqLen embedDim : ℕ} (h1 : seqLen > 0) (h2 : embedDim > 0)
     (Xt : Tensor IEEE32Exec (.dim seqLen (.dim embedDim .scalar)))
     (γt βt : Tensor IEEE32Exec (.dim embedDim .scalar)) (εt : IEEE32Exec)

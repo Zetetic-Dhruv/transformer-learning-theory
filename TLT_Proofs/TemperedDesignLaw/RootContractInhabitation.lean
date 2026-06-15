@@ -14,9 +14,9 @@ import TLT_Proofs.Tame.SingletonBadEventBorel
 # Inhabitation of the tempered design law root-contract obligation fields
 
 The root contract `TemperedDesignLawCertificate` bundles four legs of evidence, each a structure
-whose fields are abstract mathematical obligations over generic carriers.  This file shows the
-substantive obligation fields are inhabitable: for each one it proves the field's statement,
-specialized to a concrete landed witness object, from the corresponding landed theorem.
+whose fields are abstract mathematical obligations over generic carriers.  The substantive obligation
+fields are inhabitable: each field's statement is proved, specialized to a concrete witness object,
+from the corresponding theorem.
 
 The fields fall into three groups.
 
@@ -34,9 +34,9 @@ The fields fall into three groups.
   tempered attention is its hard route (`exact_positive_beta_witness`), and a runtime margin check
   certifies the executed route equals the hard route (`routeStableCheck`, `routeStableCheck_sound`).
 
-Two obligation fields are deliberately not inhabited here, because the mathematics they require is
-not yet a landed theorem: the hard statistical certificate (a generalization bound composed from the
-symbol-class arrangement capacity) and the expressivity grade (the depth/expert expressivity ladder).
+Two obligation fields remain open: the hard statistical certificate (a generalization bound composed
+from the symbol-class arrangement capacity) and the expressivity grade (the depth/expert expressivity
+ladder).
 -/
 
 open MeasureTheory Set
@@ -79,7 +79,7 @@ theorem hardTameEvent_measurable_witness :
   Tame.singletonBadEvent_measurable_of_sigmaCompact (g := (id : ℝ → ℝ)) continuous_id
 
 /-- **`hard_wild_nonBorel` inhabitation.**  Whenever the base score range is non-Borel, the depth-`L`
-base-up MoE cascade bad event is non-Borel — at every depth.  This inhabits the obligation field
+base-up MoE cascade bad event is non-Borel, at every depth.  This inhabits the obligation field
 `MeasurabilityCliffLeg.hard_wild_nonBorel`; the non-Borel hypothesis is exactly the one the
 attention non-Borel witness carries (classically, an analytic non-Borel subset of `ℝ`). -/
 theorem hardWildEvent_nonBorel_witness {β : Type} [TopologicalSpace β] [PolishSpace β]
@@ -90,7 +90,7 @@ theorem hardWildEvent_nonBorel_witness {β : Type} [TopologicalSpace β] [Polish
   fun h => h_non_borel ((Boundary.cascadeBadEvent_measurableSet_iff M L).mp h)
 
 /-- **`hard_wild_nullRepair` inhabitation.**  For every finite measure and every routing depth the
-cascade bad event is null-measurable — the non-Borel pathology is repaired by passing to the measure
+cascade bad event is null-measurable; the non-Borel pathology is repaired by passing to the measure
 completion.  This inhabits the obligation field `MeasurabilityCliffLeg.hard_wild_nullRepair`; no
 non-Borel hypothesis is needed, because analyticity alone drives the repair. -/
 theorem hardWildEvent_nullRepair_witness {β : Type} [TopologicalSpace β] [PolishSpace β]
@@ -142,7 +142,7 @@ theorem routeStableCheck_sound {X : Type*} [MeasurableSpace X] {k : ℕ}
     leastArgmax sExec hk = hardRoute A hk ρ x :=
   TD7_route_stable_proof A hk ρ x sExec b hb (of_decide_eq_true hcheck)
 
-/-! ## Capacity leg — the crossover-region fields
+/-! ## Capacity leg: the crossover-region fields
 
 The capacity profile's monotonicity, binding-side, and crossover fields are inhabited at a concrete
 pair of certificate shapes: a `β`-affine smooth certificate (the parameter-Lipschitz growth) and the
@@ -157,7 +157,7 @@ def hardWitness (symbolBound D γ : ℝ) (k : ℕ) : ℝ → ℝ :=
   fun β => symbolBound + ((k : ℝ) - 1) * Real.exp (-(β * γ)) * D
 
 /-- **`smooth_mono` inhabitation.**  The `β`-affine smooth certificate is monotone for nonnegative
-slope (strictly increasing for positive slope — a non-degenerate witness). -/
+slope (strictly increasing for positive slope, a non-degenerate witness). -/
 theorem smoothWitness_mono {base slope : ℝ} (hslope : 0 ≤ slope) :
     Monotone (smoothWitness base slope) := by
   intro a b hab
@@ -210,10 +210,10 @@ theorem hardWitness_binds_right {base slope symbolBound D γ : ℝ} {k : ℕ}
     _ = smoothWitness base slope betaStar := hcross.symm
     _ ≤ smoothWitness base slope β := smoothWitness_mono hslope hβ
 
-/-- **A concrete crossover genuinely exists.**  At a non-degenerate configuration (unit slope, two
-classes, unit leakage and margin) the smooth and hard certificates cross in `[0, 2]`: the sign
-hypotheses of `smoothWitness_hardWitness_crosses` are discharged at honest numbers, so the crossover
-field is inhabited unconditionally, not merely under assumption. -/
+/-- **A concrete crossover exists.**  At a non-degenerate configuration (unit slope, two classes, unit
+leakage and margin) the smooth and hard certificates cross in `[0, 2]`: the sign hypotheses of
+`smoothWitness_hardWitness_crosses` are discharged at explicit values, so the crossover field is
+inhabited unconditionally. -/
 theorem concrete_crossover_exists :
     ∃ betaStar ∈ Set.Icc (0 : ℝ) 2,
       smoothWitness 0 1 betaStar = hardWitness 1 1 1 2 betaStar := by
@@ -228,13 +228,13 @@ theorem concrete_crossover_exists :
     push_cast
     nlinarith [h]
 
-/-! ## Capacity leg — the smooth certificate and its β-monotone structure
+/-! ## Capacity leg: the smooth certificate and its β-monotone structure
 
 The soft (Dudley) certificate `smooth_cert : gap β ≤ smoothBound β` is the landed capacity bound
 `paramStack_empiricalCapacity_le_dudley` at the β-indexed tempered stack: `gap β` the genuine empirical
 capacity `empiricalCapacityReal R (fun θ x => ℓ (paramComp (Lsβ β) θ x)) S`, and `smoothBound β` the
 genuine Dudley entropy integral at the parameter-Lipschitz constant `Lℓ · paramLipBound (Lsβ β)`. Its
-β-monotonicity — the smooth certificate worsening with sharpness — reduces to the parameter-Lipschitz
+β-monotonicity (the smooth certificate worsening with sharpness) reduces to the parameter-Lipschitz
 bound being monotone in the per-layer moduli, established here for replicated stacks. The tempered
 stack is the instance: `temperedParamLayer` contributes `paramLip = 2·β·Ksθ·P + Kvθ` and
 `lip = 2·β·Ksy·P + Kvy`, both affine-increasing in `β`, so both telescoped bounds increase with `β`. -/
@@ -253,7 +253,7 @@ theorem inputLipProd_replicate_mono {Θ V : Type*} [PseudoMetricSpace Θ] [Pseud
 /-- **The smooth certificate's Lipschitz constant is monotone in the per-layer moduli.** The depth-`n`
 parameter-Lipschitz bound of a replicated layer increases when both per-layer moduli increase: deeper
 sharpness enlarges every layer's parameter and input modulus, hence the whole certificate constant
-`paramLipBound` — and so the Dudley `smoothBound`. -/
+`paramLipBound`, and so the Dudley `smoothBound`. -/
 theorem paramLipBound_replicate_mono {Θ V : Type*} [PseudoMetricSpace Θ] [PseudoMetricSpace V]
     (L L' : ParamLayer Θ V) (hp0 : 0 ≤ L.paramLip) (hp : L.paramLip ≤ L'.paramLip)
     (hlip0 : 0 ≤ L.lip) (hlip : L.lip ≤ L'.lip) (n : ℕ) :
@@ -270,7 +270,7 @@ Composing `dudleyCapBound_mono_L` (the bound grows with the parameter-Lipschitz 
 `paramLipBound_replicate_mono` (the depth-`n` telescope grows with the per-layer moduli): a depth-`n`
 replicated stack whose per-layer parameter and input moduli both increase pays a larger Dudley capacity
 price.  This is the `smooth_mono` mechanism for the genuine `dudleyCapBound` object, abstract over the
-layer family — instantiating `L`, `L'` at `temperedParamLayer β`, `temperedParamLayer β'` (whose moduli
+layer family, instantiating `L`, `L'` at `temperedParamLayer β`, `temperedParamLayer β'` (whose moduli
 `2βKsθP+Kvθ` and `2βKsyP+Kvy` increase with `β`) yields the sharpness-monotonicity of the tempered
 smooth certificate. -/
 theorem dudleyCapBound_paramLipBound_replicate_mono {Θ V : Type*}

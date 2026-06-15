@@ -6,13 +6,13 @@ Authors: Dhruv Gupta
 import TLT_Proofs.TemperedDesignLaw.LeakageLaw
 
 /-!
-# Float-symbol stability — the u-shell theorem (TD7)
+# Float-symbol stability: the u-shell theorem (TD7)
 
 The route label survives a per-coordinate score perturbation strictly below half the margin. The general
 fact is order-theoretic: if every executed score is within `b` of the exact score and `2·b < γ` (the
-top-minus-second margin), then the executed `leastArgmax` is the exact `leastArgmax`. Instantiated at the
-executed scores (the per-coordinate budget `b` from `rdotBudget`), this is the symbol channel as the
-carrier-tower fixed point — exact decision off the `u`-shell, no transcendental, kernel-decidable.
+top-minus-second margin), then the executed `leastArgmax` equals the exact `leastArgmax`. Instantiated at
+the executed scores (the per-coordinate budget `b` from `rdotBudget`), this gives the exact decision off
+the `u`-shell.
 -/
 
 open scoped BigOperators
@@ -45,7 +45,7 @@ theorem leastArgmax_stable_of_half_margin {k : ℕ} (s sExec : Fin k → ℝ) (h
       · exact (hkey j hj).le,
     fun j hjlt => hkey j (ne_of_lt hjlt)⟩
 
-/-- **TD7 — the executed route equals the ideal route off the u-shell.** Whenever the per-coordinate
+/-- **TD7: the executed route equals the ideal route off the u-shell.** Whenever the per-coordinate
 score budget `b` satisfies `2·b < γ`, the `leastArgmax` of any executed scores within `b` of the exact
 scores is the hard route. -/
 theorem TD7_route_stable_proof {X : Type u} [MeasurableSpace X] {k : ℕ}

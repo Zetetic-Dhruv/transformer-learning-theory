@@ -9,10 +9,9 @@ import TLT_Proofs.Routing.MeasurableScoreRouting
 # The finite-cell argmax router: an explicit Borel-cell partition
 
 The argmax router of a `FiniteScoreRouterCode` partitions its domain into the `k` cells
-`{x | i = argmax_j score(ρ, x, j)}` (least-index tie-break).  This file makes that cell
-structure explicit and **load-bearing** for measurability, realizing Krapp–Wirth §A.3's *"every
-definable set is a finite union of cells, and every cell is Borel"* (Lemma A.9) for measurable
-scores.
+`{x | i = argmax_j score(ρ, x, j)}` (least-index tie-break), realizing Krapp–Wirth §A.3's
+*"every definable set is a finite union of cells, and every cell is Borel"* (Lemma A.9) for
+measurable scores.
 
 The §A.3 chain `cells are Borel ⟹ routing is measurable ⟹ the patched class is well-behaved`
 is formalized as stated: `route_measurable_via_cells` derives joint route-measurability *from*
@@ -20,31 +19,30 @@ the named Borel cell `jointArgmaxCell`, and `finiteCellRouter_wellBehaved` close
 
 ## Main definitions
 
-* `FiniteScoreRouterCode.routeCell A ρ i` — the `i`-th argmax cell in the input space at a
+* `FiniteScoreRouterCode.routeCell A ρ i`: the `i`-th argmax cell in the input space at a
   fixed parameter `ρ` (the §A.3 input-domain partition).
-* `FiniteScoreRouterCode.jointArgmaxCell A i` — the `i`-th argmax cell in the joint
+* `FiniteScoreRouterCode.jointArgmaxCell A i`: the `i`-th argmax cell in the joint
   parameter–input space `Ρ × X`; the routing fiber, whose Borelness drives joint measurability.
 
 ## Main results
 
-* `routeCell_measurable`, `jointArgmaxCell_measurable` — each cell is Borel (a finite
+* `routeCell_measurable`, `jointArgmaxCell_measurable`: each cell is Borel (a finite
   intersection of the measurable score-inequalities `{sⱼ ≤ sᵢ}`, `{sⱼ < sᵢ}`).
-* `iUnion_routeCell`, `routeCell_disjoint`, `route_eq_on_routeCell` — the input-space cells
+* `iUnion_routeCell`, `routeCell_disjoint`, `route_eq_on_routeCell`: the input-space cells
   cover the domain, are pairwise disjoint, and the router is constant on each.
-* `route_measurable_via_cells` — joint route-measurability derived *from* the Borel cells.
-* `finiteCellRouter_wellBehaved` — the cell router's patched class satisfies
+* `route_measurable_via_cells`: joint route-measurability derived *from* the Borel cells.
+* `finiteCellRouter_wellBehaved`: the cell router's patched class satisfies
   `WellBehavedVCMeasTarget`, closed through the explicit cell partition.
 
 ## Scope
 
 For the measurability conclusion the measurable-score hypothesis carried by
 `FiniteScoreRouterCode.score_meas` is strictly more general than o-minimal definability:
-continuous score maps — every finite-dimensional transformer, and the ReLU/sigmoid networks of
-Krapp–Wirth Thm 4.7 — are in particular measurable, so their argmax cells are Borel by exactly
-the argument here.  The full model-theoretic apparatus (o-minimal structures, the Cell
+continuous score maps (every finite-dimensional transformer, and the ReLU/sigmoid networks of
+Krapp–Wirth Thm 4.7) are in particular measurable, so their argmax cells are Borel by exactly
+the argument here. The full model-theoretic apparatus (o-minimal structures, the Cell
 Decomposition Theorem, and Lemma A.9 in its definability-derives-measurability form) is a
-separate development, absent from Mathlib, and is deliberately **out of scope**; this file takes
-no new axioms.
+separate development, absent from Mathlib, and is deliberately **out of scope**.
 -/
 
 /-!
@@ -52,8 +50,6 @@ no new axioms.
 - [7] §A.3 cells / Lemma A.9 (every cell is Borel), Thm 4.7; [11] measurable selection
   (piecewise-constant on Borel cells); [14] finite-cell joint-measurability (cousin); standard
   product-σ-algebra measurability.
-- Provenance: Classical-instantiation (measurable-score realization of [7] §A.3; weakens the
-  hypothesis from o-minimal definability to measurability).
 -/
 
 universe u
@@ -70,7 +66,7 @@ def FiniteScoreRouterCode.routeCell (A : FiniteScoreRouterCode X k) (ρ : A.Ρ) 
     Set X :=
   {x | isLeastArgmax (A.score ρ x) i}
 
-/-- The cell is the finite intersection of the defining score-inequalities — the elementary
+/-- The cell is the finite intersection of the defining score-inequalities: the elementary
 "cell" shape (a Boolean combination of `≤`/`<` between coordinate scores). -/
 private lemma routeCell_eq_inter (A : FiniteScoreRouterCode X k) (ρ : A.Ρ) (i : Fin k) :
     A.routeCell ρ i =
@@ -127,10 +123,10 @@ theorem FiniteScoreRouterCode.routeCell_disjoint (A : FiniteScoreRouterCode X k)
 
 /-! ### Joint argmax cell and route measurability -/
 
-/-- The `i`-th argmax routing cell in the joint parameter–input space `Ρ × X`.  By
+/-- The `i`-th argmax routing cell in the joint parameter–input space `Ρ × X`. By
 `route_preimage_eq` this is the routing fiber `(route ρ)⁻¹{i}`; unlike the per-parameter
 `routeCell`, its Borelness yields *joint* route-measurability (separate measurability in each
-variable would not). -/
+variable would not suffice). -/
 def FiniteScoreRouterCode.jointArgmaxCell (A : FiniteScoreRouterCode X k) (i : Fin k) :
     Set (A.Ρ × X) :=
   {p | isLeastArgmax (A.score p.1 p.2) i}
@@ -154,8 +150,8 @@ theorem FiniteScoreRouterCode.jointArgmaxCell_measurable (A : FiniteScoreRouterC
     (MeasurableSet.biInter (Set.countable_univ.mono (Set.subset_univ _))
       fun j _ => measurableSet_lt (A.score_meas j) (A.score_meas i))
 
-/-- **Route-measurability through the cells.**  The argmax route is jointly measurable because
-each routing fiber is the Borel cell `jointArgmaxCell` — the §A.3 implication
+/-- **Route-measurability through the cells.** The argmax route is jointly measurable because
+each routing fiber is the Borel cell `jointArgmaxCell`; this is the §A.3 implication
 `finite union of Borel cells ⟹ measurable routing`, made explicit. -/
 theorem FiniteScoreRouterCode.route_measurable_via_cells (A : FiniteScoreRouterCode X k)
     (hk : 0 < k) : Measurable (fun p : A.Ρ × X => A.route hk p.1 p.2) := by

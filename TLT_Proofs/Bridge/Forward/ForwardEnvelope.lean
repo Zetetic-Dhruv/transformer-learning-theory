@@ -13,7 +13,7 @@ counterparts of the ideal layers `f_k ∘ ⋯ ∘ f_1`. This file propagates a *
 to a *network-level* envelope between the executed and ideal forward maps.
 
 Each layer is packaged as an `ExecLayer`, carrying its ideal map, its executed map, the Lipschitz
-constant `Λ` of the ideal map, and a uniform local rounding bound `δ` (`∀ y, dist (f̂ y) (f y) ≤ δ` —
+constant `Λ` of the ideal map, and a uniform local rounding bound `δ` (`∀ y, dist (f̂ y) (f y) ≤ δ`,
 the form supplied at the reduction level by `Fp32Reduction.ie32_foldl_closed_envelope`). Inserting
 `f_i(ŷ_{i-1})` and using the triangle inequality together with the Lipschitz bound gives the standard
 error recurrence
@@ -33,19 +33,18 @@ field records the corresponding constant; outside such a domain no finite envelo
 
 ## Main results
 
-- `ExecLayer` — a layer paired with its executed counterpart, its ideal Lipschitz constant, and a
+- `ExecLayer`: a layer paired with its executed counterpart, its ideal Lipschitz constant, and a
   uniform local rounding bound.
-- `idealComp` / `execComp` / `lipProd` / `envBound` — the ideal and executed compositions, the
+- `idealComp` / `execComp` / `lipProd` / `envBound`: the ideal and executed compositions, the
   Lipschitz-constant product, and the accumulated network envelope.
-- `execComp_envelope` — the executed forward is uniformly within `envBound` of the ideal forward.
-- `execComp_risk_transfer` — the executed expected risk is within `L · envBound` of the ideal.
+- `execComp_envelope`: the executed forward is uniformly within `envBound` of the ideal forward.
+- `execComp_risk_transfer`: the executed expected risk is within `L · envBound` of the ideal.
 -/
 
 /-!
 ## References
 - [38] quantized forward-error envelope `Δ=δ_m+∑(∏_{j>i}L_j)δ_i` (= `envBound`); [43] classical
   accumulated-rounding ancestor; [36] product-of-Lipschitz composition.
-- Provenance: Classical-instantiation (clean recursive Lean formalization of the [38]/[43] envelope).
 -/
 
 open MeasureTheory

@@ -10,7 +10,7 @@ import TLT_Proofs.Bridge.Lipschitz.SoftmaxJacobian
 
 The single-query attention output is the softmax-weighted combination of value vectors
 `attnOut s V c = ∑ⱼ softmax(s)ⱼ · V j c`, where `s` are the key scores and `V` the value matrix. Two
-Lipschitz estimates — one in the scores, one in the values — are the mathematical core of the
+Lipschitz estimates (one in the scores, one in the values) are the mathematical core of the
 attention layer's weight-Lipschitz constant: the scores are bilinear in the query/key weights and the
 values are linear in the value weights, so composing these with the linear layers yields the attention
 layer's `ParamLayer` constant.
@@ -19,7 +19,7 @@ layer's `ParamLayer` constant.
   so perturbing `V` moves the output by at most the perturbation.
 * In the **scores**, the output is Lipschitz with constant `2·nK·(bound on V)`: this is where the
   softmax Lipschitz constant enters (`softmax_lipschitz`), and the constant is *absolute* in the score
-  scale — the point established in `Softmax.lean`.
+  scale.
 
 ## References
 
@@ -55,7 +55,7 @@ theorem attnOut_values_bound [NeZero nK] (s : Fin nK → ℝ) (V V' : Fin nK →
     _ = bd := by rw [← Finset.sum_mul, softmax_sum_one s, one_mul]
 
 /-- **Attention is Lipschitz in the scores** with the *absolute* constant `2·bV` (per output
-coordinate, `bV` bounding the value entries) — **independent of the number of keys**. The score map
+coordinate, `bV` bounding the value entries), **independent of the number of keys**. The score map
 `z ↦ attnOut z V c = ∑ⱼ softmax(z)ⱼ Vⱼc` is the fixed linear readout `L ∘ softmax` with
 `L w = ∑ⱼ Vⱼc wⱼ`, so its score-gradient is the composition `L ∘ softmaxJac z`. The naïve product
 `‖L‖·‖softmaxJac z‖` would carry `∑ⱼ|Vⱼc| ≤ nK·bV`; but the composed operator has norm `≤ 2·bV`,
@@ -106,14 +106,14 @@ theorem attnOut_scores_bound [NeZero nK] (s s' : Fin nK → ℝ) (V : Fin nK →
     (fun z _ => (hderiv z).hasFDerivWithinAt) (fun z _ => hbound z) convex_univ
     (Set.mem_univ s') (Set.mem_univ s)
 
-/-- The single-query attention scores `s[k'] = ⟨Q, K_{k'}⟩ / scale` — bilinear in the query/key. -/
+/-- The single-query attention scores `s[k'] = ⟨Q, K_{k'}⟩ / scale`, bilinear in the query/key. -/
 noncomputable def attnScores (scale : ℝ) (Q : Fin d → ℝ) (K : Fin nK → Fin d → ℝ) :
     Fin nK → ℝ := fun k' => (∑ e, Q e * K k' e) / scale
 
 /-- **The scores are Lipschitz only on a bounded domain.** With query/key entries bounded by `B`, the
 bilinear score map is `dB/scale`-Lipschitz in `(Q,K)`. The constant is finite *only* because of the
-`B`-cap — the bilinear form has no global Lipschitz constant (Kim et al.), and the `B` is exactly the
-input cap `K = {‖x‖ ≤ B}` the certified bound already carries. -/
+`B`-cap; the bilinear form has no global Lipschitz constant (Kim et al.), and the `B` is exactly the
+input cap `K = {‖x‖ ≤ B}` the certified bound carries. -/
 theorem attnScores_dist_le {scale B : ℝ} (hscale : 0 < scale) (hB : 0 ≤ B)
     (Q Q' : Fin d → ℝ) (K K' : Fin nK → Fin d → ℝ)
     (hQ' : ∀ e, |Q' e| ≤ B) (hK : ∀ k' e, |K k' e| ≤ B) :
@@ -182,9 +182,9 @@ lemma attnVec_eq_sum_smul (s : Fin nK → ℝ) (V : Fin nK → Fin d → ℝ) :
   simp only [attnVec, attnOut, Finset.sum_apply, Pi.smul_apply, smul_eq_mul]
 
 /-- **Attention is forward-invariant on a norm ball.** The output is a convex combination of the value
-rows — the softmax weights are nonnegative and sum to one — so if every value row has norm `≤ B`, so
-does the attention output. This softmax-convexity is what makes attention a self-map of the ball, the
-forward-invariance hypothesis of the bounded-activation `ExecLayer`. -/
+rows (the softmax weights are nonneg and sum to one), so if every value row has norm `≤ B`, so
+does the attention output. This convexity is the forward-invariance hypothesis of the bounded-activation
+`ExecLayer`. -/
 lemma attnVec_norm_le [NeZero nK] (s : Fin nK → ℝ) (V : Fin nK → Fin d → ℝ) {B : ℝ}
     (hV : ∀ j, ‖V j‖ ≤ B) : ‖attnVec s V‖ ≤ B := by
   rw [attnVec_eq_sum_smul]
@@ -220,9 +220,8 @@ lemma attnVec_lipschitz_on_ball [NeZero nK] {scale B bV : ℝ} (hscale : 0 < sca
 
 /-- **Attention is `1`-Lipschitz in the value matrix (vector level), with the scores held fixed.** A
 convex combination of the value rows, so perturbing the values by `‖V − V'‖` moves the output by at
-most that — globally (no domain cap needed; the domain dependence lives only in the scores). This is
-the value-projection weight-Lipschitz atom: a learnable value projection enters attention only through
-the value matrix. -/
+most that, globally (no domain cap needed; the domain dependence lives only in the scores). A learnable
+value projection enters attention only through the value matrix. -/
 lemma attnVec_values_lipschitz [NeZero nK] (s : Fin nK → ℝ) (V V' : Fin nK → Fin d → ℝ) :
     dist (attnVec s V) (attnVec s V') ≤ ‖V - V'‖ := by
   refine (dist_pi_le_iff (norm_nonneg _)).mpr (fun c => ?_)

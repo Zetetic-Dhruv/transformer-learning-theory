@@ -23,7 +23,7 @@ independent of this ideal-to-executed wiring.
 
 ## Main results
 
-- `certified_executed_generalization` — with probability at least `1 − exp(−2ε²/(m·(2b/m)²))` over the
+- `certified_executed_generalization`: with probability at least `1 − exp(−2ε²/(m·(2b/m)²))` over the
   sample, the executed true risk is at most the executed empirical risk plus
   `2·capacity + ε + 2·Lℓ·envBound`.
 -/
@@ -31,8 +31,6 @@ independent of this ideal-to-executed wiring.
 /-!
 ## References
 - [18] McDiarmid tail; [19][54] Rademacher backbone; [25][26] uniform-capacity reduction.
-- Provenance: Innovation — the high-probability executed-model generalization bound (McDiarmid gap
-  + `2·L·envBound` in one bound). Concentration/Rademacher legs vendored/classical.
 -/
 
 open MeasureTheory

@@ -1,0 +1,63 @@
+/-
+Copyright (c) 2026 Dhruv Gupta. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Dhruv Gupta
+-/
+import TLT_Proofs.TemperedDesignLaw.MuxDepthLadderGeneral
+
+/-!
+# The constrained-cascade expressivity ladder as the certificate's expressivity witness
+
+The certificate's hard-tame leg requires an `ExpressivityLadder`: a depth/width-indexed realizable route
+grade that is monotone along the depth and width slices and carries a strict depth separation
+`grade L L ⊂ grade (L+1) (L+1)` for some `L`. A collapsed (constant) grade cannot inhabit the strict
+field, so the certificate type forces genuine expressivity growth.
+
+The constrained affine-mux cascade supplies the witness on the binary carrier `(Fin 1 → ℝ, Fin 2)`:
+`binaryExpressivityLadder` uses `MuxHierarchy.binCascadeGrade`, with the depth-monotone embedding
+`binCascadeGrade_succ_subset` and the strict separation `binCascadeGrade_ssubset_succ` (proper inclusion
+at every depth rung, via the one-dimensional linear-region calculus). `temperedDesignLawCertificate_binary`
+is the resulting certificate, fully closed except for the classical non-Borel base range.
+
+This module sits above the mux hierarchy, which itself imports the certificate; placing the witness here
+keeps the certificate foundation independent of the cascade construction it is parameterized by.
+-/
+
+open MeasureTheory Set
+
+noncomputable section
+
+namespace TLT.TemperedDesignLaw
+
+/-- **The constrained-cascade expressivity ladder** on the binary carrier `(Fin 1 → ℝ, Fin 2)`. The grade
+at depth `L` is `MuxHierarchy.binCascadeGrade 1 2 L` (routes realizable by a depth-`L` arity-2 affine-mux
+cascade), independent of the width index. The depth ladder is monotone by the identity-layer embedding
+`binCascadeGrade_succ_subset`; the strict separation `binCascadeGrade_ssubset_succ` makes the depth-`0`
+grade a proper subset of the depth-`1` grade, so the ladder is genuinely non-degenerate. -/
+def binaryExpressivityLadder : ExpressivityLadder (Fin 1 → ℝ) (Fin 2) where
+  grade := fun L _K => MuxHierarchy.binCascadeGrade 1 2 L (by norm_num)
+  monotone_depth :=
+    monotone_nat_of_le_succ fun _L => MuxHierarchy.binCascadeGrade_succ_subset (by norm_num)
+  monotone_width := fun _L => monotone_const
+  strict := ⟨0, MuxHierarchy.binCascadeGrade_ssubset_succ 0⟩
+
+/-- **A certificate at the binary carrier `(Fin 1 → ℝ, Fin 2)` with the strict expressivity separation
+discharged.** Every carried hypothesis is discharged from a landed theorem except the classical non-Borel
+base range: the gap bounds by `gapZero_satisfies_certs`, the statistical bound by `0 ≤ 1`, and the strict
+depth separation by `binaryExpressivityLadder` (whose `strict` field is `binCascadeGrade_ssubset_succ`).
+The certificate type's `expressivity_strict` field therefore carries genuine content here, not a trivial
+filler. -/
+def temperedDesignLawCertificate_binary
+    (ρ : (Bridge.attentionScoreRouter 1 2).Ρ)
+    {Bse : Type} [TopologicalSpace Bse] [PolishSpace Bse] [MeasurableSpace Bse] [BorelSpace Bse]
+    [StandardBorelSpace Bse] {width : ℕ}
+    (M : Boundary.BaseUpMoECascadeCode Bse width) (Ldepth : ℕ)
+    (hwild_nonBorel : ¬ MeasurableSet (Set.range M.g)) :
+    TemperedDesignLawCertificate
+      (temperedRegionData (Classical.choose concrete_crossover_exists)
+        (Classical.choose_spec concrete_crossover_exists).1)
+      GhostPairs1 (0 : Measure GhostPairs1) (Fin 1 → ℝ) (Fin 2) :=
+  temperedDesignLawCertificate_concrete 1 2 (by norm_num) ρ M Ldepth
+    binaryExpressivityLadder hwild_nonBorel
+
+end TLT.TemperedDesignLaw

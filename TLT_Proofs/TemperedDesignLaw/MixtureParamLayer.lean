@@ -12,16 +12,16 @@ import TLT_Proofs.Bridge.Lipschitz.ParameterPerturbationEnvelope
 Packaging the tempered mixture layer as a `ParamLayer` makes it a first-class citizen of the shipped
 parameter-perturbation machinery: a *stack* of tempered layers then inherits the depth-`L`
 parameter-Lipschitz bound `paramComp_param_lipschitz` (with `paramLipBound` the per-layer telescope), and
-through it the Dudley covering/capacity bound — with the sharpness `β` carried linearly in every per-layer
+through it the Dudley covering/capacity bound, with the sharpness `β` carried linearly in every per-layer
 constant.
 
-* `temperedParamLayer` — the constructor. From a score read and a payload read that are Lipschitz in *both*
+* `temperedParamLayer`: the constructor. From a score read and a payload read that are Lipschitz in *both*
   the parameter and the input (with a payload-size bound), it builds the `ParamLayer` whose two Lipschitz
   constants are `2·β·Ksθ·P + Kvθ` (parameter axis) and `2·β·Ksy·P + Kvy` (input axis). Both discharge by the
   per-layer modulus `temperedMixtureMap_param_dist_le`, read on the two currying axes.
 
 No new depth lemma is introduced: the depth bound is the shipped `paramComp_param_lipschitz` applied to a
-list of these layers. The sharpness scaling is the content — every constant is linear in `β`.
+list of these layers. Every constant is linear in `β`.
 -/
 
 open scoped BigOperators

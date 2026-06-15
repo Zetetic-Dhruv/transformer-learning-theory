@@ -11,22 +11,22 @@ import TLT_Proofs.TemperedDesignLaw.MarginTransport
 The tempered design law lives on a two-parameter square with four corners (ideal-soft, ideal-hard,
 float-soft, float-hard), two `u`-edges (real→float, the literal forward error), and two `β`-edges
 (soft→hard, the hardening envelope). The diagonal float-soft → ideal-hard is the triangle inequality over one
-`u`-edge and one `β`-edge — *trivial as geometry once both edges apply*. The content is the **region algebra**:
+`u`-edge and one `β`-edge (immediate geometry once both edges apply). The content is the **region algebra**:
 the region on which both edge envelopes are simultaneously valid, and that it is robustly non-empty.
 
-* `CornerRegion` — the corner polytope: the margin interior `{γ ≥ g}` (where the `β`-edge leakage law applies)
+* `CornerRegion`: the corner polytope, the margin interior `{γ ≥ g}` (where the `β`-edge leakage law applies)
   intersected with the clamp ball `closedBall c B` (where the `u`-edge float envelope applies).
-* `cornerRegion_closedBall_subset` — **robust non-emptiness**: a whole `δ`-ball around a point whose margin
+* `cornerRegion_closedBall_subset` (**robust non-emptiness**): a whole `δ`-ball around a point whose margin
   exceeds `g` by `2Ks·δ` lies inside `CornerRegion`, provided that ball sits in the clamp ball. The margin
-  half uses the shipped margin-transport `marginInterior_of_margin_slack` (the margin survives a `δ`-drift);
-  the clamp half is the triangle inequality. So the four-regime description holds not at an isolated point but
-  on an open neighbourhood — the parameter polytope is non-degenerate.
+  half uses `marginInterior_of_margin_slack` (the margin survives a `δ`-drift);
+  the clamp half is the triangle inequality. The four-regime description therefore holds on an open neighbourhood,
+  not at an isolated point.
 
-The diagonal bound `dist (floatSoft x) (idealHard x) ≤ uEdgeEnv + βEdgeEnv` on `CornerRegion` is then the
-triangle inequality over the two edges; and each corner's measurability status is a shipped theorem — the soft
-corners Borel (`softWitnessMargin_isKW`), the hard-tame corner Borel (`finiteCellRouter_wellBehaved`,
-`cascadeBadEvent_measurable_of_sigmaCompact`), the hard-wild corner analytic non-Borel (`temperatureCliff`).
-These are cited, not re-proved; the unification object is this region together with those statuses.
+The diagonal bound `dist (floatSoft x) (idealHard x) ≤ uEdgeEnv + βEdgeEnv` on `CornerRegion` is the
+triangle inequality over the two edges; the measurability status of each corner is: soft corners Borel
+(`softWitnessMargin_isKW`), hard-tame corner Borel (`finiteCellRouter_wellBehaved`,
+`cascadeBadEvent_measurable_of_sigmaCompact`), hard-wild corner analytic non-Borel (`temperatureCliff`).
+These facts are imported from the relevant modules; this region is the common domain on which they apply together.
 -/
 
 universe u

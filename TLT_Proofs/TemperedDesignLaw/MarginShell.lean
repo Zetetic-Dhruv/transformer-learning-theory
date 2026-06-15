@@ -6,26 +6,23 @@ Authors: Dhruv Gupta
 import TLT_Proofs.TemperedDesignLaw.Conjectures
 
 /-!
-# The margin-shell reduction — covering the boundary layer by pairwise score slabs
+# The margin-shell reduction: covering the boundary layer by pairwise score slabs
 
 The boundary layer `betaShell A hk ρ g` (inputs whose top-minus-second score margin is below `g`) is the
 region where the mixture leakage is not yet exponentially small and the executed route may differ from the
-ideal. This file reduces *shell mass* to *per-slab volume* in three exact steps, each carrying no analytic
-hypothesis:
+ideal. Reducing shell mass to per-slab volume proceeds in three exact steps, each without analytic hypotheses:
 
-* **Pointwise certificate** (`exists_close_pair_of_mem_betaShell`): every shell input has a *witnessed*
-  ordered pair `(i, j)` — the score-maximizer `i` and a near-second index `j` — with `i` dominating `j` by
-  strictly less than `g`. The membership test is the comparison of two scores, so shell membership is a
-  decidable per-input certificate even though shell *mass* is analytic.
+* **Pointwise certificate** (`exists_close_pair_of_mem_betaShell`): every shell input has a witnessed
+  ordered pair `(i, j)` (the score-maximizer `i` and a near-second index `j`) with `i` dominating `j` by
+  strictly less than `g`. Shell membership is a decidable per-input certificate: a comparison of two scores.
 * **Set cover** (`betaShell_subset_biUnion_pairSlab`): the shell is contained in the finite union of the
   `k·(k−1)` off-diagonal directed slabs `pairSlab`.
-* **Abstract mass bound** (`measure_betaShell_le_sum_pairSlab`): for *any* measure on the input space, the
-  shell mass is at most the sum of the slab masses — finite subadditivity over the cover, requiring no
-  measurability of the sets.
+* **Abstract mass bound** (`measure_betaShell_le_sum_pairSlab`): for any measure on the input space, the
+  shell mass is at most the sum of the slab masses; finite subadditivity over the cover, with no
+  measurability hypothesis.
 
-The remaining factor — bounding each slab mass `μ (pairSlab A ρ g i j)` by a density ceiling times the slab
-width `g` divided by the score-difference gradient norm — is the analytic step under a density-bounded law,
-developed downstream. These three reductions are the geometry-free core it composes with.
+Bounding each slab mass `μ (pairSlab A ρ g i j)` by a density ceiling times the slab width `g` divided by
+the score-difference gradient norm is the analytic step under a density-bounded law, developed downstream.
 -/
 
 open scoped BigOperators
@@ -38,9 +35,9 @@ noncomputable section
 namespace TLT.TemperedDesignLaw
 
 /-- **The directed score slab** for an ordered pair `(i, j)`: the inputs where head `i`'s score dominates
-head `j`'s (`score j ≤ score i`) by strictly less than `g`. This is the one-sided slab the shell actually
-lands in — sharper than the absolute band `|score i − score j| < g` — because on the shell the maximizer
-dominates its near-second by a small gap. The geometric primitive the boundary layer decomposes into. -/
+head `j`'s (`score j ≤ score i`) by strictly less than `g`. This is the one-sided slab the shell lands in,
+sharper than the absolute band `|score i − score j| < g`, because on the shell the maximizer dominates its
+near-second by a small gap. The geometric primitive the boundary layer decomposes into. -/
 def pairSlab {X : Type u} [MeasurableSpace X] {k : ℕ} (A : TemperedRouterFamily X k)
     (ρ : A.router.Ρ) (g : ℝ) (i j : Fin k) : Set X :=
   {x | A.router.score ρ x j ≤ A.router.score ρ x i ∧
@@ -48,8 +45,8 @@ def pairSlab {X : Type u} [MeasurableSpace X] {k : ℕ} (A : TemperedRouterFamil
 
 /-- **The pointwise shell certificate.** With at least two heads (`2 ≤ k`, the regime where a second score
 exists), every shell input `x` carries a witnessed ordered pair `(i, j)`: the score-maximizer `i`
-dominates a near-second index `j` (`score j ≤ score i`) by strictly less than the shell radius `g`. The
-per-input certificate behind the cover — a comparison of two scores, hence decidable. -/
+dominates a near-second index `j` (`score j ≤ score i`) by strictly less than the shell radius `g`.
+The per-input certificate is a comparison of two scores, hence decidable. -/
 theorem exists_close_pair_of_mem_betaShell {X : Type u} [MeasurableSpace X] {k : ℕ}
     (A : TemperedRouterFamily X k) (hk : 0 < k) (hk2 : 2 ≤ k) (ρ : A.router.Ρ) {g : ℝ} {x : X}
     (hx : x ∈ betaShell A hk ρ g) :
@@ -80,10 +77,10 @@ theorem betaShell_subset_biUnion_pairSlab {X : Type u} [MeasurableSpace X] {k : 
   exact Set.mem_iUnion₂.mpr
     ⟨(i, j), Finset.mem_offDiag.mpr ⟨Finset.mem_univ _, Finset.mem_univ _, hij⟩, hji, hlt⟩
 
-/-- **The abstract shell-mass bound.** For *any* measure on the input space, the boundary-layer mass is at
-most the sum of the off-diagonal slab masses — finite subadditivity over the cover, with no measurability
-hypothesis. This is the union bound that reduces shell mass to per-slab volume (the latter bounded, under a
-density-bounded law, by the density ceiling times `g` over the score-difference gradient norm, downstream). -/
+/-- **The abstract shell-mass bound.** For any measure on the input space, the boundary-layer mass is at
+most the sum of the off-diagonal slab masses (finite subadditivity over the cover, with no measurability
+hypothesis). Under a density-bounded law each slab mass is bounded by the density ceiling times `g` over
+the score-difference gradient norm. -/
 theorem measure_betaShell_le_sum_pairSlab {X : Type u} [MeasurableSpace X] {k : ℕ}
     (A : TemperedRouterFamily X k) (hk : 0 < k) (hk2 : 2 ≤ k) (ρ : A.router.Ρ) (g : ℝ)
     (μ : Measure X) :

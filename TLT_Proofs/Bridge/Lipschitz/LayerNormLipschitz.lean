@@ -12,24 +12,23 @@ import Mathlib.Algebra.Order.Chebyshev
 Layer normalization centers each row, divides by the regularized standard deviation
 `σ = √(var + ε)`, and applies an affine `γ, β`. With the verified positive regularizer `ε`
 (`Numbers.epsilon = 1e-6`) flooring the standard deviation at `√ε`, the map is **globally** Lipschitz
-in the input — unlike self-attention, which is Lipschitz only on a bounded domain.
+in the input, unlike self-attention, which is Lipschitz only on a bounded domain.
 
 The constant is `(sup|γ|)·(2√d + 2)/√ε`. The crux is that the standard deviation is globally
 `2`-Lipschitz: `|var X − var Y| ≤ 2·dist(X,Y)·(σ_X + σ_Y)`, and the `(σ_X + σ_Y)` cancels against the
-`√` difference quotient, so no `ε`/`d` blowup appears there — the `1/√ε` enters only through the final
+`√` difference quotient, so no `ε`/`d` blowup appears there; the `1/√ε` enters only through the final
 `1/σ ≤ 1/√ε` quotient. The normalized output is bounded by `√d` (`aⱼ² ≤ ∑ₖ aₖ² = d·var ≤ d·σ²`).
 
 ## Main results
 
-- `rowStdCoord_dist_le` — the per-row standard deviation is `2`-Lipschitz in the input.
-- `layerNormCoord_lipschitz` — layer normalization is `(sup|γ|)·(2√d + 2)/√ε`-Lipschitz.
+- `rowStdCoord_dist_le`: the per-row standard deviation is `2`-Lipschitz in the input.
+- `layerNormCoord_lipschitz`: layer normalization is `(sup|γ|)·(2√d + 2)/√ε`-Lipschitz.
 -/
 
 /-!
 ## References
 - [28] LayerNorm; [37] globally Lipschitz / √d output bound (ellipsoid∩hyperplane); LayerNorm-
   Lipschitz `≤ 1/σ ≤ 1/√ε` (normalization-layer literature); std 2-Lipschitz, variance-perturbation.
-- Provenance: Classical-instantiation (explicit verified-constant assembly of standard facts).
 -/
 
 open scoped BigOperators
@@ -129,7 +128,7 @@ lemma sum_abs_centered_le (hd : 0 < d) (i : Fin s) (X : Fin s → Fin d → ℝ)
     _ ≤ Real.sqrt (((d : ℝ) * rowStdCoord i X) ^ 2) := Real.sqrt_le_sqrt hsq
     _ = (d : ℝ) * rowStdCoord i X := Real.sqrt_sq (by positivity)
 
-/-- The variance difference is controlled by `2·dist·(σ_X + σ_Y)` — the factor that cancels the `√`
+/-- The variance difference is controlled by `2·dist·(σ_X + σ_Y)`, the factor that cancels the `√`
 difference quotient. -/
 lemma rowVarCoord_dist_le (hd : 0 < d) (i : Fin s) (X Y : Fin s → Fin d → ℝ) :
     |rowVarCoord i X - rowVarCoord i Y|
@@ -202,7 +201,7 @@ lemma normalized_diff_bound {aX aY σX σY sd ε D : ℝ} (hσX : 0 < σX) (hσY
     _ = (2 * sd + 2) / ε * D := by ring
 
 /-- **Layer normalization is globally Lipschitz.** With `Cγ` an upper bound on `|γ|`, the coordinate
-layer-norm map is `Cγ·(2√d + 2)/√ε`-Lipschitz in the input — a finite global constant, in contrast to
+layer-norm map is `Cγ·(2√d + 2)/√ε`-Lipschitz in the input, a finite global constant in contrast to
 self-attention. The `√ε` is the verified regularizer's square-root floor on the standard deviation. -/
 theorem layerNormCoord_lipschitz (hd : 0 < d) (γ β : Fin d → ℝ) {Cγ : ℝ} (hCγ : ∀ j, |γ j| ≤ Cγ)
     (X Y : Fin s → Fin d → ℝ) :

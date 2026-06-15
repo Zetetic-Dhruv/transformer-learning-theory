@@ -13,13 +13,13 @@ The soft mixture output and the hard one-hot output (the payload at the route) d
 off-route weighted payload deviation. Centering the payloads at the route, the route term vanishes and the
 gap is controlled by the off-route mass times the payload diameter:
 
-* `norm_mixtureOutput_sub_payload_le` — the carrier-agnostic core: for any sub-probability weights summing
-  to one and a payload-diameter bound `D`, `‖mixtureOutput w val − val r‖ ≤ (Σ_{i≠r} wᵢ) · D`.
-* `softMixture_sub_hardPayload_le` — the router form: the soft mixture is within `offRouteMass · D` of the
-  hard payload at the route.
-* `softMixture_sub_hardPayload_le_exp` — the β-hardening: chaining the leakage bound (`TD2`), the gap is at
-  most `(k−1)·exp(−β·γ)·D`, decaying margin-exponentially in the sharpness. As `β → ∞` the soft layer
-  collapses to the hard route — the per-layer envelope of the depth-`L` hardening telescope.
+* `norm_mixtureOutput_sub_payload_le`: for any sub-probability weights summing to one and a
+  payload-diameter bound `D`, `‖mixtureOutput w val − val r‖ ≤ (Σ_{i≠r} wᵢ) · D`.
+* `softMixture_sub_hardPayload_le`: the soft mixture is within `offRouteMass · D` of the hard payload
+  at the route.
+* `softMixture_sub_hardPayload_le_exp`: chaining the leakage bound (`TD2`), the gap is at most
+  `(k−1)·exp(−β·γ)·D`, decaying margin-exponentially in the sharpness. As `β → ∞` the soft layer
+  collapses to the hard route, giving the per-layer envelope of the depth-`L` hardening telescope.
 
 This is the `β`-edge counterpart of the rounding envelope: the per-layer closeness the executed-layer
 telescope (`execComp_envelope`) composes into the depth bound, with `β` playing the role of precision.
@@ -34,8 +34,8 @@ noncomputable section
 namespace TLT.TemperedDesignLaw
 
 /-- **The carrier-agnostic hardening core.** With nonnegative weights summing to one and a payload-diameter
-bound `‖valᵢ − val_r‖ ≤ D`, the mixture output is within `(Σ_{i≠r} wᵢ) · D` of the route payload `val r`:
-centering the payloads at `r`, the route term cancels and only the off-route mass survives. -/
+bound `‖valᵢ − val_r‖ ≤ D`, the mixture output is within `(Σ_{i≠r} wᵢ) · D` of the route payload `val r`.
+Centering the payloads at `r`, the route term cancels and only the off-route mass survives. -/
 theorem norm_mixtureOutput_sub_payload_le {k : ℕ} {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V]
     (w : Fin k → ℝ) (val : Fin k → V) (r : Fin k) {D : ℝ}
     (hwnn : ∀ i, 0 ≤ w i) (hwsum : ∑ i, w i = 1) (hD : ∀ i, ‖val i - val r‖ ≤ D) :
@@ -60,8 +60,8 @@ theorem norm_mixtureOutput_sub_payload_le {k : ℕ} {V : Type*} [NormedAddCommGr
   exact mul_le_mul_of_nonneg_left (hD i) (hwnn i)
 
 /-- **The router hardening closeness.** The soft mixture output is within `offRouteMass · D` of the hard
-payload `val (hardRoute)`: the carrier-agnostic core with the softmax weights (nonnegative, summing to
-one). -/
+payload `val (hardRoute)`, applying the carrier-agnostic core with the softmax weights (nonnegative, summing
+to one). -/
 theorem softMixture_sub_hardPayload_le {X : Type u} [MeasurableSpace X] {k : ℕ} [NeZero k]
     {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V]
     (A : TemperedRouterFamily X k) (hk : 0 < k) (ρ : A.router.Ρ) (x : X) (val : Fin k → V) {D : ℝ}
@@ -76,7 +76,7 @@ theorem softMixture_sub_hardPayload_le {X : Type u} [MeasurableSpace X] {k : ℕ
 
 /-- **The β-hardening per-layer envelope.** Chaining the leakage bound (`TD2`), the soft–hard gap decays
 margin-exponentially in the sharpness: `‖soft − hard‖ ≤ (k−1)·exp(−β·γ)·D`. As `β → ∞` the soft layer
-collapses to the hard route — the per-layer envelope of the hardening telescope. -/
+collapses to the hard route; this bound is the per-layer envelope of the hardening telescope. -/
 theorem softMixture_sub_hardPayload_le_exp {X : Type u} [MeasurableSpace X] {k : ℕ} [NeZero k]
     {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V]
     (A : TemperedRouterFamily X k) (hk : 0 < k) (ρ : A.router.Ρ) (x : X) (val : Fin k → V) {D : ℝ}

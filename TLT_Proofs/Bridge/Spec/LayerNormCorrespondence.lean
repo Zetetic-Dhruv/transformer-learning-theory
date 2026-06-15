@@ -16,8 +16,6 @@ import Mathlib.Data.Real.Basic
 - [28] LayerNorm (mean/std/gain/bias); [27] §3.1 use site; PyTorch `nn.LayerNorm` ε-form; [52]
   König–Huygens variance identity; [53] `Spec.layerNorm`, reduce ops; standard measurability of
   unguarded division.
-- Provenance: Vendored-glue (literal LayerNorm = `layerNormCoordEps`; measurability is
-  regularizer-free, continuity is ε-gated — standard real analysis, not an innovation).
 -/
 open Spec Spec.Tensor
 open TLT
@@ -402,12 +400,12 @@ private lemma matCoords_centered_eq {sq em : ℕ}
   funext i' k
   simp only [matCoords, get2_subSpec, get2_broadcast_row, reduceMeanLastGeneralWf_vecGet]
 
-/-- **The layer-norm coordinate bridge.** Entry `(i, j)` of the literal spec op-tree
+/-- **Layer-norm coordinate correspondence.** Entry `(i, j)` of the literal spec op-tree
 `Spec.layerNorm` equals the coordinate model `layerNormCoordEps`:
 `(Xᵢⱼ − meanᵢ)/√(max(varᵢ, 0) + ε)·γⱼ + βⱼ`, where `meanᵢ`/`varᵢ` are the per-row statistics of
 `matCoords Y`. Centering before the variance makes the std vector reconcile to `rowStdCoordEps`
-(the centered-row variance equals the raw-row variance). This is the bridge that transports
-continuity and measurability of the coordinate model to the literal layer-norm operation. -/
+(the centered-row variance equals the raw-row variance). Continuity and measurability of the
+coordinate model therefore lift to the literal layer-norm operation. -/
 theorem get2_layerNorm {sq em : ℕ} (Y : Tensor ℝ (.dim sq (.dim em .scalar)))
     (γ β : Tensor ℝ (.dim em .scalar)) (hseq : sq > 0) (hemb : em > 0) (ε : ℝ) (hε : 0 ≤ ε)
     (i : Fin sq) (j : Fin em) :
@@ -433,7 +431,7 @@ private lemma matCoords_matrixTensor {m n : ℕ} (X : Fin m → Fin n → ℝ) :
 
 /-- The coordinate layer-normalization map with regularizer `ε` is continuous whenever `ε > 0`: the
 denominator `rowStdCoordEps ε i X = √(max(varᵢ, 0) + ε) ≥ √ε > 0` never vanishes. (At `ε = 0` it is
-only measurable, not continuous — the division is unguarded at the constant-input locus.) -/
+only measurable, not continuous; the division is unguarded at the constant-input locus.) -/
 theorem continuous_layerNormCoordEps {s d : ℕ} (ε : ℝ) (hε : 0 < ε) (γ β : Fin d → ℝ) :
     Continuous (layerNormCoordEps (s := s) ε γ β) := by
   unfold layerNormCoordEps
@@ -464,9 +462,9 @@ theorem measurable_matCoords_layerNorm {sq em : ℕ} (γ β : Tensor ℝ (.dim e
   rw [matCoords_layerNorm_eq γ β hseq hemb ε hε]
   exact measurable_layerNormCoordEps ε _ _
 
-/-- **The literal layer-norm op is continuous for every strict regularizer `ε > 0`.** Mirrors
-`measurable_matCoords_layerNorm`: continuity is the regularizer-gated property (the denominator is
-bounded away from zero by `√ε`), measurability is the regularizer-free invariant. -/
+/-- **The literal layer-norm op is continuous for every strict regularizer `ε > 0`.** Continuity is
+the regularizer-gated property (the denominator is bounded away from zero by `√ε`), while
+measurability (`measurable_matCoords_layerNorm`) is the regularizer-free invariant. -/
 theorem continuous_matCoords_layerNorm {sq em : ℕ} (γ β : Tensor ℝ (.dim em .scalar))
     (hseq : sq > 0) (hemb : em > 0) (ε : ℝ) (hε : 0 < ε) :
     Continuous (fun X : Fin sq → Fin em → ℝ =>

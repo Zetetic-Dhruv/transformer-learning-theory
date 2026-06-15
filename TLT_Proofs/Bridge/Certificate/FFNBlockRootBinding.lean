@@ -24,7 +24,7 @@ open TLT TLT.Fp32FFNLit TLT.Fp32FFN TLT.Fp32FFNBias TLT.Fp32LN TLT.FullBlockLit 
 
 noncomputable section
 
-/-- **The ∀-input executed FFN** — a `gridExt` instance: the literal `IEEE32Exec` feed-forward
+/-- **The ∀-input executed FFN**, a `gridExt` instance: the literal `IEEE32Exec` feed-forward
 `ffnExecLit ∘ matrixTensor` on the finite fp32 grid `inputs`, and the ideal `ffnCoord` (on the
 `toReal`-read weights) off it. The FFN analogue of the attention `gridExec`. -/
 def gridExecFFN {n d h : ℕ} (B : ℝ) (ffn : Spec.FeedForward d h IEEE32Exec)
@@ -54,8 +54,8 @@ lemma gridExecFFN_onball_error {n d h : ℕ} (B : ℝ) (ffn : Spec.FeedForward d
   rwa [clampCoord_eq_of_norm_le hy] at h
 
 /-- **The executed FFN residual+LayerNorm block forward error** (parametric in the LayerNorm budget).
-The executed block `lnStarExec γ β meanE stdE (X + gridExecFFN X)` — literal `IEEE32Exec` feed-forward in
-the residual, ℝ-model LayerNorm on top — is within `ln_budget + Λ_ln · rnd` of the ideal block
+The executed block `lnStarExec γ β meanE stdE (X + gridExecFFN X)` (literal `IEEE32Exec` feed-forward in
+the residual, ℝ-model LayerNorm on top) is within `ln_budget + Λ_ln · rnd` of the ideal block
 `layerNormCoord γ β (X + ffnCoord X)`, on the ball. Assembled from the bit-level FFN sub-error
 (`gridExecFFN_onball_error`, discharged by `ffnLiteral_forward_error`) and the residual telescope
 (`residual_block_forward_error`); the residual `+X` cancels in the LayerNorm-input distance. -/
@@ -80,10 +80,10 @@ lemma ffnBlockExec_forward_error {n d h : ℕ} (B : ℝ) (ffn : Spec.FeedForward
     (ffnCoord (tReal2 ffn.W1) (tReal1 ffn.b1) (tReal2 ffn.W2) (tReal1 ffn.b2) X) hΛ_ln
     (gridExecFFN_onball_error B ffn inputs hrnd hregime hinj X hX) hln hlnlip
 
-/-- **The FFN block carrier `hrnd`** — the ∀-input forward error against the ideal FFN residual block
+/-- **The FFN block carrier `hrnd`**: the ∀-input forward error against the ideal FFN residual block
 `normAttnCoord γ β (ffnCoord …)`. Precomposing the executed block with `clampCoord B` lands every input
 in the ball, where `ffnBlockExec_forward_error` applies. Unlike the attention block, the ideal is the FFN
-directly — no `multiHeadAttn` reconciliation. -/
+directly, with no `multiHeadAttn` reconciliation. -/
 lemma ffnBlockRoot_hrnd {n d h : ℕ} (B : ℝ) (ffn : Spec.FeedForward d h IEEE32Exec) (hB : 0 ≤ B)
     (inputs : Finset (Fin n → Fin d → IEEE32Exec)) {rnd : ℝ} (hrnd : 0 ≤ rnd)
     (hregime : ∀ Xt ∈ inputs, dist (ffnExecLit ffn (Spec.matrixTensor Xt))
@@ -110,13 +110,13 @@ lemma ffnBlockRoot_hrnd {n d h : ℕ} (B : ℝ) (ffn : Spec.FeedForward d h IEEE
     (meanOf (clampCoord B x)) (stdOf (clampCoord B x)) (clampCoord B x) hxb hΛ_ln
     (hln (clampCoord B x) hxb) hlnlip
 
-/-- **The literal FFN BLOCK carrier** — the `Es`-ready ambient `ExecLayer` whose executed map is the
+/-- **The literal FFN BLOCK carrier**: the `Es`-ready ambient `ExecLayer` whose executed map is the
 bit-level `IEEE32Exec` feed-forward block (`lnStarExec(· + gridExecFFN ·)` clamp-precomposed) and whose
 forward error against the ideal `normFFNBlock`-style block is the closed `ln_budget + Λ_ln · ffn_rnd`.
-The FFN sublayer is genuinely bound to `Spec.FeedForward.forward` (via `gridExecFFN`/`ffnExecLit`,
+The FFN sublayer is bound to `Spec.FeedForward.forward` (via `gridExecFFN`/`ffnExecLit`,
 `hregime` discharged by `ffnLiteral_forward_error`); the LayerNorm rides on top as ℝ-model
-(`ln_budget`/reductions discharged downstream — the same deferred gap as the attention block). This is
-the FFN half of the transformer-block ROOT binding, ready to plug as `Es` into the shipped capstone. -/
+(`ln_budget`/reductions discharged downstream, the same deferred gap as the attention block). This is
+the FFN half of the transformer-block root binding, ready to plug as `Es` into the shipped capstone. -/
 noncomputable def ffnBlockRootExecLayer {n d h : ℕ} (hd : 0 < d) {Cγ Cβ Lf : ℝ} (hLf0 : 0 ≤ Lf)
     (ffn : Spec.FeedForward d h IEEE32Exec) (γ β : Fin d → ℝ)
     (hCγ : ∀ j, |γ j| ≤ Cγ) (hCβ : ∀ j, |β j| ≤ Cβ)

@@ -12,7 +12,7 @@ import TLT_Proofs.Bridge.Lipschitz.LayerNormLipschitz
 
 `ExecLayer.ideal_lip` is a *global* Lipschitz field: `∀ a b, dist (ideal a) (ideal b) ≤ lip · dist a b`.
 Dot-product self-attention has no global Lipschitz constant (its score map is bilinear, so the
-Jacobian is unbounded — Kim, Papamakarios and Mnih, ICML 2021), so attention cannot be an `ExecLayer`
+Jacobian is unbounded; Kim, Papamakarios and Mnih, ICML 2021), so attention cannot be an `ExecLayer`
 over an unbounded activation space.
 
 The resolution carries the input cap in the *type*. A layer that is forward-invariant on a bounded
@@ -24,7 +24,7 @@ applies verbatim with `V := ↥D`.
 
 ## Main results
 
-- `execLayerOfForwardInvariant` — the bounded-activation `ExecLayer` constructor: on-`D` data
+- `execLayerOfForwardInvariant`: the bounded-activation `ExecLayer` constructor; on-`D` data
   (invariance + Lipschitz + rounding) yields a global `ExecLayer (↥D)`.
 
 ## References
@@ -38,7 +38,7 @@ namespace TLT
 and executed maps are forward-invariant (`hidealinv`, `hexecinv`), the ideal map is `lip`-Lipschitz
 (`hlipD`), and the executed map is within `rnd` of the ideal (`hrndD`), the pair is a genuine
 `ExecLayer` over the metric subtype `↥D`. Because the subtype distance is the ambient distance, the
-*global* `ideal_lip` field of the resulting layer is precisely the on-`D` Lipschitz estimate — this is
+*global* `ideal_lip` field of the resulting layer is precisely the on-`D` Lipschitz estimate, which is
 what lets a map that is Lipschitz only on a ball (such as attention; Kim et al. 2021) serve as a
 certificate-side layer. -/
 def execLayerOfForwardInvariant {E : Type*} [PseudoMetricSpace E] (D : Set E)
@@ -60,7 +60,7 @@ def execLayerOfForwardInvariant {E : Type*} [PseudoMetricSpace E] (D : Set E)
 Single-head dot-product self-attention with identity projections, presented as a self-map of the
 token-matrix space, demonstrates the constructor end-to-end: it is forward-invariant on the
 supremum-norm ball (softmax-convexity) and Lipschitz on that ball (the score map is bilinear, hence
-Lipschitz only with the ball cap — Kim et al.), so it is a genuine `ExecLayer` over the ball even
+Lipschitz only with the ball cap (Kim et al.), so it is a genuine `ExecLayer` over the ball even
 though it has no global Lipschitz constant. -/
 
 section SelfAttention
@@ -82,7 +82,7 @@ lemma selfAttn_forward_invariant [NeZero n] {scale B : ℝ} (X : Fin n → Fin d
 
 /-- **Self-attention is Lipschitz on the supremum-norm ball.** The bilinear score map is Lipschitz
 only under the ball cap (Kim et al. 2021); on the radius-`B` ball the self-attention self-map has the
-explicit constant `4·n·d·B²/scale + 1` — finite precisely because of the cap. -/
+explicit constant `4·n·d·B²/scale + 1`, finite precisely because of the cap. -/
 lemma selfAttn_lipschitz_on_ball [NeZero n] {scale B : ℝ} (hscale : 0 < scale) (hB : 0 ≤ B)
     (X X' : Fin n → Fin d → ℝ) (hX : ∀ i, ‖X i‖ ≤ B) (hX' : ∀ i, ‖X' i‖ ≤ B) :
     ‖selfAttn scale X - selfAttn scale X'‖
@@ -111,10 +111,10 @@ lemma selfAttn_lipschitz_on_ball [NeZero n] {scale B : ℝ} (hscale : 0 < scale)
 
 /-- **Self-attention is a bounded-activation `ExecLayer`.** Dot-product self-attention has no global
 Lipschitz constant, yet on the radius-`B` ball it is forward-invariant (softmax-convexity) and
-Lipschitz (constant `4·n·d·B²/scale + 1`); so — via `execLayerOfForwardInvariant` — it is a genuine
+Lipschitz (constant `4·n·d·B²/scale + 1`); via `execLayerOfForwardInvariant` it is a genuine
 `ExecLayer` over the ball `↥(closedBall 0 B)`, ready to sit in the certificate-side layer list of the
 generalization capstone. The executed (rounded) map, its forward-invariance, and its uniform on-ball
-rounding bound `rnd` are supplied as data — the float32 instantiation provides them. -/
+rounding bound `rnd` are supplied as data; the float32 instantiation provides them. -/
 noncomputable def selfAttnExecLayer [NeZero n] {scale B : ℝ} (hscale : 0 < scale) (hB : 0 ≤ B)
     (execMap : (Fin n → Fin d → ℝ) → (Fin n → Fin d → ℝ)) (rnd : ℝ)
     (hexecinv : ∀ X ∈ Metric.closedBall (0 : Fin n → Fin d → ℝ) B, execMap X ∈ Metric.closedBall 0 B)
@@ -144,7 +144,7 @@ end SelfAttention
 
 Layer normalization maps the whole activation space into the ball of radius `√d·Cγ + Cβ`
 (`layerNormCoord_norm_le`) and is globally Lipschitz there (`layerNormCoord_lipschitz`), so it is an
-`ExecLayer` over that ball — the *same* kind of bounded domain on which self-attention lives. This is
+`ExecLayer` over that ball, the same kind of bounded domain on which self-attention lives. This is
 what re-establishes a forward-invariant activation domain after norm-growing linear maps, and lets a
 layer-norm-terminated block be a self-map of one fixed activation ball. -/
 
@@ -152,8 +152,8 @@ section LayerNorm
 
 variable {s d : ℕ}
 
-/-- **Layer normalization is a bounded-activation `ExecLayer`.** Over `↥(closedBall 0 (√d·Cγ+Cβ))` —
-forward-invariance from `layerNormCoord_norm_le`, the `Cγ·(2√d+2)/√ε` Lipschitz constant from
+/-- **Layer normalization is a bounded-activation `ExecLayer`.** Over `↥(closedBall 0 (√d·Cγ+Cβ))`,
+with forward-invariance from `layerNormCoord_norm_le` and the `Cγ·(2√d+2)/√ε` Lipschitz constant from
 `layerNormCoord_lipschitz`. The executed (rounded) map and its uniform rounding bound are supplied as
 data. -/
 noncomputable def layerNormExecLayer (hd : 0 < d) (γ β : Fin d → ℝ) {Cγ Cβ : ℝ}
@@ -180,10 +180,10 @@ end LayerNorm
 /-! ### The coordinatewise clamp onto the activation ball
 
 In the supremum norm the metric projection onto the ball `{‖x‖ ≤ B}` is the coordinatewise clamp onto
-`[-B, B]`. It is `1`-Lipschitz, lands in the ball, and is the identity on the ball — so a network that
+`[-B, B]`. It is `1`-Lipschitz, lands in the ball, and is the identity on the ball; so a network that
 clamps its activations to the certified region `K = {‖x‖ ≤ B}` agrees with the unclamped network on
 all of `K`, while being globally bounded and (composed with attention) globally Lipschitz. This is
-what lets the bounded-domain attention estimates close the forward map over the *whole* space. -/
+what lets the bounded-domain attention estimates close the forward map over the whole space. -/
 
 section Clamp
 

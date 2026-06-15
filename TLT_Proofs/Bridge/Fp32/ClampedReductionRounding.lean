@@ -10,16 +10,16 @@ import TLT_Proofs.Bridge.Fp32.SequentialSummationBackwardError
 
 The recursive rounding budget of the fp32 left fold (`fp32FoldlErrorBudget`, bounded in closed form by
 `fp32FoldlErrorBudget_closed_form`) is here specialized to the **clamped operating domain**. When the
-summands have bounded total magnitude (`∑ᵢ|xᵢ| ≤ S` — the situation forced by the activation clamp
+summands have bounded total magnitude (`∑ᵢ|xᵢ| ≤ S`, the situation forced by the activation clamp
 `‖X‖ ≤ B`), the fp32 reduction differs from the exact sum by at most a concrete constant
 
 `|fp32Foldl 0 xs − ∑ xs| ≤ u·(n+1)·S / (1 − n·u)`,  `u = 2⁻²⁴`, `n = length`.
 
-This is the **derived** per-operation rounding atom — obtained from the round-to-nearest model (via
-`fp32Foldl_error_le` and the backward-error closed form), *not supplied as data* — to which every
-sum-structured block operation reduces: the matrix-multiply dot products, the attention scores, the
-value mix `∑ softmax·V`, and the layer-norm mean and (cancellation-repaired) variance reductions. It is
-the `rnd` evidence the executed-forward layers carry — formerly assumed, now derived.
+This is the per-operation rounding atom, derived from the round-to-nearest model (via
+`fp32Foldl_error_le` and the backward-error closed form), to which every sum-structured block
+operation reduces: the matrix-multiply dot products, the attention scores, the value mix `∑ softmax·V`,
+and the layer-norm mean and variance reductions. It is the `rnd` evidence the executed-forward layers
+carry.
 
 ## Scope (the supplied-atom frontier)
 
@@ -35,24 +35,22 @@ and those supplied transcendental atoms; `ρ_block` then feeds `nonexpansiveExec
 
 ## Main results
 
-- `fp32Foldl_error_le_of_sum_bound` — the derived closed-form rounding of an fp32 reduction whose
+- `fp32Foldl_error_le_of_sum_bound`: the closed-form rounding bound for an fp32 reduction whose
   summands have total magnitude `≤ S`.
 -/
 
 /-!
 ## References
 - [43] §4 summation backward error specialized to the clamped domain (acc=0, total magnitude ≤ S).
-- Provenance: Classical-instantiation (corollary; the per-op rounding atom packaging is TLT).
 -/
 
 open TorchLean.Floats (neuralBpow binaryRadix)
 
-/-- **Derived rounding of a magnitude-bounded fp32 reduction.** On the clamped operating domain, where
+/-- **Rounding bound for a magnitude-bounded fp32 reduction.** On the clamped operating domain, where
 the summands' total magnitude is bounded (`∑ᵢ|xᵢ| ≤ S`) and the reduction length keeps `n·u < 1`, the
 fp32 left fold differs from the exact sum by at most `u·(n+1)·S / (1 − n·u)` (`u = 2⁻²⁴`, `n` the
-length). The bound is *derived* from the round-to-nearest model (`fp32Foldl_error_le` composed with the
-backward-error closed form `fp32FoldlErrorBudget_closed_form`), not supplied — the rounding atom every
-sum-structured transformer-block operation reduces to. -/
+length). The bound follows from the round-to-nearest model via `fp32Foldl_error_le` and the
+backward-error closed form `fp32FoldlErrorBudget_closed_form`. -/
 theorem fp32Foldl_error_le_of_sum_bound (xs : List ℝ) (S : ℝ)
     (hnorm : Fp32FoldlNormal 0 xs)
     (hun : neuralBpow binaryRadix (-24) * (xs.length : ℝ) < 1)

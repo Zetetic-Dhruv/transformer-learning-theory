@@ -6,27 +6,26 @@ Authors: Dhruv Gupta
 import TLT_Proofs.Routing.SymbolOpcountCapacity
 
 /-!
-# The hard generalization arm — per-pair finite-VC + measurability (the S5/A5-2 entry point)
+# The hard generalization arm: per-pair finite-VC and measurability
 
 The hard certificate's statistical bound (`symbolGap ≤ symbolBound`, feeding `CapacityProfile.hard_cert`)
 turns the arrangement-VC capacity (`symbolClass_growth_prod`, S3) into a generalization bound for the
-symbol channel. This file lands the two genuinely-addable structural inputs to that arm:
+symbol channel. This file contributes two structural preconditions to that argument:
 
-* `comparisonClass_vcDim_lt_top` — each per-pair comparison class has **finite** VC dimension (the
+* `comparisonClass_vcDim_lt_top`: each per-pair comparison class has **finite** VC dimension (the
   precondition for any VC→generalization theorem), from the Dudley sign-class bound `comparisonClass_vcDim_le`.
-* `comparisonConcept_measurable` — each per-pair comparison concept is **measurable**, from the router's
+* `comparisonConcept_measurable`: each per-pair comparison concept is **measurable**, from the router's
   joint score-measurability field `score_meas` (section measurability + `measurableSet_le`).
 
-## A4 finding — the FLT Bool gen-cone needs a discrete input space (scheduled A5-2a)
+## Note: the FLT Bool generalization cone requires a discrete input space
 The FLT generalization cone (`vcdim_finite_imp_uc'`, `fundamental_rademacher`, `vcdim_finite_imp_pac`)
-requires `hc_meas : ∀ c : Concept X Bool, Measurable c` / `MeasurableConceptClass X C` — i.e. **every**
+requires `hc_meas : ∀ c : Concept X Bool, Measurable c` / `MeasurableConceptClass X C`, i.e. **every**
 Bool concept on `X` measurable, which forces an essentially **discrete** `X`. The symbol channel's input
-space is general (continuous), so the cone does not apply off-the-shelf. This is a real structural
-obstruction; the resolution is a scheduled structure-addition (A5-2a in `s_closure_map.md`): route the
-generalization through the **finite sample** `Fin m → X` (where all concepts are measurable) via the
-already-landed growth bound `symbolClass_growth_prod`, or obtain a weaker-measurability uniform-convergence
-variant — not the discrete-X cone. The **multiclass combination** (Fin k symbol-route 0-1 gap ≤ ∑ over
-pairs of per-pair gaps) is A5-2b. Both are precise, scheduled — not open.
+space is general (continuous), so the cone does not apply off-the-shelf. The natural resolution is to route
+the generalization through the **finite sample** `Fin m → X` (where all concepts are measurable) via the
+growth bound `symbolClass_growth_prod`, or to obtain a weaker-measurability uniform-convergence variant.
+The **multiclass combination** (Fin k symbol-route 0-1 gap ≤ ∑ over pairs of per-pair gaps) is a separate
+step.
 -/
 
 noncomputable section
@@ -39,8 +38,8 @@ universe u
 
 variable {X : Type u} [MeasurableSpace X] {k : ℕ}
 
-/-- **Per-pair finite VC (A5-2 entry point).** Under the linearity hypothesis, each comparison class has
-finite VC dimension — `VCDim X (comparisonClass A i j) ≤ finrank ℝ W < ⊤` — the precondition every
+/-- **Per-pair finite VC.** Under the linearity hypothesis, each comparison class has
+finite VC dimension (`VCDim X (comparisonClass A i j) ≤ finrank ℝ W < ⊤`), the precondition every
 VC→generalization theorem consumes. -/
 theorem comparisonClass_vcDim_lt_top (A : FiniteScoreRouterCode X k) (i j : Fin k)
     (W : Submodule ℝ (X → ℝ)) [FiniteDimensional ℝ W]

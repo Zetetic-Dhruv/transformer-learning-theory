@@ -17,7 +17,7 @@ assumed.
 
 The obstruction: `ExecLayer.ideal_lip` is a *global* Lipschitz field, but a post-norm attention block
 is Lipschitz only on the activation ball `D` (the Kim et al. boundary). The resolution: each executed
-layer's ideal is the **pre-clamped** block `block ∘ clampCoord ρ` — globally Lipschitz (clamp is
+layer's ideal is the **pre-clamped** block `block ∘ clampCoord ρ`, globally Lipschitz (clamp is
 `1`-Lipschitz into `D`, the block is Lipschitz on `D`). Forward-invariance (`block : D → D`) makes the
 inner clamps identities, so the pre-clamped composition telescopes to the clamped spec stack:
 `idealComp (clampExecLayer ρ :: Es) = lparamComp St θ ∘ clampCoord ρ`. The per-layer rounding errors
@@ -25,8 +25,8 @@ then compose through `envBound` at depth.
 
 ## Main results
 
-- `clampExecLayer` — the coordinatewise clamp as an exact (`rnd = 0`) `ExecLayer`.
-- `idealComp_preClampExec` — the executed forward's ideal equals the clamped spec stack, when each
+- `clampExecLayer`: the coordinatewise clamp as an exact (`rnd = 0`) `ExecLayer`.
+- `idealComp_preClampExec`: the executed forward's ideal equals the clamped spec stack, when each
   executed layer's ideal is the pre-clamped block (`List.Forall₂`) and the stack is forward-invariant.
 -/
 
@@ -34,9 +34,6 @@ then compose through `envBound` at depth.
 ## References
 - [38] envelope; [31] bounded-domain boundary; capstones via the vendored McDiarmid/Dudley/
   Rademacher backbone [54]/[55].
-- Provenance: Innovation — discharging `hagree` by construction via a pre-clamped forward-invariant
-  ExecLayer that telescopes inner clamps; threads the concrete `envBound` into the (vendored)
-  generalization capstones.
 -/
 
 open MeasureTheory
@@ -84,8 +81,8 @@ lemma idealComp_preClampExec {p : ℕ} {ρ : ℝ} (θ : ParamSpace p)
         (hinv B List.mem_cons_self y hy)
 
 /-- **`hagree`, discharged by construction.** With `Ls = clampExecLayer ρ :: Es`, the executed forward's
-ideal composition is exactly the clamped spec stack `x ↦ lparamComp St θ (clampCoord ρ x)` — the
-hypothesis the certified bounds assume. -/
+ideal composition is exactly the clamped spec stack `x ↦ lparamComp St θ (clampCoord ρ x)`,
+the hypothesis the certified bounds assume. -/
 theorem idealComp_clampExecLayer_cons {p : ℕ} {ρ : ℝ} (hρ0 : 0 ≤ ρ) (θ : ParamSpace p)
     {St : List (ParamLayerLocal (ParamSpace p) (Fin n → Fin d → ℝ))}
     {Es : List (ExecLayer (Fin n → Fin d → ℝ))}
@@ -100,7 +97,7 @@ theorem idealComp_clampExecLayer_cons {p : ℕ} {ρ : ℝ} (hρ0 : 0 ≤ ρ) (θ
 multi-head certified bound with its `hagree` hypothesis *discharged by construction*: given the float32
 executed layers `Es` whose per-layer ideals are the pre-clamped blocks (`hForall2`) at the certified
 weights, `Ls = clampExecLayer ρ :: Es` is a concrete executed forward whose ideal is the clamped stack,
-so the McDiarmid bound holds with the depth-composed rounding envelope `envBound Ls` — no abstract
+so the McDiarmid bound holds with the depth-composed rounding envelope `envBound Ls`; no abstract
 executed-forward hypothesis remains. -/
 theorem normMultiHeadStack_executed_at_depth {H p m : ℕ} [NeZero n] [Nonempty (Fin p)]
     [MeasurableSpace (Fin n → Fin d → ℝ)] [BorelSpace (Fin n → Fin d → ℝ)]
@@ -194,7 +191,7 @@ theorem executedForward_envelope_at_depth {p : ℕ} {ρ : ℝ} (hρ0 : 0 ≤ ρ)
   rw [← idealComp_clampExecLayer_cons hρ0 θ hF hinv x]
   exact execComp_envelope (clampExecLayer ρ :: Es) x
 
-/-- **Executed-at-depth for the untied standard-transformer stack** — the generic bridge applied to the
+/-- **Executed-at-depth for the untied standard-transformer stack**: the generic bridge applied to the
 untied certified bound. -/
 theorem normMultiHeadStack_untied_executed_at_depth {H p L m : ℕ} [NeZero n] [Nonempty (Fin p)]
     [MeasurableSpace (Fin n → Fin d → ℝ)] [BorelSpace (Fin n → Fin d → ℝ)]
@@ -270,7 +267,7 @@ theorem normMultiHeadStack_untied_executed_at_depth {H p L m : ℕ} [NeZero n] [
     (fun x => idealComp_clampExecLayer_cons hρ0 (embedBase Capacity.Dyadic w_T.1) hForall2 hinv x)
     hintG hLpos
 
-/-- **Executed-at-depth for the FFN-union encoder stack** — the generic bridge applied to the full
+/-- **Executed-at-depth for the FFN-union encoder stack**: the generic bridge applied to the full
 true-multi-head encoder layer (attention ∘ feed-forward) certified bound; forward-invariance is
 dispatched by block type. -/
 theorem transformerEncoderStackMH_executed_at_depth {H p hdim m : ℕ} [NeZero n] [Nonempty (Fin p)]

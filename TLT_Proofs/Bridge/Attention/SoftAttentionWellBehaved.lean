@@ -10,22 +10,20 @@ import TLT_Proofs.Bridge.Spec.ScaledDotProductScoreRouter
 
 The argmax/top-1 router discretizes attention; the actual transformer output is the
 softmax-weighted average of values, `out(K, V, x) = ∑ᵢ softmax(⟨x, Kᵢ⟩)ᵢ · Vᵢ`. This file shows
-the soft-attention concept class — thresholding that value-weighted softmax output — satisfies
+the soft-attention concept class (thresholding that value-weighted softmax output) satisfies
 `WellBehavedVCMeasTarget`, using TorchLean's `Spec.dot` scores (via `attentionScoreRouter`),
 `softmaxWeight`, and the Borel-parameter bridge.
 
 ## Main results
 
-- `softAttentionConcept` — the thresholded value-weighted softmax-attention output, as a concept.
-- `softAttention_wellBehaved` — its concept class satisfies `WellBehavedVCMeasTarget`.
+- `softAttentionConcept`: the thresholded value-weighted softmax-attention output, as a concept.
+- `softAttention_wellBehaved`: its concept class satisfies `WellBehavedVCMeasTarget`.
 -/
 
 /-!
 ## References
 - [27] softmax-weighted attention readout; [29] softmax measurability; [7][2][4] analytic/
   measurability bridge; [9] joint measurability; [57] FLT `borel_param_wellBehavedVCMeasTarget`.
-- Provenance: Classical-instantiation (the genuine softmax readout is well-behaved for every
-  width/head count — clean application of the Borel-parameter bridge).
 -/
 
 open MeasureTheory Set
@@ -62,8 +60,8 @@ private lemma softAttention_preimage (d nK : ℕ) :
   simp [softAttentionConcept]
 
 /-- **Soft attention is well-behaved.** The thresholded value-weighted softmax-attention concept
-class satisfies `WellBehavedVCMeasTarget` — the real (softmax-weighted) attention, not the argmax
-discretization. -/
+class satisfies `WellBehavedVCMeasTarget` (the softmax-weighted attention readout, not the argmax
+discretization). -/
 theorem softAttention_wellBehaved (d nK : ℕ) :
     WellBehavedVCMeasTarget (Fin d → ℝ) (Set.range (softAttentionConcept d nK)) := by
   refine borel_param_wellBehavedVCMeasTarget (softAttentionConcept d nK) ?_

@@ -19,7 +19,7 @@ import NN.Proofs.Autograd.FDeriv.Softmax
 
 The transformer forward map is a composition of tensor operations. Stated over curried real
 coordinates (`Fin m → Fin n → ℝ`, which carry the product topology), each operation is continuous,
-hence so is their composition — and a continuous map of a finite-dimensional real space is Borel
+hence so is their composition; a continuous map of a finite-dimensional real space is Borel
 measurable.
 
 This file builds the per-operation continuity lemmas. The first is the linear (matrix-multiply)
@@ -27,12 +27,12 @@ layer, which covers the embedding and output projections.
 
 ## Main results
 
-- `matMulCoord` — the matrix-multiply layer in curried coordinates: `(X · W) i j = ∑ k, X i k · W k j`.
-- `continuous_matMulCoord` — that layer is continuous in its input.
-- `reluCoord` — the ReLU layer in coordinates: pointwise `max (·) 0`.
-- `continuous_reluCoord` — that layer is continuous.
+- `matMulCoord`: the matrix-multiply layer in curried coordinates, `(X · W) i j = ∑ k, X i k · W k j`.
+- `continuous_matMulCoord`: that layer is continuous in its input.
+- `reluCoord`: the ReLU layer in coordinates, pointwise `max (·) 0`.
+- `continuous_reluCoord`: that layer is continuous.
 
-(Elementwise addition — residual and bias adds — is the pointwise `+` on `Fin m → Fin n → ℝ`, whose
+(Elementwise addition, covering residual and bias adds, is the pointwise `+` on `Fin m → Fin n → ℝ`, whose
 continuity is `Continuous.add`, so it needs no separate atom.)
 -/
 
@@ -40,9 +40,6 @@ continuity is `Continuous.add`, so it needs no separate atom.)
 ## References
 - [31] LayerNorm needs ε>0 (ε=0 not Lipschitz); composition preserves continuity/measurability;
   sign function as the measurable-but-discontinuous archetype; [27] encoder architecture (background).
-- Provenance: Classical-instantiation, with a TLT "measurable everywhere / continuous only for ε>0"
-  separation witness (`measurable_signDiv` + `not_continuous_signDiv`) — novel framing of classical
-  facts.
 -/
 
 open Spec
@@ -171,7 +168,7 @@ lemma numbers_epsilon_real_pos : (0 : ℝ) < Numbers.epsilon := by
 
 /-- The layerNorm standard deviation `std = √(max(var,0) + ε)` is strictly positive for every variance
 value, because `ε > 0` (verified `1e-6`). This discharges the `divSpec` side-condition in layerNorm
-unconditionally — the crux of the forward map's continuity. -/
+unconditionally. -/
 lemma layerNorm_std_pos (v : ℝ) : 0 < Real.sqrt (max v 0 + Numbers.epsilon) := by
   refine Real.sqrt_pos.mpr ?_
   have h0 : (0 : ℝ) ≤ max v 0 := le_max_right v 0
@@ -216,7 +213,7 @@ noncomputable def layerNormCoord {s d : ℕ} (γ β : Fin d → ℝ) (X : Fin s 
     Fin s → Fin d → ℝ :=
   fun i j => (X i j - rowMeanCoord i X) / rowStdCoord i X * γ j + β j
 
-/-- The coordinate layer-normalization map is continuous (unconditionally — the denominator never
+/-- The coordinate layer-normalization map is continuous (unconditionally; the denominator never
 vanishes, by `rowStdCoord_pos`, which rests on the verified `ε = 1e-6`). -/
 theorem continuous_layerNormCoord {s d : ℕ} (γ β : Fin d → ℝ) :
     Continuous (layerNormCoord (s := s) γ β) := by
@@ -244,8 +241,8 @@ theorem continuous_ffnCoord {s d h : ℕ} (W1 : Fin d → Fin h → ℝ) (b1 : F
   exact ((continuous_apply_apply i l).comp (continuous_matMulCoord W1)).add continuous_const
 
 /-- General continuity of a contracted matrix product where **both** factors vary continuously:
-`(A x · B x) i j = ∑ k, A x i k · B x k j`. This covers every matrix multiplication in attention —
-the scores `Q·Kᵀ`, the value mixing `weights·V`, and the Q/K/V/output projections — where, unlike a
+`(A x · B x) i j = ∑ k, A x i k · B x k j`. This covers every matrix multiplication in attention
+(the scores `Q·Kᵀ`, the value mixing `weights·V`, and the Q/K/V/output projections) where, unlike a
 fixed-weight layer, both operands depend on the input. -/
 theorem continuous_matMulVar {X : Type*} [TopologicalSpace X] {m n p : ℕ}
     {A : X → Fin m → Fin n → ℝ} {B : X → Fin n → Fin p → ℝ}
@@ -328,7 +325,7 @@ lemma continuous_listFoldl {α : Type*} [TopologicalSpace α] (fs : List (α →
 Continuity of the forward map needs the layer-normalization regularizer `ε > 0` (its division is
 continuous only where the denominator is nonzero). **Measurability needs no such hypothesis**:
 `Measurable.div` is unconditional (`x/0 = 0` is Borel). So the forward map is measurable for *every*
-`ε ≥ 0`, while continuous only for `ε > 0` — the regularizer is a continuity requirement, not a
+`ε ≥ 0`, while continuous only for `ε > 0`; the regularizer is a continuity requirement, not a
 measurability one. -/
 
 open MeasureTheory
@@ -366,10 +363,10 @@ noncomputable def layerNormCoordEps {s d : ℕ} (ε : ℝ) (γ β : Fin d → �
     Fin s → Fin d → ℝ :=
   fun i j => (X i j - rowMeanCoord i X) / rowStdCoordEps ε i X * γ j + β j
 
-/-- Layer normalization is **measurable for every regularizer `ε`** — including `ε = 0`, where it is
+/-- Layer normalization is **measurable for every regularizer `ε`**, including `ε = 0`, where it is
 discontinuous at the constant-input locus. The unguarded division is measurable by `Measurable.div`
-(no nonzero hypothesis), unlike `Continuous.div`. This is the operation-level form of: measurability is
-the regularizer-free invariant; continuity is not. -/
+(no nonzero hypothesis), unlike `Continuous.div`. Measurability is the regularizer-free invariant;
+continuity is not. -/
 theorem measurable_layerNormCoordEps {s d : ℕ} (ε : ℝ) (γ β : Fin d → ℝ) :
     Measurable (layerNormCoordEps (s := s) ε γ β) := by
   unfold layerNormCoordEps

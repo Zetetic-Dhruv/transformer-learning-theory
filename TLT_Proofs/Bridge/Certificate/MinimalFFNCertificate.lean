@@ -16,28 +16,26 @@ the bounded loss, measurability from continuity in the input, and continuity in 
 joint continuity of the matrix–vector product.
 
 The executed (rounded) network and its empirical-risk integrability are taken as the executed-model
-interface — supplied by the IEEE binary32 executed-forward analysis — together with the agreement that
+interface (supplied by the IEEE binary32 executed-forward analysis), together with the agreement that
 the executed layers' ideal part is the network at the certified weights.
 
 ## Main definitions
 
-- `matVec` / `reluVec` / `ffn2` — the linear, ReLU, and two-layer forward maps over `Fin n → ℝ`.
-- `ffnLoss` — the loss composed with the two-layer forward, as a function of the parameters.
+- `matVec` / `reluVec` / `ffn2`: the linear, ReLU, and two-layer forward maps over `Fin n → ℝ`.
+- `ffnLoss`: the loss composed with the two-layer forward, as a function of the parameters.
 
 ## Main results
 
-- `continuous_matVec_uncurry` — the matrix–vector product is jointly continuous in matrix and vector.
-- `continuous_ffn2_param` / `continuous_ffn2_input` — the two-layer forward is continuous in the
+- `continuous_matVec_uncurry`: the matrix-vector product is jointly continuous in matrix and vector.
+- `continuous_ffn2_param` / `continuous_ffn2_input`: the two-layer forward is continuous in the
   weights and in the input.
-- `minimalFFN_certified_generalization` — the certified executed generalization bound for the network.
+- `minimalFFN_certified_generalization`: the certified executed generalization bound for the network.
 -/
 
 /-!
 ## References
 - [36] FFN spectral/covering capacity; [19][54] Rademacher/covering (left abstract); joint
   continuity of matvec/ReLU.
-- Provenance: Innovation (executed instantiation) — first concrete executed-model bound on the
-  2-layer ReLU FFN; capacity is the standard quantity, kept abstract.
 -/
 
 open MeasureTheory

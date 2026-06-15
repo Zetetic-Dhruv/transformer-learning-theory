@@ -14,11 +14,11 @@ file connects them to the **literal** TorchLean spec operations: each spec op, r
 `matCoords ∘ Spec.op ∘ matrixTensor`, is the corresponding coordinate map, so the spec ops populate the
 `ExecLayer` list consumed by `execComp_envelope` / `execComp_risk_transfer`.
 
-- `matCoords_reluSpec` / `matCoords_matMulSpec` — the literal `Activation.reluSpec` and `matMulSpec`,
+- `matCoords_reluSpec` / `matCoords_matMulSpec`: the literal `Activation.reluSpec` and `matMulSpec`,
   read in coordinates, are `reluCoord` and `matMulCoord`.
-- `reluSpecExecLayer` — the literal ReLU layer as an `ExecLayer`: `1`-Lipschitz, rounding-free
+- `reluSpecExecLayer`: the literal ReLU layer as an `ExecLayer`, `1`-Lipschitz and rounding-free
   (`reluSpecExecLayer_ideal` certifies its ideal map is the literal `reluSpec` in coordinates).
-- `matMulSpecExecLayer` — the literal matrix-multiply layer as an `ExecLayer`: Lipschitz with the
+- `matMulSpecExecLayer`: the literal matrix-multiply layer as an `ExecLayer`, Lipschitz with the
   operator ∞-norm column bound, with the executed map and its uniform rounding bound supplied (the
   domain-dependent fp32 budget).
 
@@ -31,7 +31,6 @@ not constructed here.
 ## References
 - [30] ReLU `max(0,·)`; [27] §3.3 FFN nonlinearity; [53] `reluSpec`/`matMulSpec`; 1-Lipschitz of
   `max(·,0)`, ∞-operator-norm column-sum Lipschitz of a linear map.
-- Provenance: Classical-instantiation (ReLU/matmul into the ExecLayer envelope).
 -/
 
 open Spec

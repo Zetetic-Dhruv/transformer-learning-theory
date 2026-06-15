@@ -11,14 +11,14 @@ import TLT_Proofs.Bridge.Certificate.AttnStackCertificate
 
 A genuine multi-head attention layer is a sum of `H` independent heads, each with its **own learnable
 query/key/value projections**, so that distinct heads form distinct attention patterns:
-`MHA(Y) = ∑_{h<H} headQK(W_Q^h, W_K^h, W_VO^h, Y)`. (A head with identity query/key projections —
-shared scores across heads — would collapse the sum to a single head, since `attnVec` is linear in the
+`MHA(Y) = ∑_{h<H} headQK(W_Q^h, W_K^h, W_VO^h, Y)`. (A head with identity query/key projections,
+i.e., shared scores across heads, would collapse the sum to a single head, since `attnVec` is linear in the
 value matrix; the learnable query/key projections are what make the heads genuinely distinct.) Each
 head is `headQK W_Q W_K W_VO Y i = attnVec(scores(Y·W_Q, Y·W_K)ᵢ, Y·W_VO)`, with the value and output
 projections folded into one map `W_VO` (lossless: `attnVec(s, Y·W_V)·W_O = attnVec(s, Y·W_V·W_O)` by
 linearity of `attnVec` in the value). Heads are full-width (head dimension = model dimension `d`).
 
-The capacity is **linear in the head count `H`** and **independent of the sequence length** — the
+The capacity is **linear in the head count `H`** and **independent of the sequence length**: the
 sequence-length independence is inherited from `attnVec_lipschitz_on_ball`, whose constant is absolute
 in the key count because softmax rows are probability vectors (Edelman et al. 2022, Cor. A.7; Trauger &
 Tewari 2024, §4.2). Multi-head adds no new attention analysis: it is the single-head weight-Lipschitz
@@ -26,12 +26,12 @@ estimate composed with the linear projections (`matMulCoord_param_lipschitz`) an
 
 ## Main definitions
 
-- `attnHeadQK` — a dot-product attention head with learnable query/key/value-output projections.
-- `multiHeadAttn` — the sum of `H` such heads.
+- `attnHeadQK`: a dot-product attention head with learnable query/key/value-output projections.
+- `multiHeadAttn`: the sum of `H` such heads.
 
 ## Main results
 
-- `attnHeadQK_weight_lip` — a head is Lipschitz in `(W_Q, W_K, W_VO)` on the bounded input domain.
+- `attnHeadQK_weight_lip`: a head is Lipschitz in `(W_Q, W_K, W_VO)` on the bounded input domain.
 
 ## References
 
@@ -93,8 +93,8 @@ lemma attnHeadQK_weight_lip [NeZero n] {scale B bV βY : ℝ} (hscale : 0 < scal
         gcongr
 
 /-- Multi-head attention: the sum of `H` independent heads, each with its own query/key/value-output
-projections. Distinct `(W_Q^h, W_K^h)` make the heads attend differently — the genuine multi-head
-content (with shared scores the sum would collapse to a single head). -/
+projections. Distinct `(W_Q^h, W_K^h)` make the heads attend differently (with shared scores the sum
+would collapse to a single head). -/
 noncomputable def multiHeadAttn {H : ℕ} (scale : ℝ) (WQ WK WVO : Fin H → Fin d → Fin d → ℝ)
     (Y : Fin n → Fin d → ℝ) : Fin n → Fin d → ℝ :=
   ∑ h, attnHeadQK scale (WQ h) (WK h) (WVO h) Y
@@ -173,7 +173,7 @@ lemma matMulCoord_entry_le {s nn p : ℕ} (W : Fin nn → Fin p → ℝ) (X : Fi
 
 /-- **A head is input-Lipschitz on the bounded domain.** With the (input-side) projected query/key
 entries bounded by `B`, the value rows of norm `≤ bV`, and each projection's contracted-column `ℓ¹`
-norm `≤ γW`, the head is `(4·bV·(d·B/scale) + 1)·γW`-Lipschitz in its input — the `n`-free atom composed
+norm `≤ γW`, the head is `(4·bV·(d·B/scale) + 1)·γW`-Lipschitz in its input: the `n`-free atom composed
 with the linear projection input-Lipschitz. -/
 lemma attnHeadQK_input_lip [NeZero n] {scale B bV γW : ℝ} (hscale : 0 < scale) (hB : 0 ≤ B)
     (hbV0 : 0 ≤ bV) (hγW0 : 0 ≤ γW) (WQ WK WVO : Fin d → Fin d → ℝ)
@@ -240,7 +240,7 @@ and layer-norm are the existing `normAttnCoord`; only the attention map changes.
 the input cap come from layer-norm exactly as in the single-head block; the weight-Lipschitz now carries
 the attention projection weights in addition to the affine `γ, β`. -/
 
-/-- **The post-norm multi-head block is forward-invariant on the ball** — layer-norm caps the output at
+/-- **The post-norm multi-head block is forward-invariant on the ball**: layer-norm caps the output at
 `√d·Cγ + Cβ` regardless of the attention map. -/
 lemma normMultiHeadBlock_forward_inv {H : ℕ} (hd : 0 < d) (γ β : Fin d → ℝ) {Cγ Cβ : ℝ}
     (hCγ : ∀ j, |γ j| ≤ Cγ) (hCβ : ∀ j, |β j| ≤ Cβ) (scale : ℝ)
@@ -534,7 +534,7 @@ theorem normMultiHeadStack_weight_lip {H p : ℕ} [NeZero n] (hd : 0 < d)
 
 open Capacity in
 /-- **Untied (standard-transformer) depth-`L` multi-head weight-Lipschitz.** As
-`normMultiHeadStack_weight_lip`, but over `List.ofFn` of `L` *distinct* blocks — each layer `i` reading
+`normMultiHeadStack_weight_lip`, but over `List.ofFn` of `L` *distinct* blocks, each layer `i` reading
 its own decoders `(WQ i, WK i, WVO i, γ i, β i)` (disjoint parameter coordinates). The constants are
 shared across layers, so the envelope is identical; only the weight-tying is dropped. Same machinery,
 `List.mem_ofFn` in place of `List.eq_of_mem_replicate`. -/
@@ -611,14 +611,14 @@ theorem normMultiHeadStack_untied_weight_lip {H p L : ℕ} [NeZero n] (hd : 0 < 
 
 open Capacity in
 /-- **Depth-graded true-multi-head certified generalization bound.** For a depth-`L` stack of post-norm
-true-multi-head attention blocks `B_θ(X) = layerNorm_{γ θ, β θ}(X + ∑_{h<H} headQK^h(X))` — distinct
-learnable query/key/value projections per head — presented as the executed layer list `Ls` whose ideal
-forward at the certified weights is the clamped stack (`hagree`): except on a sample event of
+true-multi-head attention blocks `B_θ(X) = layerNorm_{γ θ, β θ}(X + ∑_{h<H} headQK^h(X))`, with
+distinct learnable query/key/value projections per head, presented as the executed layer list `Ls` whose
+ideal forward at the certified weights is the clamped stack (`hagree`): except on a sample event of
 McDiarmid-small probability, the executed true risk is at most the executed empirical risk plus the
 closed capacity budget `2·(12√2·(1/√m)·B_int) + ε` and the rounding correction `2·Lℓ·envBound`. The
-capacity constant `lparamLipBound (replicate L block)` grows with depth `L` and head count `H`, and is
-**independent of the sequence length** — the soft true-multi-head quadrant. The input cap (clamp to the
-layer-norm activation ball) is the Kim et al. boundary the bilinear scores force. -/
+capacity constant `lparamLipBound (replicate L block)` grows with depth `L` and head count `H` and is
+**independent of the sequence length**. The input cap (clamp to the layer-norm activation ball) is the
+Kim et al. boundary the bilinear scores force. -/
 theorem normMultiHeadStack_certified_generalization {H p m : ℕ} [NeZero n] [Nonempty (Fin p)]
     [MeasurableSpace (Fin n → Fin d → ℝ)] [BorelSpace (Fin n → Fin d → ℝ)]
     {P : Measure (Fin n → Fin d → ℝ)} [IsProbabilityMeasure P] (hm : 0 < m)
@@ -721,7 +721,7 @@ theorem normMultiHeadStack_certified_generalization {H p m : ℕ} [NeZero n] [No
 
 open Capacity in
 /-- **Untied (standard-transformer) depth-`L` true-multi-head certified generalization bound.** As
-`normMultiHeadStack_certified_generalization`, but over `List.ofFn` of `L` distinct blocks — the
+`normMultiHeadStack_certified_generalization`, but over `List.ofFn` of `L` distinct blocks: the
 standard (non-weight-tied) transformer regime, each layer reading its own parameter coordinates. -/
 theorem normMultiHeadStack_untied_certified_generalization {H p L m : ℕ} [NeZero n] [Nonempty (Fin p)]
     [MeasurableSpace (Fin n → Fin d → ℝ)] [BorelSpace (Fin n → Fin d → ℝ)]

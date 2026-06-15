@@ -9,32 +9,29 @@ import TLT_Proofs.Capacity.Discretization.DenseBaseChangeCapacity
 # Dense index realizations of a real domain
 
 The capacity-invariance thesis is not about dyadics: it is about *any* countable family of points
-that realizes a dense subset of a real domain `K`. `DenseIndexFor K` packages exactly that data — a
-countable index type `I`, a realization `I → E` landing in `K`, and the density of those realized
-points in `K`. The supremum of a continuous functional over such an index equals its supremum over
-`K` itself.
+that realizes a dense subset of a real domain `K`. `DenseIndexFor K` packages exactly that data: a
+countable index type `I`, a realization `I → E` landing in `K`, and density of those realized points
+in `K`. The supremum of a continuous functional over such an index equals its supremum over `K` itself.
 
-This isolates the thesis-level object — *capacity does not depend on which countable dense index
-realizes the real class* — from the numerical base that supplies one such index. The dyadic grid is
-then merely one instance (`dyadicDenseIndexForRealBall`), and `ciSup_baseGrid_eq_ciSup_realBall`
-becomes a special case. No geometry, Lipschitz, or covering reasoning appears here; the real domain
-`K` is the ambient comparison target and the index disappears through the equality.
+The abstraction expresses that capacity does not depend on which countable dense index realizes the
+real class; the numerical base supplies one such index. The dyadic grid is one instance
+(`dyadicDenseIndexForRealBall`), and `ciSup_baseGrid_eq_ciSup_realBall` is a special case. No
+geometry, Lipschitz, or covering reasoning appears here; `K` is the ambient comparison target and the
+index disappears through the equality.
 
 ## Main definitions
 
-- `DenseIndexFor` — a countable family realizing a dense subset of a real domain.
+- `DenseIndexFor`: a countable family realizing a dense subset of a real domain.
 
 ## Main results
 
-- `ciSup_denseIndex_eq` — the supremum of a continuous functional over a dense index equals its
+- `ciSup_denseIndex_eq`: the supremum of a continuous functional over a dense index equals its
   supremum over the domain.
 -/
 
 /-!
 ## References
 - dense-subset supremum equality (Mathlib `Dense.ciSup'`; parallel [55]).
-- Provenance: Innovation (definitional packaging) — the `DenseIndexFor` index-agnostic abstraction;
-  its one theorem is the standard dense-subset supremum equality.
 -/
 
 open Metric

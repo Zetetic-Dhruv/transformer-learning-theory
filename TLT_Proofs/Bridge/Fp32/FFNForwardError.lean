@@ -11,12 +11,12 @@ import TLT_Proofs.Bridge.Fp32.StackActivationExecutedValue
 
 The per-block analogue of `attnLiteralForwardError`: the MLP block `matmul → ReLU → matmul`. The
 attention head's value projection is one rounded matmul (`Vexec`, with the derived budget
-`rdotBudget d (B·Λ)`); an FFN block stacks **two** such matmuls around one ReLU. This file composes the
-shipped matmul forward error (`Vexec_error`) twice with the **rounding-free** ReLU.
+`rdotBudget d (B·Λ)`); an FFN block stacks **two** such matmuls around one ReLU. The forward error bound
+composes `Vexec_error` twice with the **rounding-free** ReLU.
 
 The ReLU contributes `rnd = 0`: the bit-level select `maximum x 0` read over ℝ is *exactly*
 `max (toReal x) 0` (`TLT.Fp32Stack.reluExec_exact`), so it introduces no arithmetic rounding. The FFN
-block's rounding is carried entirely by its two linear maps — matching `ffnBlock_envBound`
+block's rounding is carried entirely by its two linear maps, matching `ffnBlock_envBound`
 (`Forward/LiteralStackMargin.lean`), where a `[linear, ReLU]` block's depth envelope equals the linear
 layer's rounding alone.
 
@@ -35,9 +35,9 @@ rounding twice, the activation free.
 
 ## Main results
 
-- `reluCoord_lipschitz` — the coordinate ReLU is `1`-Lipschitz in the sup norm.
-- `ffnExec_forward_error` — the FFN block forward error against the ideal `matmul → ReLU → matmul`.
-- `ffnExec_eq_lit` — on a finite fp32 input the executed `reluCoord` is the literal IEEE ReLU
+- `reluCoord_lipschitz`: the coordinate ReLU is `1`-Lipschitz in the sup norm.
+- `ffnExec_forward_error`: the FFN block forward error against the ideal `matmul → ReLU → matmul`.
+- `ffnExec_eq_lit`: on a finite fp32 input the executed `reluCoord` is the literal IEEE ReLU
   (`reluExec_exact`); the two `Vexec` matmuls are the executed binary32 matmuls.
 -/
 
@@ -134,7 +134,7 @@ Proof: triangle through the intermediate `matMulCoord W2 (reluCoord (Vexec W1 X)
   − reluCoord (matMulCoord W1 X)‖` (`matMulCoord_lipschitz`), `≤ Λ · ‖Vexec W1 X − matMulCoord W1 X‖`
   (`reluCoord_lipschitz`), `≤ Λ · rdotBudget d (B·Λ)` (`Vexec_error W1`).
 
-The ReLU enters with no rounding term — its only contribution is the `1`-Lipschitz factor in (B). -/
+The ReLU enters with no rounding term; its only contribution is the `1`-Lipschitz factor in (B). -/
 theorem ffnExec_forward_error {n d : ℕ} (W1 W2 : Fin d → Fin d → ℝ) (X : Fin n → Fin d → ℝ)
     {B Λ : ℝ} (hB : 0 ≤ B) (hΛ : 0 ≤ Λ) (hX : ∀ i k, |X i k| ≤ B)
     (hW1 : ∀ j, ∑ k, |W1 k j| ≤ Λ) (hW2 : ∀ j, ∑ k, |W2 k j| ≤ Λ)
@@ -181,7 +181,7 @@ theorem ffnExec_forward_error {n d : ℕ} (W1 W2 : Fin d → Fin d → ℝ) (X :
 
 /-- **The FFN block's ReLU layer is the literal IEEE ReLU.** On a finite fp32 matrix `M` (the
 executed first matmul read over ℝ), the executed `reluCoord` applied to `M` equals the bit-level
-`maximum · posZero` read over ℝ — coordinatewise, exactly, with no rounding (`reluExec_exact`). So the
+`maximum · posZero` read over ℝ: coordinatewise, exactly, with no rounding (`reluExec_exact`). The
 FFN block's activation enters as the literal kernel with `rnd = 0`; its two `Vexec` matmuls are the
 executed binary32 matmuls (the fp32-rounded dot products `rdot`). -/
 theorem ffnExec_relu_eq_lit {n d : ℕ}

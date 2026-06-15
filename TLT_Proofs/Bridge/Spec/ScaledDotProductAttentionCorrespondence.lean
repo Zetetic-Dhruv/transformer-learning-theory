@@ -25,14 +25,13 @@ here verbatim as a private helper block, and the per-row softmax reads (`vecGet`
 
 ## Main results
 
-- `vecGet_softmaxVecSpec` — the per-row softmax-stabilization coordinate bridge.
+- `vecGet_softmaxVecSpec`: the per-row softmax-stabilization coordinate bridge.
 -/
 
 /-!
 ## References
 - [27] Eq. 1 §3.2.1 SDPA; [29] softmax definition + shift-invariance (max-subtracted stable form);
   [53] `scaledDotProductAttention`, `softmaxSpec`/`softmaxVecSpec`.
-- Provenance: Vendored-glue (literal SDPA op = attnHead in coordinates).
 -/
 
 open Spec Tensor
@@ -43,7 +42,7 @@ namespace TLT
 
 Verbatim copy of TorchLean's `private` `SoftmaxEquivariance.softmax_vec_spec_eq_plain` and its helper
 chain (the lemma is not exported upstream). It states that the max-stabilized `softmaxVecSpec` equals
-the plain `exp/Σexp` softmax — the stabilizing shift cancels. -/
+the plain `exp/Σexp` softmax; the stabilizing shift cancels. -/
 
 /-- Eliminate a scalar tensor using the same matcher as `Activation.softmax_vec_spec`. -/
 private abbrev scalarElim {β : Sort _} (t : Tensor ℝ .scalar) (k : ℝ → β) : β :=
@@ -307,9 +306,8 @@ lemma get2_matrixTransposeSpec {m n : ℕ} (K : Tensor ℝ (.dim m (.dim n .scal
 
 /-- **TorchLean's `scaledDotProductAttention`, read in coordinates, is `attnHead`.** With queries and
 keys both the input `Y` (self-attention) and values the learnable projection `Y·W`, the literal spec
-op `matMulSpec (softmaxSpec (scaleSpec (Q·Kᵀ) (1/√d))) V` equals — coordinatewise — the certified
-attention model `attnHead √d W Y`. This binds the certified bound to TorchLean's actual attention
-operation, replacing the abstract `hagree` interface with the literal op. -/
+op `matMulSpec (softmaxSpec (scaleSpec (Q·Kᵀ) (1/√d))) V` equals, coordinatewise, the certified
+attention model `attnHead √d W Y`. Vaswani et al. 2017, Eq. 1 (scaled dot-product attention). -/
 theorem matCoords_scaledDotProductAttention {n d : ℕ} (Y : Fin (n + 1) → Fin d → ℝ)
     (W : Fin d → Fin d → ℝ)
     (ctx : AttentionContext ℝ (n + 1) (n + 1) d (Nat.succ_ne_zero n) (Nat.succ_ne_zero n))

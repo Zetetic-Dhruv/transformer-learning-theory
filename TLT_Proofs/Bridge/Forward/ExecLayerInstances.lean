@@ -19,7 +19,7 @@ Two regimes appear, reflecting that fp32 rounding error is *relative* (proportio
   its local bound is `rnd = 0`; it is `1`-Lipschitz in the sup metric. `reluExecLayer` is fully
   self-contained.
 - **Arithmetic layers (linear / matmul).** A square linear map is Lipschitz with the operator
-  ∞-norm — a uniform row absolute-sum bound `Λ` — proved here. Its rounding error is uniform only on a
+  ∞-norm (a uniform row absolute-sum bound `Λ`) proved here. Its rounding error is uniform only on a
   bounded input domain, so the executed map and its uniform bound `rnd` are taken as parameters
   (supplied, e.g., by the reduction-level `ie32_foldl_closed_envelope` on the input domain).
   `linearExecLayer` proves the Lipschitz side and threads the supplied rounding side.
@@ -30,8 +30,8 @@ constants in the `ExecLayer.lip` field; their explicit constants are not constru
 
 ## Main results
 
-- `reluExecLayer` — the ReLU layer: `1`-Lipschitz, rounding-free.
-- `linearExecLayer` — a square linear layer: Lipschitz with the operator ∞-norm bound, with the
+- `reluExecLayer`: the ReLU layer, `1`-Lipschitz and rounding-free.
+- `linearExecLayer`: a square linear layer, Lipschitz with the operator ∞-norm bound, with the
   executed map and its uniform rounding bound supplied.
 -/
 
@@ -39,7 +39,6 @@ constants in the `ExecLayer.lip` field; their explicit constants are not constru
 ## References
 - ∞-induced operator norm = max absolute row sum = Lipschitz constant of `x↦Wx`; [36] per-layer
   linear Lipschitz; [38][43] arithmetic-layer rounding datum (selects are rounding-free).
-- Provenance: Classical-instantiation (concrete ReLU/linear ExecLayer records).
 -/
 
 namespace TLT

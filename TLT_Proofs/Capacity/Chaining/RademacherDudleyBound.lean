@@ -15,16 +15,15 @@ loss value-vectors `{(g i (S 1), …, g i (S m)) : i}` (with the zero vector adj
 chaining bound requires), Dudley's chaining theorem bounds that expected supremum by `12√2·(1/√m)`
 times the Dudley entropy integral of the value-vector set in the supremum metric.
 
-This composes the in-expectation symmetrization (whose right-hand side is the empirical Rademacher
-complexity) with the chaining bound, turning a covering-number control of the value-vector set into a
-control of the expected uniform deviation. Totally-boundedness, diameter and finite-entropy of the
-value-vector set are carried as hypotheses (discharged, for a Lipschitz-parametrised class, by a
-covering-number bound on the parameter ball).
+Together, the in-expectation symmetrization and the chaining bound convert a covering-number control
+of the value-vector set into a control of the expected uniform deviation. Total-boundedness, diameter,
+and finite entropy of the value-vector set are carried as hypotheses, discharged for a
+Lipschitz-parametrised class by a covering-number bound on the parameter ball.
 
 ## Main results
 
-- `lossValueSet` — the loss value-vectors realised on `S`, with the zero vector adjoined.
-- `empRadComplexity_le_dudley` — the empirical Rademacher complexity is at most the Dudley integral.
+- `lossValueSet`: the loss value-vectors realised on `S`, with the zero vector adjoined.
+- `empRadComplexity_le_dudley`: the empirical Rademacher complexity is at most the Dudley integral.
 
 ## References
 

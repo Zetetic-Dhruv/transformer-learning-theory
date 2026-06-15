@@ -12,11 +12,11 @@ import TLT_Proofs.Bridge.Lipschitz.SoftmaxJacobian
 At any finite sharpness `β`, the tempered mixture weights `softWeights A ρ x` are *strictly* below
 one in every coordinate: the softmax normaliser sums at least two positive exponentials, so the
 numerator is a strict fraction of the denominator. Consequently the soft weights are **never exactly
-one-hot** — no coordinate ever reaches the hard value `1`. This is the negative that fences the design
-law on the sharpness axis: annealing approaches the argmax but never attains it at any finite `β`.
+one-hot: no coordinate ever reaches the hard value `1`. Annealing approaches the argmax but never
+attains it at any finite `β`.
 
-* `softmax_lt_one` — the kernel: with at least two classes, every softmax coordinate is strictly `< 1`.
-* `softWeights_lt_one` — the tempered router instance: every mixture weight is strictly `< 1` at every
+* `softmax_lt_one`: the kernel; with at least two classes, every softmax coordinate is strictly `< 1`.
+* `softWeights_lt_one`: the tempered router instance; every mixture weight is strictly `< 1` at every
   finite `β`, so the mixture is never one-hot.
 
 This is the pointwise (in fact uniform-in-`x`) sharpening of the registered analytic route (the weights

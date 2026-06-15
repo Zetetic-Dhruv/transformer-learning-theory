@@ -14,18 +14,17 @@ tool does NOT extend (grade-1 routes are already non-convex). The right tool is 
 **region-count ⇒ alternation bound** crux. We work in the 1-D carrier `d = 1`, route arity `k = 2`,
 and (to make the region-count bound finite) the **arity-2** cascade grade `binCascadeGrade`.
 
-## Scope: the CONCRETE rung `binGrade 1 ⊂ binGrade 2` landed; the general `∀L` ladder is open
+## Scope: the CONCRETE rung `binGrade 1 ⊂ binGrade 2`; the general `∀L` ladder is in `MuxDepthLadderGeneral.lean`
 
-This file lands the concrete next rung (the fallback of the brief) RIGOROUSLY, building the general
-affine-on-fiber and fiber-threshold infrastructure that any `∀L` proof would also need. The general
-`∀L` crux (`alternations ≤ 2·pieceCount` for all `L`) is NOT closed; the exact obstruction is recorded
-at the end of §(6c): for `L ≥ 2` the trace along the line is NOT a single affine threshold (it is a
-threshold composed through the earlier fold layers), so the clean "the trace switches at most once"
-argument that powers the `L = 1` crux does not generalize. Closing it needs the full piecewise-linear
-piece-count machinery (argmax-of-`n`-lines `= ≤ n` intervals; composition multiplies piece counts),
-which is left as future infrastructure.
+This file establishes the concrete next rung, building the general affine-on-fiber and fiber-threshold
+infrastructure. The general `∀L` crux (`alternations ≤ 2·pieceCount` for all `L`) is NOT closed here;
+the exact obstruction is recorded at the end of §(6c): for `L ≥ 2` the trace along the line is NOT a
+single affine threshold (it is a threshold composed through the earlier fold layers), so the "the trace
+switches at most once" argument that powers the `L = 1` crux does not generalize. Closing it needs the
+full piecewise-linear piece-count machinery (argmax-of-`n`-lines `= ≤ n` intervals; composition
+multiplies piece counts), which is left as future infrastructure.
 
-## The load-bearing chain (each link proved honestly, no `sorry`, no `native_decide`)
+## The proof chain
 
 1. **Affine self-map composition** (`AffineSelfMap.comp`): so that a fixed composition of branch maps is
    itself an affine self-map.
@@ -58,11 +57,11 @@ which is left as future infrastructure.
 
 7. **WITNESS** (`tentRoute` / `tentCascade`): the depth-2 double sign-fold realizes the 1-D route
    `||t| − 1| < ½` whose value pattern on the explicit increasing list `[-2,-1,0,1,2]` is `0,1,0,1,0`
-   — a full `4`-alternation, beyond any depth-1 route's reach.
+   (a full `4`-alternation, beyond any depth-1 route's reach).
 
 8. **SEPARATION** (`binCascadeGrade_one_ssubset_two`): `binGrade 1 ⊂ binGrade 2`. `⊆` via the
    identity-layer embedding (`binCascadeGrade_succ_subset`, generalizing the base `0 ↪ 1`); `≠` via
-   the high-alternation witness — a REAL proved non-membership.
+   the high-alternation witness, a proved non-membership.
 -/
 
 open scoped BigOperators
@@ -206,7 +205,7 @@ theorem affine_threshold_no_TFT (α β t₁ t₂ t₃ : ℝ) (h12 : t₁ < t₂)
 theorem affine_threshold_no_FTF (α β t₁ t₂ t₃ : ℝ) (h12 : t₁ < t₂) (h23 : t₂ < t₃)
     (h1 : ¬ (0 ≤ α * t₁ + β)) (h2 : 0 ≤ α * t₂ + β) (h3 : ¬ (0 ≤ α * t₃ + β)) : False := by
   rcases le_or_gt 0 α with hα | hα
-  · -- α ≥ 0 increasing: t₂ ≤ t₃ so α t₂ + β ≤ α t₃ + β, but h2 says ≥0 and h3 says <0 — use t₃
+  · -- α ≥ 0 increasing: t₂ ≤ t₃ so α t₂ + β ≤ α t₃ + β, but h2 says ≥0 and h3 says <0; use t₃
     have : α * t₂ + β ≤ α * t₃ + β := by nlinarith
     exact h3 (le_trans h2 this)
   · -- α < 0 decreasing: t₁ < t₂ so α t₂ + β ≤ α t₁ + β; h2 ≥0 forces α t₁+β ≥0, contradict h1
@@ -302,8 +301,8 @@ theorem layer_binary_gate_one_iff (Lyr : AffineMuxLayer 1 2) (α β : ℝ)
     omega
 
 /-- **TRACE NO-`T,¬T,T` AT DEPTH 1 (arity 2).** Given a depth-1 cascade whose trace at the single layer
-is a single affine threshold of the carrier coordinate — `C.trace y i0 = 0 ↔ 0 ≤ α·(y 0) + β`, with
-the trace landing in `Fin 2` — the trace along the line is monotone, so on three increasing points it
+is a single affine threshold of the carrier coordinate, `C.trace y i0 = 0 ↔ 0 ≤ α·(y 0) + β`, with
+the trace landing in `Fin 2`. The trace along the line is monotone, so on three increasing points it
 cannot return to its starting value after leaving it: it cannot be `t, t', t` with `t ≠ t'`. -/
 theorem trace_no_ABA_depth_one (C : MuxCascade 1 1) (α β : ℝ)
     (harity2 : C.arity ⟨0, by norm_num⟩ = 2)
@@ -373,7 +372,7 @@ def binCascadeGrade (d k L : ℕ) (hk : 0 < k) : Set ((Fin d → ℝ) → Fin k)
       f = cascadeRoute (binCascade layers) routeScores hk }
 
 /-- For a depth-1 binary cascade the trace at the single layer is a single affine threshold of the
-carrier coordinate — read directly off the layer-0 gate (`trace_depth_one` + `layer_binary_gate`),
+carrier coordinate, read directly off the layer-0 gate (`trace_depth_one` + `layer_binary_gate`),
 with NO `Fin`-cast since the arity is definitionally `2`. -/
 theorem binCascade_depthOne_trace_threshold (Lyr : AffineMuxLayer 1 2) :
     ∃ α β : ℝ, ∀ y : Fin 1 → ℝ,
@@ -408,7 +407,7 @@ theorem binCascade_depthOne_traceEq_iff (Lyr : AffineMuxLayer 1 2) (a b : Fin 1 
 route on `d = 1`, `k = 2`, CANNOT realize the full `5`-point alternation `0,1,0,1,0` on any five
 strictly-increasing carrier points. Region-count: `pieceCount ≤ ∏ arity = 2`, so the trace along the
 line switches at most once (`trace_no_ABA_depth_one`); hence three CONSECUTIVE points share a fiber,
-and on those the route reads `X,¬X,X` — impossible (`route_no_010/101_on_fiber`). Thus a depth-1 route
+and on those the route reads `X,¬X,X`, impossible by `route_no_010/101_on_fiber`. Thus a depth-1 route
 has at most `3` alternations, strictly fewer than the witness's `4`. -/
 theorem binCascade_depthOne_no_full_alternation
     (Lyr : AffineMuxLayer 1 2) (rs : Fin 2 → AffineFunctional 1)
@@ -463,7 +462,7 @@ theorem binCascade_depthOne_no_full_alternation
       ⟨(binCascade_depthOne_traceEq_iff Lyr a b).mpr heab,
        (binCascade_depthOne_traceEq_iff Lyr b c).mpr hebc⟩ ra rb rc
   -- Now the combinatorics on the five bits t0..t4 ∈ {0,1}.
-  -- If three CONSECUTIVE bits are equal, the route there is X,¬X,X — contradiction.
+  -- If three CONSECUTIVE bits are equal, the route there is X,¬X,X, a contradiction.
   -- Consecutive triples & their route patterns: (0,1,2)=0,1,0 ; (1,2,3)=1,0,1 ; (2,3,4)=0,1,0.
   by_cases c012 : t0 = t1 ∧ t1 = t2
   · exact noRoute010 p₀ p₁ p₂ h01 h12 c012.1 c012.2 hr0 hr1 hr2
@@ -668,7 +667,7 @@ theorem tentRoute_at_2 : tentRoute ![(2 : ℝ)] = 0 := by
 
 /-! ## (8) THE SEPARATION: `binGrade 1 ⊂ binGrade 2` -/
 
-/-- **NON-MEMBERSHIP (a REAL proved non-membership).** `tentRoute ∉ binCascadeGrade 1 2 1`. If it were a
+/-- **Non-membership: `tentRoute ∉ binCascadeGrade 1 2 1`.** If it were a
 depth-1 arity-2 route, then on the increasing sample `[-2,-1,0,1,2]` it would have to realize the full
 `5`-point alternation `0,1,0,1,0`, contradicting the crux `binCascade_depthOne_no_full_alternation`. -/
 theorem tentRoute_not_mem_binGradeOne :
@@ -719,7 +718,7 @@ def appendIdLayers {L : ℕ} (layers : Fin L → AffineMuxLayer 1 2) :
   fun i => if h : i.val < L then layers ⟨i.val, h⟩ else binIdLayer 1
 
 /-- For `m ≤ L`, running the first `m` layers of the appended cascade equals running them on the
-original cascade — the appended family agrees with the original on every index `< L ≥ m`. -/
+original cascade; the appended family agrees with the original on every index `< L ≥ m`. -/
 theorem appendId_runUpTo_eq {L : ℕ} (layers : Fin L → AffineMuxLayer 1 2) (x : Fin 1 → ℝ) :
     ∀ m, m ≤ L →
       (binCascade (L := L + 1) (appendIdLayers layers)).runUpTo m x
@@ -777,6 +776,71 @@ theorem binCascadeGrade_succ_subset {k L : ℕ} (hk : 0 < k) :
   simp only [cascadeRoute]
   rw [appendId_run_eq layers x]
 
+/-! ### (8a') General input dimension: the monotone depth embedding at any `d`
+
+The append-identity machinery above is stated at `d = 1` because the strict-separation witnesses live on
+a one-dimensional carrier. The depth-monotone embedding itself holds at every input dimension `d`: the
+do-nothing layer `binIdLayer d` acts as the identity on `Fin d → ℝ`. These `Dim` companions carry the
+embedding to general `d`, which the certificate's expressivity leg consumes on the attention carrier. -/
+
+/-- The append-identity layer family at general input dimension `d`. -/
+def appendIdLayersDim {d L : ℕ} (layers : Fin L → AffineMuxLayer d 2) :
+    Fin (L + 1) → AffineMuxLayer d 2 :=
+  fun i => if h : i.val < L then layers ⟨i.val, h⟩ else binIdLayer d
+
+/-- For `m ≤ L`, running the first `m` layers of the appended general-`d` cascade equals running them on
+the original cascade. -/
+theorem appendIdDim_runUpTo_eq {d L : ℕ} (layers : Fin L → AffineMuxLayer d 2) (x : Fin d → ℝ) :
+    ∀ m, m ≤ L →
+      (binCascade (L := L + 1) (appendIdLayersDim layers)).runUpTo m x
+        = (binCascade (L := L) layers).runUpTo m x := by
+  intro m
+  induction m with
+  | zero => intro _; rfl
+  | succ m ih =>
+      intro hm
+      have hmL : m < L := by omega
+      have hmL1 : m < L + 1 := by omega
+      rw [MuxCascade.runUpTo, MuxCascade.runUpTo, dif_pos hmL1, dif_pos hmL]
+      have hlayer : (binCascade (L := L + 1) (appendIdLayersDim layers)).layers ⟨m, hmL1⟩
+          = (binCascade (L := L) layers).layers ⟨m, hmL⟩ := by
+        show appendIdLayersDim layers ⟨m, hmL1⟩ = layers ⟨m, hmL⟩
+        rw [appendIdLayersDim, dif_pos hmL]
+      have hstate := ih (by omega)
+      rw [hstate]
+      simp only [AffineMuxLayer.applyLayer, AffineMuxLayer.gate, hlayer]
+      rfl
+
+/-- **APPEND-IDENTITY RUN INVARIANCE at general `d`.** Appending the identity layer leaves the cascade
+output unchanged. -/
+theorem appendIdDim_run_eq {d L : ℕ} (layers : Fin L → AffineMuxLayer d 2) (x : Fin d → ℝ) :
+    (binCascade (L := L + 1) (appendIdLayersDim layers)).run x
+      = (binCascade (L := L) layers).run x := by
+  show (binCascade (L := L + 1) (appendIdLayersDim layers)).runUpTo (L + 1) x = _
+  rw [MuxCascade.runUpTo, dif_pos (by omega : L < L + 1)]
+  have hlast : (binCascade (L := L + 1) (appendIdLayersDim layers)).layers ⟨L, by omega⟩
+      = binIdLayer d := by
+    show appendIdLayersDim layers ⟨L, by omega⟩ = binIdLayer d
+    rw [appendIdLayersDim, dif_neg (by simp)]
+  rw [hlast]
+  have hpre := appendIdDim_runUpTo_eq layers x L (le_refl L)
+  rw [hpre]
+  show (binIdLayer d).applyLayer _ ((binCascade (L := L) layers).runUpTo L x)
+      = (binCascade (L := L) layers).run x
+  rw [binIdLayer_applyLayer]
+  rfl
+
+/-- **DEPTH-MONOTONE EMBEDDING at general `d`.** `binCascadeGrade d k L ⊆ binCascadeGrade d k (L+1)`: a
+depth-`L` arity-2 route on `Fin d → ℝ` is realized at depth `L+1` by appending the do-nothing identity
+layer, which keeps the output fixed (`appendIdDim_run_eq`). The `d = 1` case is `binCascadeGrade_succ_subset`. -/
+theorem binCascadeGrade_succ_subset_dim {d k L : ℕ} (hk : 0 < k) :
+    binCascadeGrade d k L hk ⊆ binCascadeGrade d k (L + 1) hk := by
+  rintro f ⟨layers, rs, rfl⟩
+  refine ⟨appendIdLayersDim layers, rs, ?_⟩
+  funext x
+  simp only [cascadeRoute]
+  rw [appendIdDim_run_eq layers x]
+
 /-! ### (8b) The strict separation atom `binGrade 1 ⊂ binGrade 2` -/
 
 /-- **THE STRICT SEPARATION ATOM (the depth-ladder rung beyond the base).**
@@ -784,9 +848,8 @@ theorem binCascadeGrade_succ_subset {k L : ℕ} (hk : 0 < k) :
 embedding (`binCascadeGrade_succ_subset`); the strictness is the high-alternation witness:
 `tentRoute` lies in grade 2 (`tentRoute_mem_binGradeTwo`) but NOT in grade 1
 (`tentRoute_not_mem_binGradeOne`, via the region-count ⇒ alternation-bound crux). Each added layer
-strictly enlarges the realizable arity-2 route class — depth genuinely buys expressivity, ONE RUNG
-ABOVE the base `grade 0 ⊂ grade 1`, PROVED with the right tool (the alternation bound, not convexity:
-grade-1 routes are already non-convex). -/
+strictly enlarges the realizable arity-2 route class. The proof uses the alternation bound rather than
+convexity: grade-1 routes are already non-convex, so convexity is not an obstruction at this rung. -/
 theorem binCascadeGrade_one_ssubset_two :
     binCascadeGrade 1 2 1 (by norm_num) ⊂ binCascadeGrade 1 2 2 (by norm_num) := by
   refine ⟨binCascadeGrade_succ_subset (by norm_num), ?_⟩
@@ -804,9 +867,9 @@ line is a SINGLE affine threshold (`binCascade_depthOne_trace_threshold`), so it
 forcing a fiber of `≥ 3` consecutive sample points. The analogous step FAILS for `L ≥ 2`:
 
 * At depth `2` the layer-1 gate is evaluated at `runUpTo 1 y`, which is the (piecewise-affine) output
-  of the layer-0 fold — NOT the raw coordinate. So the layer-1 trace bit, as a function of `t ∈ ℝ`, is
+  of the layer-0 fold, not the raw coordinate. So the layer-1 trace bit, as a function of `t ∈ ℝ`, is
   a threshold COMPOSED with a fold, which can switch up to twice. The trace (now a pair of bits) can
-  switch up to `3` times along the line, giving up to `4 = ∏ arity` trace blocks — consistent with
+  switch up to `3` times along the line, giving up to `4 = ∏ arity` trace blocks, consistent with
   `muxCascade_pieces_le_prod` but no longer "≤ 1 switch".
 
 * Consequently the clean pigeonhole ("a fiber of `≥ 3` consecutive points exists") is unavailable, and
@@ -823,8 +886,3 @@ here are exactly the depth-uniform pieces such a proof reuses.
 
 end TLT.TemperedDesignLaw.MuxHierarchy
 
--- Axiom audit (must be {propext, Classical.choice, Quot.sound}):
--- #print axioms TLT.TemperedDesignLaw.MuxHierarchy.binCascadeGrade_one_ssubset_two
--- #print axioms TLT.TemperedDesignLaw.MuxHierarchy.binCascade_depthOne_no_full_alternation
--- #print axioms TLT.TemperedDesignLaw.MuxHierarchy.tentRoute_not_mem_binGradeOne
--- #print axioms TLT.TemperedDesignLaw.MuxHierarchy.MuxCascade.run_eq_on_fiber

@@ -9,11 +9,11 @@ import Mathlib.Analysis.Normed.Group.Basic
 /-!
 # Per-input literal-block forward-error composition
 
-The literal forward error of each transformer sub-block — attention (`attnLiteralForwardError`), the FFN
-(`ffnExec_forward_error`), layer-norm — is a *per-input* bound, conditional on that block's run-time
-no-overflow bundle. Composing them into a stack forward error is a pointwise telescope: the executed
-composite is within `(this block's rounding) + (its ideal Lipschitz)·(everything upstream)` of the ideal
-composite.
+The literal forward error of each transformer sub-block (attention via `attnLiteralForwardError`, the
+FFN via `ffnExec_forward_error`, and layer-norm) is a *per-input* bound, conditional on that block's
+run-time no-overflow bundle. Composing them into a stack forward error is a pointwise telescope: the
+executed composite is within `(this block's rounding) + (its ideal Lipschitz)·(everything upstream)` of
+the ideal composite.
 
 These primitives compose two and three blocks pointwise. The depth-`L` list version is the shipped
 `execComp_envelope` once each block is wrapped as an `ExecLayer` over its operating regime; these
@@ -30,7 +30,7 @@ variable {U V W X : Type*} [PseudoMetricSpace U] [PseudoMetricSpace V] [PseudoMe
 at `x`, the second block's executed map is within `ρg` of its ideal at the executed intermediate
 `fE x`, and the second block's ideal is `Λg`-Lipschitz, then the composite executed map is within
 `ρg + Λg·ρf` of the composite ideal at `x`. The downstream block amplifies upstream rounding by its
-Lipschitz constant — the envelope's recursion, one step. -/
+Lipschitz constant; this is the envelope's recursion, one step. -/
 theorem block2_forward_error (fE fI : U → V) (gE gI : V → W) (x : U) {ρf ρg Λg : ℝ}
     (hΛg : 0 ≤ Λg) (hf : dist (fE x) (fI x) ≤ ρf)
     (hg : dist (gE (fE x)) (gI (fE x)) ≤ ρg)

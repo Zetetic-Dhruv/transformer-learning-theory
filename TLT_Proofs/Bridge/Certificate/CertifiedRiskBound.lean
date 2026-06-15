@@ -11,7 +11,7 @@ import TLT_Proofs.Bridge.Forward.ForwardEnvelope
 A generalization bound proved for the ideal (real-arithmetic) forward pass is transferred to the
 **executed** (IEEE binary32) forward pass by the rounding envelope. If, for an `L`-Lipschitz loss `ℓ`,
 the ideal true risk is within a `capacity` term of the ideal empirical risk, then the **executed**
-true risk is within `capacity + 2·L·envBound` of the **executed** empirical risk — every additional
+true risk is within `capacity + 2·L·envBound` of the **executed** empirical risk, every additional
 term computable from the layer data (`envBound`, the Lipschitz constant `L`).
 
 The two float-transfer legs are `execComp_risk_transfer` (true risk, an integral) and
@@ -21,8 +21,8 @@ the ideal forward map; it is supplied separately by the metric-entropy / chainin
 
 ## Main results
 
-- `empRisk_transfer` — the executed and ideal empirical risks differ by at most `L·envBound`.
-- `certifiedRiskBound_of_idealRisk` — the executed true risk is bounded by the executed empirical risk
+- `empRisk_transfer`: the executed and ideal empirical risks differ by at most `L·envBound`.
+- `certifiedRiskBound_of_idealRisk`: the executed true risk is bounded by the executed empirical risk
   plus the capacity plus `2·L·envBound`, given the ideal-side generalization bound.
 -/
 
@@ -30,8 +30,6 @@ the ideal forward map; it is supplied separately by the metric-entropy / chainin
 ## References
 - [22] Lipschitz-loss contraction / risk transfer; [36][54] ideal-side capacity term; [53] executed
   forward; [56] verified-ML context.
-- Provenance: Innovation — the float-transfer assembly carrying an ideal generalization bound to the
-  executed IEEE-binary32 forward via `2·L·envBound`. Capacity legs matched/vendored; transfer is TLT.
 -/
 
 open MeasureTheory

@@ -6,7 +6,7 @@ Authors: Dhruv Gupta
 import TLT_Proofs.Bridge.Fp32.ExpConeError
 
 /-!
-# The tempered float cone (TD5 — the numerical leg)
+# The tempered float cone (TD5, the numerical leg)
 
 The tempered design law's `β`-axis raises the logits to `β·s`; in IEEE32 execution this enlarges the
 range-reduction envelope `rrρ`, and the literal `exp`-on-cone error bound `exec32_exp_error_on_cone` is valid
@@ -14,17 +14,16 @@ only while `rrρ` stays in the cone regime `rrρ T ≤ 1/8`. Since `rrρ` is aff
 argument `T` (the logit magnitude), the regime is an interval `T ≤ Tmax`, and at sharpness `β` with logit
 magnitude bounded by `S` it is `β ≤ Tmax / S =: βmax`.
 
-* `Tmax` / `betaMax` — the cone ceiling: the largest logit magnitude (`Tmax`), and the largest sharpness
-  (`βmax = Tmax/S`), for which the literal `exp` cone bound holds. The certified region is `[0, βmax]`.
-* `rrρ_Tmax` / `rrρ_le_of_le_Tmax` — the range-reduction envelope hits `1/8` exactly at `Tmax`, hence stays
+* `Tmax` / `betaMax`: the cone ceiling. `Tmax` is the largest logit magnitude and `βmax = Tmax/S` the
+  largest sharpness for which the literal `exp` cone bound holds. The certified region is `[0, βmax]`.
+* `rrρ_Tmax` / `rrρ_le_of_le_Tmax`: the range-reduction envelope hits `1/8` exactly at `Tmax`, hence stays
   `≤ 1/8` on `[·, Tmax]`.
-* `δexpCone_temperedLogit_mono` — the tempered `exp`-cone envelope `δexpCone (β·S) η` is monotone in `β`
-  (`TD5_envelope_monotone`): more sharpness, larger numerical envelope. A bound that grows on the region,
-  never diverges.
-* `temperedExpCone_certified` — the certified region (`TD5_certified_region`): on the cone `β ≤ βmax`, the
+* `δexpCone_temperedLogit_mono`: the tempered `exp`-cone envelope `δexpCone (β·S) η` is monotone in `β`
+  (`TD5_envelope_monotone`). More sharpness gives a larger numerical envelope; the bound never diverges.
+* `temperedExpCone_certified`: the certified region (`TD5_certified_region`). On the cone `β ≤ βmax`, the
   literal `IEEE32Exec.exp` of a tempered logit matches the ideal `Real.exp` within `δexpCone (β·S) η`.
 
-Everything is grounded in the shipped `δexpCone`/`rrρ`/`exec32_exp_error_on_cone`; the `β`-dependence enters
+All results use `δexpCone`/`rrρ`/`exec32_exp_error_on_cone` as defined elsewhere; the `β`-dependence enters
 only through the scaled argument `β·S`.
 -/
 
@@ -63,8 +62,8 @@ lemma rrρ_le_of_le_Tmax {T : ℝ} (hT : T ≤ Tmax) : rrρ T ≤ 1 / 8 := by
 /-- **The certificate region is sharp at the cone ceiling (TD8 numerical-cliff boundary).** The range
 reduction stays in the cone regime EXACTLY up to `Tmax`: `rrρ T ≤ 1/8 ↔ T ≤ Tmax`. The `←` direction is
 `rrρ_le_of_le_Tmax`; the strict `→` shows the certified region for the tempered float envelope ENDS at `Tmax`
-— above it the cone hypothesis is unsatisfiable, so the numerical certificate has a sharp boundary, the
-`β`-axis twin of the measurability cliff. -/
+Above `Tmax` the cone hypothesis is unsatisfiable, so the numerical certificate has a sharp boundary,
+the `β`-axis analogue of the measurability cliff. -/
 theorem rrρ_le_iff_le_Tmax {T : ℝ} : rrρ T ≤ 1 / 8 ↔ T ≤ Tmax := by
   rw [← rrρ_Tmax, rrρ, rrρ]
   constructor

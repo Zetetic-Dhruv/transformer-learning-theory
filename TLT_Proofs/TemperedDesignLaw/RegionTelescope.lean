@@ -14,18 +14,17 @@ margin edge (the executed route equals the ideal route only off the `u`-shell) n
 version: per-layer closeness holds only on a region `Dₗ`, and the bound holds provided the executed
 trajectory stays inside the regions.
 
-This file states that abstraction once, for any region-restricted layer stack:
+The abstraction is stated once, for any region-restricted layer stack:
 
-* `RegionExecLayer` — a layer with an ideal map, an executed map, a Lipschitz constant, a rounding bound,
+* `RegionExecLayer`: a layer with an ideal map, an executed map, a Lipschitz constant, a rounding bound,
   and a **region**; closeness `exec ≈ ideal` is required only *on the region*.
-* `trajInRegions` — the executed trajectory stays in the per-layer regions.
-* `regionEnvelope_telescope` — under `trajInRegions`, the executed/ideal composition gap is at most the
+* `trajInRegions`: the executed trajectory stays in the per-layer regions.
+* `regionEnvelope_telescope`: under `trajInRegions`, the executed/ideal composition gap is at most the
   same `rEnvBound` telescope `∑ₖ rndₖ · ∏_{j>k} lipⱼ`.
 
-The intricate margin-to-region step (the executed point lies in `Dₗ` because the ideal point has margin
-above the accumulated envelope) is factored *out* into the `trajInRegions` hypothesis, which the concrete
-edges discharge from their margin geometry. The telescope itself is then the standard induction — the one
-abstraction both edges share.
+The margin-to-region step (the executed point lies in `Dₗ` because the ideal point has margin above the
+accumulated envelope) is separated into the `trajInRegions` hypothesis, which the concrete edges discharge
+from their margin geometry. The telescope itself is then the standard induction shared by both edges.
 -/
 
 noncomputable section

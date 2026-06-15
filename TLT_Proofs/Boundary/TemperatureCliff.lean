@@ -18,7 +18,7 @@ non-Borel), the same quadratic-cost score is read two ways:
   finite `τ`. Continuity collapses the parameter supremum to a countable dense one, so the soft
   ghost-gap `p ↦ ⨆_θ (margin θ p₂ − margin θ p₁)` is **measurable** (the Borel ghost-gap condition),
   via `measurable_iSup_gap_of_continuous`.
-* **The argmax limit (hard).** Sharpening to a hard decision is the argmax route — exactly the
+* **The argmax limit (hard).** Sharpening to a hard decision is the argmax route, exactly the
   top-`1` of the softmax (`softmaxTop1_eq_argmax`/`softmaxTop1_eq_route`). The base-up MoE cascade
   over that argmax route has, at *every* depth `L`, a **non-Borel** bad event
   (`cascadeNonInvariance`), while staying null-measurable under every finite measure
@@ -26,14 +26,14 @@ non-Borel), the same quadratic-cost score is read two ways:
 
 So temperature is the toggle: the routing map is continuous (Borel everywhere) for `τ < ∞`, and the
 `τ = ∞` (argmax) reading is the discontinuous map whose bad event drops to analytic non-Borel. The
-drop is a descriptive-complexity drop, not a learnability drop — the hard model stays learnable
+drop is a descriptive-complexity drop, not a learnability drop; the hard model stays learnable
 (null-measurable). This realizes the softmax/argmax boundary on the library's own non-Borel witness.
 
 ## Main results
 
-- `softWitnessMargin` — the temperature-`τ` real-valued soft relaxation of the base witness concept.
-- `softWitnessMargin_isKW` — for every finite `τ`, the soft ghost-gap supremum is measurable.
-- `temperatureCliff` — the toggle: soft Borel ghost-gap (`τ < ∞`) ∧ non-Borel argmax cascade bad
+- `softWitnessMargin`: the temperature-`τ` real-valued soft relaxation of the base witness concept.
+- `softWitnessMargin_isKW`: for every finite `τ`, the soft ghost-gap supremum is measurable.
+- `temperatureCliff`: the toggle; soft Borel ghost-gap (`τ < ∞`) ∧ non-Borel argmax cascade bad
   event at every depth (`τ = ∞`) ∧ null-measurable survival ∧ argmax = softmax top-`1`.
 -/
 
@@ -42,13 +42,6 @@ drop is a descriptive-complexity drop, not a learnability drop — the hard mode
 - [Vaswani 2017] scaled dot-product/softmax attention; the temperature/sharpening reading of softmax.
 - [1] existence of an analytic non-Borel set; [4] analytic ⇔ continuous image of a Polish space;
   [7] the Borel ghost-gap (V) condition; [57] FLT `cascadeBadEvent`, `singletonBadEvent`.
-- Provenance: Innovation — locating the softmax/argmax measurability boundary in the routing
-  temperature on the library's non-Borel witness.
-- TLT contribution (Dhruv Gupta), `temperatureCliff`: the routing temperature is the exact toggle
-  between a Borel soft ghost-gap and the non-Borel argmax-cascade bad event, on one witness, with the
-  argmax reading identified as the softmax top-`1`. Method: a continuous softmax-`τ` margin over the
-  depth-`0` cascade parameter feeding the continuity-collapse engine `measurable_iSup_gap_of_continuous`,
-  against the established depth-uniform `cascadeNonInvariance`.
 -/
 
 open MeasureTheory Set TopologicalSpace
@@ -133,7 +126,7 @@ theorem softWitnessMargin_le_one {τ : ℝ} (hτ : 0 ≤ τ) (g : β → ℝ) (�
 
 omit [MeasurableSpace β] [BorelSpace β] [StandardBorelSpace β] in
 /-- **The soft endpoint, concretely at temperature `τ`.** For every finite (nonnegative) temperature,
-the soft witness ghost-gap supremum is measurable — the Borel ghost-gap condition, instantiated by the
+the soft witness ghost-gap supremum is measurable (the Borel ghost-gap condition), instantiated by the
 continuous softmax-`τ` margin and discharged by the continuity-collapse engine. Note the soft side
 needs only topology and separability of the weight space, not its Borel structure. -/
 theorem softWitnessMargin_isKW {τ : ℝ} (hτ : 0 ≤ τ) (g : β → ℝ) (hg : Continuous g) [Nonempty β] :
@@ -160,13 +153,13 @@ theorem softWitnessMargin_isKW {τ : ℝ} (hτ : 0 ≤ τ) (g : β → ℝ) (hg 
 /-- **The temperature cliff.** Over the non-Borel witness `g`, the routing temperature is the exact
 toggle of descriptive complexity:
 
-* **soft (`τ < ∞`):** the soft witness ghost-gap supremum is measurable — the Borel ghost-gap
+* **soft (`τ < ∞`):** the soft witness ghost-gap supremum is measurable, i.e. the Borel ghost-gap
   condition (`softWitnessMargin_isKW`);
 * **hard (`τ = ∞`, argmax), at every depth `L`:** the base-up MoE cascade bad event is **not** Borel
   (`cascadeNonInvariance`), yet stays null-measurable under every finite measure (`universalRepair`),
   so learnability survives;
 * **identification:** the hard argmax route *is* the top-`1` of the softmax routing
-  (`softmaxTop1_eq_route`) — the `τ = ∞` reading of the same router.
+  (`softmaxTop1_eq_route`), the `τ = ∞` reading of the same router.
 
 The two regimes share one witness and one score; only the temperature differs. This is a measurability
 cliff, not a learnability cliff. -/

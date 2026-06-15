@@ -14,32 +14,30 @@ import Mathlib.Data.List.Range
 
 The transformer's reductions (matrix-multiply dot products, layer-normalization sums) accumulate
 left-to-right. This file gives the **left-fold** fp32 summation `fp32Foldl` (matching that accumulator
-order — the counterpart to `FP32Channel.fp32Sum`'s right fold), its affine error envelope on the
+order (the counterpart to `FP32Channel.fp32Sum`'s right fold), its affine error envelope on the
 binary32 normal range, and two bridges that connect it to the literal execution:
 
-- `toReal_foldl_add` — the `toReal` of the literal `IEEE32Exec` left-fold equals `fp32Foldl` of the
+- `toReal_foldl_add`: the `toReal` of the literal `IEEE32Exec` left-fold equals `fp32Foldl` of the
   `toReal`-mapped entries (finite branch), so the executed reduction *is* the real-valued `fp32Foldl`.
-- `tensorFoldlSpec_vec_eq_foldl` — the spec tensor reduction `tensorFoldlSpec` over a vector equals the
+- `tensorFoldlSpec_vec_eq_foldl`: the spec tensor reduction `tensorFoldlSpec` over a vector equals the
   `List.foldl` of its entries, so the layer-normalization reduction reuses `toReal_foldl_add`.
 
 ## Main results
 
-- `fp32Foldl` / `fp32FoldlErrorBudget` / `fp32Foldl_error_le` — the left-fold and its normal-range
+- `fp32Foldl` / `fp32FoldlErrorBudget` / `fp32Foldl_error_le`: the left-fold and its normal-range
   affine error envelope.
-- `toReal_foldl_add` — the literal `IEEE32Exec` reduction equals `fp32Foldl ∘ toReal`.
-- `tensorFoldlSpec_vec_eq_foldl` — the spec vector reduction is a `List.foldl`.
-- `fp32FoldlErrorBudget_closed_form` — the closed-form (backward-error) bound on the budget,
+- `toReal_foldl_add`: the literal `IEEE32Exec` reduction equals `fp32Foldl ∘ toReal`.
+- `tensorFoldlSpec_vec_eq_foldl`: the spec vector reduction is a `List.foldl`.
+- `fp32FoldlErrorBudget_closed_form`: the closed-form (backward-error) bound on the budget,
   `≤ u·(n·|acc| + (n+1)·∑ᵢ|xᵢ|) / (1 − n·u)`.
-- `ie32_foldl_envelope` / `tensorFoldlSpec_ie32_envelope` / `ie32_foldl_closed_envelope` — the executed
-  reduction is enveloped by the rounding budget, and by the closed-form input-magnitude bound.
+- `ie32_foldl_envelope` / `tensorFoldlSpec_ie32_envelope` / `ie32_foldl_closed_envelope`: the executed
+  reduction is enveloped by the rounding budget and by the closed-form input-magnitude bound.
 -/
 
 /-!
 ## References
 - [43] §4 sequential-summation backward error (`γₙ=nu/(1−nu)`); [44] ulp; [50] format; [53]
   IEEE32Exec reduction.
-- Provenance: Classical-instantiation (closed-form backward error = [43]); the `toReal_foldl_add` /
-  `tensorFoldlSpec_vec_eq_foldl` execution/spec bridges are TLT glue to the literal kernel.
 -/
 
 open TorchLean.Floats (neuralMagnitude neuralBpow binaryRadix)
@@ -47,7 +45,7 @@ open TorchLean.Floats.IEEE754
 open TorchLean.Floats.IEEE754.IEEE32Exec
 
 /-- The fp32 (round-to-nearest) **left**-fold sum: each partial sum is rounded, accumulating
-left-to-right — the order in which the literal forward reduces. -/
+left-to-right, the order in which the literal forward reduces. -/
 noncomputable def fp32Foldl : ℝ → List ℝ → ℝ
   | acc, [] => acc
   | acc, x :: xs => fp32Foldl (fp32Round (acc + x)) xs
@@ -96,8 +94,8 @@ def IE32FoldlFinite : IEEE32Exec → List IEEE32Exec → Prop
   | acc, x :: xs => isFinite (acc + x) = true ∧ IE32FoldlFinite (acc + x) xs
 
 /-- **The fp32 reduction bridge.** When every step stays finite, the `toReal` of the literal
-`IEEE32Exec` left-fold sum equals the fp32-rounded real left fold of the `toReal` entries — binding the
-executable reduction to the real-valued `fp32Foldl` model (hence to its envelope `fp32Foldl_error_le`). -/
+`IEEE32Exec` left-fold sum equals the fp32-rounded real left fold of the `toReal` entries, binding the
+executable reduction to the real-valued `fp32Foldl` model and hence to its envelope `fp32Foldl_error_le`. -/
 theorem toReal_foldl_add :
     ∀ (acc : IEEE32Exec) (xs : List IEEE32Exec), IE32FoldlFinite acc xs →
       toReal (xs.foldl (· + ·) acc) = fp32Foldl (toReal acc) (xs.map toReal) := by
@@ -152,7 +150,7 @@ private lemma go_foldl {n : ℕ} (cols : Fin n → Tensor α .scalar) :
       simp
 
 /-- The spec tensor reduction `tensorFoldlSpec` (= `sumSpec` accumulator order) of a scalar-vector
-equals the `List.foldl` of its entries — bridging the layer-normalization reduction order to the
+equals the `List.foldl` of its entries, bridging the layer-normalization reduction order to the
 real-valued `fp32Foldl` model (via `toReal_foldl_add`). -/
 theorem tensorFoldlSpec_vec_eq_foldl {n : ℕ} (cols : Fin n → Tensor α .scalar) (acc : α) :
     tensorFoldlSpec (· + ·) acc (Tensor.dim cols)
@@ -303,9 +301,9 @@ section ExecutedEnvelope
 open Spec Spec.Tensor
 
 /-- **The executed reduction envelope.** The literal `IEEE32Exec` left-fold reduction differs from the
-exact real sum of its `toReal` entries by at most the accumulated rounding budget — the execution
-bridge `toReal_foldl_add` composed with the affine envelope `fp32Foldl_error_le`. This is the form that
-supplies the rounding envelope for a single transformer reduction (a dot product or a layer-norm sum). -/
+exact real sum of its `toReal` entries by at most the accumulated rounding budget: the execution
+bridge `toReal_foldl_add` composed with the affine envelope `fp32Foldl_error_le`. This is the rounding
+envelope for a single transformer reduction (a dot product or a layer-norm sum). -/
 theorem ie32_foldl_envelope (acc : IEEE32Exec) (xs : List IEEE32Exec)
     (hfin : IE32FoldlFinite acc xs)
     (hnorm : Fp32FoldlNormal (toReal acc) (xs.map toReal)) :
@@ -316,7 +314,7 @@ theorem ie32_foldl_envelope (acc : IEEE32Exec) (xs : List IEEE32Exec)
 
 /-- **The executed spec-reduction envelope.** The literal `IEEE32Exec` spec vector reduction
 `tensorFoldlSpec` (the layer-normalization / matrix-multiply accumulator order) differs from the exact
-real sum of its entries by at most the accumulated rounding budget — `tensorFoldlSpec_vec_eq_foldl`
+real sum of its entries by at most the accumulated rounding budget, via `tensorFoldlSpec_vec_eq_foldl`
 composed with `ie32_foldl_envelope`. -/
 theorem tensorFoldlSpec_ie32_envelope {n : ℕ} (cols : Fin n → Tensor IEEE32Exec .scalar)
     (acc : IEEE32Exec)
@@ -332,8 +330,8 @@ theorem tensorFoldlSpec_ie32_envelope {n : ℕ} (cols : Fin n → Tensor IEEE32E
 
 /-- **The executed reduction within a closed-form input-magnitude envelope.** Combining the executed
 reduction envelope with the backward-error bound: the literal `IEEE32Exec` reduction differs from the
-exact real sum by at most `u·(n·|acc| + (n+1)·∑ᵢ|xᵢ|) / (1 − n·u)` — a concrete bound in the input
-magnitudes, hence a usable rounding envelope `ε` for `executed_risk_transfer`. -/
+exact real sum by at most `u·(n·|acc| + (n+1)·∑ᵢ|xᵢ|) / (1 − n·u)`: a concrete bound in the input
+magnitudes and a usable rounding envelope `ε` for `executed_risk_transfer`. -/
 theorem ie32_foldl_closed_envelope (acc : IEEE32Exec) (xs : List IEEE32Exec)
     (hfin : IE32FoldlFinite acc xs)
     (hnorm : Fp32FoldlNormal (toReal acc) (xs.map toReal))

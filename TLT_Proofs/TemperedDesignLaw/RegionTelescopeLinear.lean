@@ -9,13 +9,13 @@ import TLT_Proofs.TemperedDesignLaw.RegionTelescope
 # The non-expansive region telescope (the clean depth bound)
 
 The region telescope `regionEnvelope_telescope` bounds the executed/ideal gap by `rEnvBound`, the full
-`∑ₖ rndₖ·∏_{j>k} lipⱼ` envelope. In the **non-expansive** regime — every ideal map `lip ≤ 1`, every local
-rounding bound `rnd ≤ ρ` — that envelope collapses to `length · ρ`, exactly as the shipped global telescope
+`∑ₖ rndₖ·∏_{j>k} lipⱼ` envelope. In the **non-expansive** regime (every ideal map `lip ≤ 1`, every local
+rounding bound `rnd ≤ ρ`), that envelope collapses to `length · ρ`, exactly as the shipped global telescope
 does (`execComp_envelope_linear`). This is the form both region-restricted edges cite: a depth-linear bound
 with an explicit per-layer budget.
 
-* `rLipProd_le_one` / `rEnvBound_le_length_mul_of_nonexpansive` — the non-expansive collapse of the envelope.
-* `regionEnvelope_telescope_linear` — under `trajInRegions` and the non-expansive budget, the executed/ideal
+* `rLipProd_le_one` / `rEnvBound_le_length_mul_of_nonexpansive`: the non-expansive collapse of the envelope.
+* `regionEnvelope_telescope_linear`: under `trajInRegions` and the non-expansive budget, the executed/ideal
   gap is at most `length · ρ`.
 -/
 
@@ -56,7 +56,7 @@ lemma rEnvBound_le_length_mul_of_nonexpansive {ρ : ℝ} (hρ : 0 ≤ ρ) :
         _ = ((Ls.length : ℝ) + 1) * ρ := by ring
 
 /-- **The non-expansive region telescope.** Under `trajInRegions` and the non-expansive per-layer budget
-(`lip ≤ 1`, `rnd ≤ ρ`), the executed/ideal composition gap is at most `length · ρ` — the depth-linear
+(`lip ≤ 1`, `rnd ≤ ρ`), the executed/ideal composition gap is at most `length · ρ`, the depth-linear
 bound both region-restricted edges consume. -/
 theorem regionEnvelope_telescope_linear {Ls : List (RegionExecLayer V)} {ρ : ℝ} (hρ : 0 ≤ ρ)
     (hlip : ∀ L ∈ Ls, L.lip ≤ 1) (hrnd : ∀ L ∈ Ls, L.rnd ≤ ρ) (x : V) (htraj : trajInRegions Ls x) :

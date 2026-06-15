@@ -14,11 +14,11 @@ The mixture channel `softWeights` is the `β`-tempered softmax of the scores. Re
 bound `softmax_lipschitz`), and pre-scaling the scores by the sharpness `β ≥ 0` multiplies the constant by
 `β`. Hence the mixture weights move by at most `2·β` times the score change:
 
-* `temperedSoftmax_dist_le` — the carrier-agnostic core: `dist (softmax (β•z)) (softmax (β•z')) ≤ 2·β·dist z z'`.
-* `softWeights_eq_softmax_smul` — the bridge `softWeights A ρ x = softmax (β • score ρ x)`.
-* `softWeights_param_dist_le` — the parameter form: the mixture weights at two parameters differ by at most
-  `2·β` times the score-read difference. Composed with a `K`-Lipschitz score read this gives the `2·β·K`
-  modulus the sharpness-scaled capacity bound and the unrealizability modulus both consume.
+* `temperedSoftmax_dist_le`: the carrier-agnostic core: `dist (softmax (β•z)) (softmax (β•z')) ≤ 2·β·dist z z'`.
+* `softWeights_eq_softmax_smul`: the bridge `softWeights A ρ x = softmax (β • score ρ x)`.
+* `softWeights_param_dist_le`: the parameter form. The mixture weights at two parameters differ by at most
+  `2·β` times the score-read difference. Composing with a `K`-Lipschitz score read gives the `2·β·K`
+  modulus used by the sharpness-scaled capacity bound and the unrealizability modulus.
 
 The constant is linear in `β`: the sharpness is exactly the knob that trades modulus for hardness.
 -/
@@ -34,7 +34,7 @@ namespace TLT.TemperedDesignLaw
 /-- **The β-scaled softmax modulus** (carrier-agnostic core). Pre-scaling the logits by a sharpness
 `β ≥ 0` makes the softmax `2·β`-Lipschitz: `dist (softmax (β•z)) (softmax (β•z')) ≤ 2·β·dist z z'`. The
 shipped softmax Jacobian bound (`softmax_lipschitz`, constant `2`) composed with the `β`-scaling of the
-input — the one genuinely metric step, stated standalone as the reusable atom. -/
+input, stated standalone as the reusable atom. -/
 theorem temperedSoftmax_dist_le {n : ℕ} [NeZero n] {β : ℝ} (hβ : 0 ≤ β) (z z' : Fin n → ℝ) :
     dist (softmax (β • z)) (softmax (β • z')) ≤ 2 * β * dist z z' := by
   have h := softmax_lipschitz.dist_le_mul (β • z) (β • z')
@@ -44,7 +44,7 @@ theorem temperedSoftmax_dist_le {n : ℕ} [NeZero n] {β : ℝ} (hβ : 0 ≤ β)
   exact le_of_le_of_eq h (by push_cast; ring)
 
 /-- **The bridge.** The mixture channel is the softmax of the `β`-scaled scores:
-`softWeights A ρ x = softmax (β • score ρ x)`. Definitional — it lets the softmax modulus transport to the
+`softWeights A ρ x = softmax (β • score ρ x)`. Definitional; it lets the softmax modulus transport to the
 mixture weights. -/
 theorem softWeights_eq_softmax_smul {X : Type u} [MeasurableSpace X] {k : ℕ}
     (A : TemperedRouterFamily X k) (ρ : A.router.Ρ) (x : X) :
@@ -55,7 +55,7 @@ theorem softWeights_eq_softmax_smul {X : Type u} [MeasurableSpace X] {k : ℕ}
 /-- **The parameter-Lipschitz modulus of the mixture channel.** At a fixed input the mixture weights at two
 parameters `ρ, ρ'` differ by at most `2·β` times the score-read difference:
 `dist (softWeights A ρ x) (softWeights A ρ' x) ≤ 2·β·dist (score ρ x) (score ρ' x)`. Composing with a
-`K`-Lipschitz score read yields the `2·β·K` modulus — the atom the soft-capacity chaining bound and the
+`K`-Lipschitz score read yields the `2·β·K` modulus, the atom the soft-capacity chaining bound and the
 mixture-channel unrealizability certificate both cite. -/
 theorem softWeights_param_dist_le {X : Type u} [MeasurableSpace X] {k : ℕ} [NeZero k]
     (A : TemperedRouterFamily X k) (x : X) (ρ ρ' : A.router.Ρ) :

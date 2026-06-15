@@ -12,14 +12,11 @@ import FLT_Proofs.Complexity.Ordinal
 /-!
 # The arrangement-VC capacity bound for the symbol channel (the S3 bridge)
 
-This file closes the **arrangement → VC → growth** composition for the symbol channel: it bounds the
-number of routing-label patterns the symbol class realises on a finite sample by a *polynomial* in the
-sample size, of degree the total comparison VC dimension. It is the capacity core dual to the opcount
-factorisation, composing two already-landed endpoints with FLT's Sauer–Shelah growth machinery:
+This file bounds the number of routing-label patterns the symbol class realises on a finite sample by a *polynomial* in the sample size, of degree the total comparison VC dimension, via the following composition with FLT's Sauer–Shelah growth machinery:
 
-* `symbolRestr_ncard_le_prod` (`SymbolCapacity`) — the routing-label pattern count is at most the
+* `symbolRestr_ncard_le_prod` (`SymbolCapacity`): the routing-label pattern count is at most the
   product over the `k²` ordered pairs of the per-pair score-comparison pattern counts;
-* `comparisonClass_vcDim_le` (`SymbolOpcountCapacity`) — each per-pair comparison class is a halfspace
+* `comparisonClass_vcDim_le` (`SymbolOpcountCapacity`): each per-pair comparison class is a halfspace
   class, with VC dimension at most `finrank ℝ W` under the linearity hypothesis `hlin` (scores affine
   in a finite feature map);
 
@@ -28,14 +25,14 @@ function) and `growthFunction_le_sum_choose` (Sauer–Shelah: finite VC ⇒ grow
 Vapnik–Chervonenkis 1971 / Sauer 1972 / Shelah 1972).
 
 ## Results
-* `shatters_card_le_of_vcDim_le` — from `VCDim X C ≤ d`, any `C`-shattered set has `≤ d` points.
-* `singleCmpRestr_ncard_le_growthFunction` — the per-pair restriction count is at most the growth
+* `shatters_card_le_of_vcDim_le`: from `VCDim X C ≤ d`, any `C`-shattered set has `≤ d` points.
+* `singleCmpRestr_ncard_le_growthFunction`: the per-pair restriction count is at most the growth
   function of the comparison class (the comparison restriction is a restriction of `comparisonClass`).
-* `comparisonClass_growthFunction_le` — Sauer–Shelah at the per-pair halfspace VC bound.
-* `symbolClass_growth_prod` — **the arrangement-VC capacity bound (S3):** under per-pair linearity,
-  the routing-label pattern count on any sample `S` is at most `∏_{(i,j)} ∑_{r ≤ finrank Wᵢⱼ} (|S| choose r)`
-  — a polynomial in `|S|` of degree the total comparison VC dimension. Conditional on `hlin`
-  (load-bearing: false for arbitrary measurable scores).
+* `comparisonClass_growthFunction_le`: Sauer–Shelah at the per-pair halfspace VC bound.
+* `symbolClass_growth_prod` (**the arrangement-VC capacity bound, S3**): under per-pair linearity,
+  the routing-label pattern count on any sample `S` is at most `∏_{(i,j)} ∑_{r ≤ finrank Wᵢⱼ} (|S| choose r)`,
+  a polynomial in `|S|` of degree the total comparison VC dimension. Conditional on `hlin`
+  (false for arbitrary measurable scores).
 -/
 
 noncomputable section
@@ -84,8 +81,8 @@ theorem comparisonClass_growthFunction_le (A : FiniteScoreRouterCode X k) (i j :
 /-- **The arrangement-VC capacity bound for the symbol channel (S3).** Under per-pair linearity of the
 score differences (each `x ↦ sⱼ(x) − sᵢ(x)` in a finite-dimensional `Wᵢⱼ`), the number of routing-label
 patterns the symbol class realises on a finite sample `S` is at most the product over the `k²` ordered
-pairs of the Sauer–Shelah binomial sums — a polynomial in `|S|` of degree the total comparison VC
-dimension `∑ finrank ℝ Wᵢⱼ`. Conditional on `hlin`: false for arbitrary measurable scores. -/
+pairs of the Sauer–Shelah binomial sums, a polynomial in `|S|` of degree the total comparison VC
+dimension `∑ finrank ℝ Wᵢⱼ`. Conditional on `hlin` (false for arbitrary measurable scores). -/
 theorem symbolClass_growth_prod (A : FiniteScoreRouterCode X k) (hk : 0 < k)
     (W : Fin k × Fin k → Submodule ℝ (X → ℝ)) (hWfin : ∀ p, FiniteDimensional ℝ (W p))
     (hlin : ∀ (p : Fin k × Fin k) (ρ : A.Ρ), (fun x => A.score ρ x p.2 - A.score ρ x p.1) ∈ W p)
@@ -98,13 +95,12 @@ theorem symbolClass_growth_prod (A : FiniteScoreRouterCode X k) (hk : 0 < k)
   exact le_trans (singleCmpRestr_ncard_le_growthFunction A S p)
     (comparisonClass_growthFunction_le A p.1 p.2 (W p) (hlin p) S.card)
 
-/-- **TD10 — the symbol-channel capacity argument, closed (uniform feature space).** When all `k²`
+/-- **TD10: the symbol-channel capacity bound (uniform feature space).** When all `k²`
 score differences lie in a *single* finite-dimensional `W`, the routing-label pattern count on any
 sample `S` is bounded by one polynomial in `|S|` of degree `k² · finrank ℝ W`: the symbol class's
 combinatorial capacity is `(∑_{r ≤ finrank W} |S| choose r)^{k²}`. This is the explicit
-single-polynomial form of `symbolClass_growth_prod` (the per-pair product collapses since every factor
-shares `W`), and it is the statement that discharges the TD10 capacity obligation. Conditional on the
-per-pair linearity `hlin` (load-bearing: false for arbitrary measurable scores). -/
+single-polynomial form of `symbolClass_growth_prod`, in which the per-pair product collapses because every
+factor shares `W`. Conditional on the per-pair linearity `hlin` (false for arbitrary measurable scores). -/
 theorem symbolClass_growth_uniform (A : FiniteScoreRouterCode X k) (hk : 0 < k)
     (W : Submodule ℝ (X → ℝ)) [FiniteDimensional ℝ W]
     (hlin : ∀ (i j : Fin k) (ρ : A.Ρ), (fun x => A.score ρ x j - A.score ρ x i) ∈ W) (S : Finset X) :

@@ -6,7 +6,7 @@ Authors: Dhruv Gupta
 import TLT_Proofs.TemperedDesignLaw.HardeningEnvelope
 
 /-!
-# The sharpness rung, lower edge — realizability for large sharpness (TD14 S3)
+# The sharpness rung, lower edge: realizability for large sharpness (TD14 S3)
 
 The upper edge of the sharpness rung bounds the modulus a tempered class can realize; the lower edge says
 every hard target *is* realized to any tolerance once the sharpness is large enough. It is the monotone
@@ -14,7 +14,7 @@ inversion of the hardening envelope `(k−1)·exp(−β·γ)·D`: solving the ex
 threshold `β ≥ (1/g)·log((k−1)·D/ε)` past which, on the margin interior `γ ≥ g`, the soft mixture is within
 `ε` of the hard payload.
 
-* `softMixture_within_eps_of_beta` — for `β ≥ (1/g)·log((k−1)·D/ε)` and `γ ≥ g`, the soft mixture output is
+* `softMixture_within_eps_of_beta`: for `β ≥ (1/g)·log((k−1)·D/ε)` and `γ ≥ g`, the soft mixture output is
   within `ε` of the hard route payload. Together with the upper modulus (`temperedClass_dist_le`) this is
   the two-sided sharpness rung.
 -/

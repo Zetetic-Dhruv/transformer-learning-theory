@@ -13,13 +13,13 @@ This module supplies the missing **1-D linear-region calculus** that the prior d
 analogue, because that required the general *piecewise-linear piece-count* machinery. Here we land
 that machinery.
 
-## (i) THE PRIMARY DELIVERABLE — the affine-argmax interval / alternation bound
+## (i) The affine-argmax interval / alternation bound
 
 For `n ≥ 1` affine functions `g i t = a i * t + c i` of a real variable `t`, the active index
 `affineArg g hn t := leastArgmax (fun i => g i t) hn` partitions `ℝ` into at most `n` constancy
 intervals. We prove this via the brief's clean strategy, sharpened:
 
-* **`affineArg_win_ordConnected`** — the WIN-SET of each index `i`, `{t | affineArg g hn t = i}`, is an
+* **`affineArg_win_ordConnected`**: the win-set of each index `i`, `{t | affineArg g hn t = i}`, is an
   `OrdConnected` subset of `ℝ` (an interval). Reason: the `leastArgmax`-win set is
   `{t | ∀ j, g j t ≤ g i t} ∩ {t | ∀ j < i, g j t < g i t}`, a finite intersection of affine
   half-lines `{t | (a j − a i) t ≤/<  c i − c j}`, each of which is `OrdConnected` (it is the
@@ -30,7 +30,7 @@ intervals. We prove this via the brief's clean strategy, sharpened:
   convex piecewise-affine envelope, and the active-index win-sets are precisely its linear-piece
   domains; an interval each.)
 
-* **`affineArg_alternations_le`** — along ANY strictly increasing sample `pts : Fin (m+1) → ℝ`, the
+* **`affineArg_alternations_le`**: along any strictly increasing sample `pts : Fin (m+1) → ℝ`, the
   number of index-changes of `affineArg` is `≤ n − 1` (`seqChanges (k ↦ arg (pts k)) ≤ n − 1`). Reason
   (the interval ⇒ block argument): each win-set being an interval means the sample-positions mapping to
   a given index `i` form a CONTIGUOUS block of positions (`SeqNoReturn`); with `n` indices and `n`
@@ -48,17 +48,14 @@ form of "PWL composition multiplies piece counts" specialized to the arity-2 fol
 ## The application: the `∀L` ladder (CLOSED)
 
 We connect to `binCascade`: the depth-`L` arity-2 run on `d = 1` and its route.
-* `binTrace_alternations_le` — the trace changes `≤ 2^L − 1` times (induction on `L`, one block-refine
-  per layer). This is the `∀L` analogue the base file lacked (`trace_no_ABA` only held at `L = 1`).
-* `binRoute_alternations_le` — the route changes `≤ 2^{L+1} − 1` times (one more block-refine: the
+* `binTrace_alternations_le`: the trace changes `≤ 2^L − 1` times (induction on `L`, one block-refine
+  per layer). This is the `∀L` analogue of the base file's `L = 1` bound.
+* `binRoute_alternations_le`: the route changes `≤ 2^{L+1} − 1` times (one more block-refine: the
   route is a single affine threshold on each trace-fiber).
-* `upTentRoute_alternations_eq` — the depth-`L` iterated up-tent route changes EXACTLY `2^L` times
+* `upTentRoute_alternations_eq`: the depth-`L` iterated up-tent route changes exactly `2^L` times
   along the dyadic grid (the dyadic identity `tentMap^[L](j/2^L) = j mod 2`).
-* `binCascadeGrade_ssubset_succ` — `binGrade 1 2 L ⊂ binGrade 1 2 (L+1)` for ALL `L`: the depth-`(L+1)`
-  tent route (`2^{L+1}` alternations) exceeds the depth-`L` route bound (`2^{L+1} − 1`) — a REAL `∀L`
-  proved non-membership, NOT `⊆` relabeled.
-
-All proofs are `sorry`-free, `native_decide`-free; axiom audit at the foot of the file.
+* `binCascadeGrade_ssubset_succ`: `binGrade 1 2 L ⊂ binGrade 1 2 (L+1)` for all `L`. The depth-`(L+1)`
+  tent route achieves `2^{L+1}` alternations, exceeding the depth-`L` route bound `2^{L+1} − 1`.
 -/
 
 open scoped BigOperators
@@ -171,7 +168,7 @@ theorem AffineLines.lt_set_ordConnected {n : ℕ} (g : AffineLines n) (i j : Fin
 /-! ## (i.2) Each `arg`-win-set is an interval (`OrdConnected`) -/
 
 /-- **The win-set of an index is the `isLeastArgmax` cell.** `arg g hn t = i` iff `i` is the
-least-argmax of the values at `t` — i.e. `i` weakly beats all indices and strictly beats all smaller
+least-argmax of the values at `t`, i.e. `i` weakly beats all indices and strictly beats all smaller
 ones. -/
 theorem AffineLines.arg_eq_iff {n : ℕ} (g : AffineLines n) (hn : 0 < n) (t : ℝ) (i : Fin n) :
     g.arg hn t = i ↔ ((∀ j, g.val j t ≤ g.val i t) ∧ (∀ j, j < i → g.val j t < g.val i t)) := by
@@ -342,7 +339,7 @@ theorem seqChanges_eq_sum {β : Type*} [DecidableEq β] {m : ℕ} (s : Fin (m + 
   unfold seqChanges
   rw [Finset.card_filter]
 
-/-! ## (i.3c) THE BLOCK-REFINE (doubling) LEMMA — adding one binary bit at most doubles changes
+/-! ## (i.3c) The block-refine (doubling) lemma: adding one binary bit at most doubles changes
 
 This is the combinatorial engine of the `∀L` ladder. We have a "coarse" sequence `u` and a binary
 "refinement" bit `b`; the refined pair changes whenever `u` does, OR `b` flips inside a `u`-constant
@@ -351,7 +348,7 @@ trace-fiber the next gate is a single affine threshold), then the refined pair c
 `2 · seqChanges u + 1` times. (`2^{m+1} − 1 = 2(2^m − 1) + 1`.)
 -/
 
-/-- The number of `u`-changes strictly before position `i` — the index of the `u`-block containing
+/-- The number of `u`-changes strictly before position `i`: the index of the `u`-block containing
 the pair `(i.castSucc, i.succ)`. -/
 private def blockOf {A : Type*} [DecidableEq A] {m : ℕ} (u : Fin (m + 1) → A) (i : Fin m) : ℕ :=
   (Finset.univ.filter (fun j : Fin m => j < i ∧ u j.castSucc ≠ u j.succ)).card
@@ -484,7 +481,7 @@ theorem seqChanges_blockRefine_le {A : Type*} [DecidableEq A] {m : ℕ}
         omega
       -- Step 3: no-return on [i.succ, i'.succ] with equal endpoints forces b i'.castSucc = b i.succ
       have hcollapse := hblock i.succ i'.castSucc i'.succ ho2 ho3 huconst' hbinary
-      -- but i'.castSucc flips at i', i.e. b i'.castSucc ≠ b i'.succ = b i.succ — contradiction
+      -- but i'.castSucc flips at i', i.e. b i'.castSucc ≠ b i'.succ = b i.succ, a contradiction
       exact hi'b (hcollapse.trans hbinary)
     intro i hi i' hi' hbi
     rcases lt_trichotomy i i' with h | h | h
@@ -540,7 +537,7 @@ theorem AffineLines.argSeq_noReturn {n : ℕ} (g : AffineLines n) (hn : 0 < n) {
   show g.arg hn (pts c) = g.arg hn (pts a)
   exact g.arg_no_return hn h1 h2 rfl hab.symm
 
-/-- **(i) THE PRIMARY DELIVERABLE — the affine-argmax alternation bound.** For `n ≥ 1` affine lines
+/-- **(i) The affine-argmax alternation bound.** For `n ≥ 1` affine lines
 and ANY strictly-increasing sample `pts : Fin (m+1) → ℝ`, the number of index-changes of the active
 index `arg` is at most `n − 1`. Proof: the active-index sequence has the no-return property
 (`argSeq_noReturn`, from the `OrdConnected` win-sets `arg_win_ordConnected`); the abstract
@@ -560,7 +557,7 @@ theorem affineArg_two_alternations_le (g : AffineLines 2) {m : ℕ}
   have := affineArg_alternations_le g (by norm_num) pts hinc
   omega
 
-/-! ## (ii) + APPLICATION — the depth-`L` arity-2 run/route alternation bound, by induction on `L`
+/-! ## (ii) The depth-`L` arity-2 run/route alternation bound, by induction on `L`
 
 We now connect the calculus to the cascade. The key geometric facts (general `L`, `d = 1`):
 
@@ -880,8 +877,8 @@ theorem binRoute_alternations_le {L : ℕ} (layers : Fin L → AffineMuxLayer 1 
 We build the depth-`L` iterated up-tent cascade. The tent fold `Λ(s) = 1 − |2s − 1|` is an arity-2
 layer (gate on `2s − 1 ≥ 0`, branches `s ↦ 2 − 2s` and `s ↦ 2s`). Its `L`-fold iterate satisfies the
 clean dyadic identity `Λ^[L](j / 2^L) = (j mod 2 : ℝ)`, so its route (threshold at `½`) alternates
-`2^L` times along the increasing dyadic grid `k ↦ k / 2^L` — **exceeding the depth-`L` route bound
-`2^{L+1} − 1`** at one extra depth, giving the `∀L` separation.
+`2^L` times along the increasing dyadic grid `k ↦ k / 2^L`, exceeding the depth-`L` route bound
+`2^{L+1} − 1` at one extra depth, giving the `∀L` separation.
 -/
 
 /-- The up-tent affine functional values: gate on `2s − 1 ≥ 0`. -/
@@ -1117,10 +1114,10 @@ theorem upTentRoute_mem_grade (L : ℕ) :
     upTentRoute L ∈ binCascadeGrade 1 2 L (by norm_num) :=
   ⟨fun _ => upTentLayer, upTentRouteScores, rfl⟩
 
-/-- **NON-MEMBERSHIP (a REAL `∀L` proved non-membership).** The depth-`(L+1)` iterated-tent route is
+/-- **Non-membership (`∀L`): the depth-`(L+1)` iterated-tent route is
 NOT in `binCascadeGrade 1 2 L`. If it were a depth-`L` arity-2 route, then on the increasing dyadic
 grid `dyadicGrid (L+1)` it would change `≤ 2^{L+1} − 1` times (`binRoute_alternations_le`); but it
-changes `2^{L+1}` times (`upTentRoute_alternations_eq`) — a contradiction. -/
+changes `2^{L+1}` times (`upTentRoute_alternations_eq`), a contradiction. -/
 theorem upTentRoute_not_mem_grade (L : ℕ) :
     upTentRoute (L + 1) ∉ binCascadeGrade 1 2 L (by norm_num) := by
   rintro ⟨layers, rs, hf⟩
@@ -1145,7 +1142,7 @@ theorem upTentRoute_not_mem_grade (L : ℕ) :
 embedding (`binCascadeGrade_succ_subset`); the strictness is the iterated-tent witness: the depth-`(L+1)`
 tent route lies in grade `(L+1)` (`upTentRoute_mem_grade`) but NOT in grade `L`
 (`upTentRoute_not_mem_grade`, via the `∀L` route-alternation bound `binRoute_alternations_le`). Depth
-genuinely buys expressivity at EVERY rung — the uniform fixed-width depth hierarchy. -/
+genuinely buys expressivity at every rung of the uniform fixed-width depth hierarchy. -/
 theorem binCascadeGrade_ssubset_succ (L : ℕ) :
     binCascadeGrade 1 2 L (by norm_num) ⊂ binCascadeGrade 1 2 (L + 1) (by norm_num) := by
   refine ⟨binCascadeGrade_succ_subset (by norm_num), ?_⟩

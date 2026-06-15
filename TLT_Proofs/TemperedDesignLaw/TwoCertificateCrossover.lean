@@ -16,15 +16,15 @@ leakage `(k−1)·exp(−β·γ)·D`, TD2, which shrinks as `β` grows). The uni
 pointwise minimum; because one side is nondecreasing and the other nonincreasing, the binding side
 switches once, at a crossover sharpness `βStar`.
 
-* `twoCertMin f g` — the pointwise minimum of two certificates; `gap_le_twoCertMin` is the uniform
+* `twoCertMin f g`: the pointwise minimum of two certificates; `gap_le_twoCertMin` is the uniform
   bound (the gap is below both, hence below the minimum).
-* `smoothBinding_downClosed` — for a nondecreasing `f` and nonincreasing `g`, the set where the smooth
-  side binds (`f ≤ g`) is downward closed: the regime structure behind the single crossover.
-* `crossover_exists` — under continuity and the endpoint sign conditions, a crossover point exists
+* `smoothBinding_downClosed`: for a nondecreasing `f` and nonincreasing `g`, the set where the smooth
+  side binds (`f ≤ g`) is downward closed, giving the regime structure behind the single crossover.
+* `crossover_exists`: under continuity and the endpoint sign conditions, a crossover point exists
   where the two certificates are equal (the intermediate value theorem applied to `f − g`).
-* `hardBound_antitone` — the concrete hard certificate `symbolBound + (k−1)·exp(−β·γ)·D` is
-  nonincreasing in `β` (via the shipped `temperedLedger_antitone_beta`): the `g` side, instantiated at
-  the tempered router's hardening leakage.
+* `hardBound_antitone`: the concrete hard certificate `symbolBound + (k−1)·exp(−β·γ)·D` is
+  nonincreasing in `β` (via `temperedLedger_antitone_beta`): the `g` side, instantiated at the
+  tempered router's hardening leakage.
 
 The smooth certificate `f` enters as a nondecreasing-in-`β` hypothesis, discharged downstream by the
 sharpness-scaled Dudley bound `paramStack_empiricalCapacity_le_dudley` (its parameter-Lipschitz
@@ -40,14 +40,14 @@ certificate `f` (degrading in sharpness) and a hard certificate `g` (improving i
 def twoCertMin (f g : ℝ → ℝ) : ℝ → ℝ := fun β => min (f β) (g β)
 
 /-- **The uniform bound.** If the generalization gap is below both certificates at sharpness `β`, it
-is below their minimum — the certificate uniform in `β`. -/
+is below their minimum, which is the certificate uniform in `β`. -/
 theorem gap_le_twoCertMin {f g : ℝ → ℝ} {gap β : ℝ} (hf : gap ≤ f β) (hg : gap ≤ g β) :
     gap ≤ twoCertMin f g β :=
   le_min hf hg
 
 /-- **The smooth-binding region is downward closed.** For a nondecreasing smooth certificate `f` and a
 nonincreasing hard certificate `g`, if the smooth side binds at `β'` (`f β' ≤ g β'`) then it binds at
-every smaller `β`. So the smooth side binds on a down-set and the hard side beyond it — the regime
+every smaller `β`. So the smooth side binds on a down-set and the hard side beyond it; this is the regime
 structure that makes the crossover a single switch. -/
 theorem smoothBinding_downClosed {f g : ℝ → ℝ} (hf : Monotone f) (hg : Antitone g) {β β' : ℝ}
     (hββ' : β ≤ β') (h : f β' ≤ g β') : f β ≤ g β :=
@@ -55,7 +55,7 @@ theorem smoothBinding_downClosed {f g : ℝ → ℝ} (hf : Monotone f) (hg : Ant
 
 /-- **The crossover exists.** If the smooth certificate `f` starts at or below the hard certificate `g`
 (`f a ≤ g a`) and ends at or above it (`g b ≤ f b`), with both continuous on `[a, b]`, then there is a
-crossover sharpness `βStar ∈ [a, b]` at which the two certificates are equal — the intermediate value
+crossover sharpness `βStar ∈ [a, b]` at which the two certificates are equal, by the intermediate value
 theorem applied to `f − g`. -/
 theorem crossover_exists {f g : ℝ → ℝ} {a b : ℝ} (hab : a ≤ b)
     (hf : ContinuousOn f (Set.Icc a b)) (hg : ContinuousOn g (Set.Icc a b))

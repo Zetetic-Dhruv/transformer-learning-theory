@@ -9,20 +9,20 @@ import TLT_Proofs.TemperedDesignLaw.MixtureParamLayer
 # The depth-linear capacity constant (the soft-capacity depth scaling)
 
 The shipped depth telescope `paramComp_param_lipschitz` bounds a stack's parameter-Lipschitz by
-`paramLipBound`, the accumulated envelope `∑ₖ paramLipₖ · ∏_{j>k} lipⱼ`. For a *homogeneous non-expansive*
-stack — every layer the same, input-Lipschitz `≤ 1` — that envelope is at most depth times the per-layer
+`paramLipBound`, the accumulated envelope `∑ₖ paramLipₖ · ∏_{j>k} lipⱼ`. For a homogeneous non-expansive
+stack (every layer the same, input-Lipschitz `≤ 1`) that envelope is at most depth times the per-layer
 parameter modulus:
 
-* `inputLipProd_replicate_le_one` — the downstream input-Lipschitz product of a non-expansive replicated
+* `inputLipProd_replicate_le_one`: the downstream input-Lipschitz product of a non-expansive replicated
   stack is `≤ 1`.
-* `paramLipBound_replicate_le` — `paramLipBound (replicate n L) ≤ n · L.paramLip`: the capacity constant
+* `paramLipBound_replicate_le`: `paramLipBound (replicate n L) ≤ n · L.paramLip`; the capacity constant
   grows at most linearly in depth.
 
 For a stack of `temperedParamLayer`s (per-layer parameter modulus `2·β·Ksθ·P + Kvθ`, input modulus
-`2·β·Ksy·P + Kvy`), this reads: when `2·β·Ksy·P + Kvy ≤ 1` the depth-`n` capacity constant is at most
-`n · (2·β·Ksθ·P + Kvθ)` — linear in depth *and* in the sharpness `β`. Composed with the shipped
-`capacityReal_le_dudley_of_lipschitz`, this is the sharpness-scaled empirical Rademacher complexity bound;
-the constant is `O(n·β)`, the precise rate at which soft capacity grows with depth and sharpness.
+`2·β·Ksy·P + Kvy`): when `2·β·Ksy·P + Kvy ≤ 1` the depth-`n` capacity constant is at most
+`n · (2·β·Ksθ·P + Kvθ)`, linear in depth and in the sharpness `β`. Composed with the shipped
+`capacityReal_le_dudley_of_lipschitz`, this gives the sharpness-scaled empirical Rademacher complexity
+bound with constant `O(n·β)`.
 
 The shipped certificates carry `paramLipBound (replicate L blk)` symbolically; these lemmas extract its
 explicit depth-linearity.

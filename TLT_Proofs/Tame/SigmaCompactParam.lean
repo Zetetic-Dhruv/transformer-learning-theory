@@ -9,28 +9,24 @@ import Mathlib.MeasureTheory.Constructions.Polish.Basic
 /-!
 # Tame parameter spaces: σ-compactness forces a measurable score range
 
-This file machine-checks the *tame half* of the measurability dichotomy for
-attention routers.
-
 If the router's parameter space `β` is σ-compact and the score map
-`g : β → ℝ` is continuous, then `Set.range g` is measurable.  This is the
-"debate-settler": over any finite-dimensional / σ-compact parameter space the
-pathology exploited by `TLT_Proofs.Strictness.NonBorelWitness` cannot arise,
-because that witness *requires* `Set.range g` to be a non-measurable analytic
-set — which σ-compactness forbids.
+`g : β → ℝ` is continuous, then `Set.range g` is measurable. Over any
+σ-compact parameter space, the pathology exploited by
+`TLT_Proofs.Strictness.NonBorelWitness` cannot arise, because that witness
+requires `Set.range g` to be a non-measurable analytic set, which σ-compactness
+forbids.
 
 ## Note on the Mathlib API
 
-This Mathlib pin (`fde0cc5`) has **no** `IsFsigma` predicate.  Rather than take
-an Fσ detour we route directly through `IsCompact.measurableSet`
-(`T2Space`-compact sets are measurable) on each compact piece of the σ-compact
-cover supplied by `isSigmaCompact_range`.  The conclusion is identical.
+This Mathlib pin (`fde0cc5`) has **no** `IsFsigma` predicate. The proof routes
+directly through `IsCompact.measurableSet` (`T2Space`-compact sets are
+measurable) on each compact piece of the σ-compact cover supplied by
+`isSigmaCompact_range`. The conclusion is identical.
 -/
 
 /-!
 ## References
 - [4][6] continuous image of a σ-compact space is Fσ, hence Borel; [7] the dichotomy frame.
-- Provenance: Classical-instantiation (textbook descriptive-topology composition).
 -/
 
 namespace TLT.Tame
@@ -42,11 +38,11 @@ open Set
 If the parameter space `β` is σ-compact and the score map `g : β → ℝ` is
 continuous, then its range is measurable.
 
-This is the exact contrapositive of the non-Borel witness: the witness needs
+This is the contrapositive of the non-Borel witness: the witness needs
 `Set.range g` to be a non-measurable analytic set, so it can only live over a
-*non*-σ-compact (e.g. Baire `ℕ → ℕ`) parameter space — never over `ℝ^d` or any
-σ-compact space.  No measurability assumption on `g` beyond continuity is
-needed; σ-compactness of the *domain* alone does the work. -/
+*non*-σ-compact (e.g. Baire `ℕ → ℕ`) parameter space, never over `ℝ^d` or any
+σ-compact space. No measurability assumption on `g` beyond continuity is needed;
+σ-compactness of the *domain* alone suffices. -/
 theorem measurableSet_range_of_continuous_of_sigmaCompactSpace
     {β : Type*} [TopologicalSpace β] [SigmaCompactSpace β]
     {g : β → ℝ} (hg : Continuous g) :

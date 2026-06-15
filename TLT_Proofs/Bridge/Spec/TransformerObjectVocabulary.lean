@@ -12,8 +12,8 @@ import Mathlib.Data.Real.Basic
 # Transformer statements over real and IEEE binary32 backends
 
 Minimal common vocabulary for stating and resolving properties of TorchLean's `Spec.Transformer`,
-uniformly across numeric backends `α` — in particular `α = ℝ` (learning theory) and
-`α = IEEE32Exec` (IEEE binary32 execution). The architecture shape is backend-independent (four
+uniformly across numeric backends `α` (in particular `α = ℝ` for learning theory and
+`α = IEEE32Exec` for IEEE binary32 execution). The architecture shape is backend-independent (four
 `Nat`); only the tensors live over `α`.
 
 This file deliberately contains no concrete property, no proved theorem about a specific
@@ -22,22 +22,20 @@ built in separate files on top of this vocabulary.
 
 ## Contents
 
-- `TransformerConfig` — the backend-independent architecture shape (four `Nat`).
-- `TransformerObject α` — a `Spec.Transformer` at backend `α`, paired with its shape.
-- `TransformerProperty α` — a property of such an object, as a `Prop`.
-- `Resolution T P` — a proof-carrying resolution of a property `P` of a subject `T`: either a proof
+- `TransformerConfig`: the backend-independent architecture shape (four `Nat`).
+- `TransformerObject α`: a `Spec.Transformer` at backend `α`, paired with its shape.
+- `TransformerProperty α`: a property of such an object, as a `Prop`.
+- `Resolution T P`: a proof-carrying resolution of a property `P` of a subject `T`, either a proof
   (`discharged`) or a refutation (`refuted`). A property for which no `Resolution T P` inhabitant has
   yet been supplied is simply unresolved.
-- `RealTransformer` / `FP32Transformer` — the `ℝ` and `IEEE32Exec` readings.
-- `TransformerObject.forwardMap` — the forward map of the object at a given sequence length.
+- `RealTransformer` / `FP32Transformer`: the `ℝ` and `IEEE32Exec` readings.
+- `TransformerObject.forwardMap`: the forward map of the object at a given sequence length.
 -/
 
 /-!
 ## References
 - [27] transformer architecture (numLayers/headCount/embedDim/hiddenDim); [53] `Spec.Transformer`,
   backend-parametric Tensor/Context; [51] IEEE binary32 backend.
-- Provenance: Innovation (organizational vocabulary) — the backend-parametric `TransformerObject` +
-  `Resolution` proof-carrying scaffold; not a theorem.
 -/
 
 open Spec
@@ -75,8 +73,8 @@ abbrev TransformerProperty (α : Type) [Context α]
   TransformerObject α → Prop
 
 /-- A proof-carrying resolution of a property `P` of a subject `T`: `discharged` carries a proof of
-the property, `refuted` carries a proof of its negation. Generic in the subject `S`, so it resolves
-properties of a transformer at any backend — and of any other subject. -/
+the property, `refuted` carries a proof of its negation. Generic in the subject `S`, so it applies
+to properties of a transformer at any backend as well as any other subject. -/
 inductive Resolution {S : Type u} (T : S) (P : S → Prop) : Type u where
   | discharged (proof : P T) : Resolution T P
   | refuted    (proof : ¬ P T) : Resolution T P

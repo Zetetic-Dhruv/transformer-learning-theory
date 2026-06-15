@@ -13,22 +13,22 @@ import TLT_Proofs.Bridge.Lipschitz.LinearLayerWeightLipschitz
 The concrete instantiation of `certified_executed_generalization_dudley` on a genuine attention model:
 a single dot-product attention head with a **learnable value projection** `W`, evaluated on a
 clamped input. The learnable weight is an *attention* weight (not merely a layer-norm affine), so the
-capacity term genuinely measures the attention class — the Kim et al. boundary made into a learning
+capacity term genuinely measures the attention class; the Kim et al. boundary becomes a learning
 bound.
 
 The head is `attnHead scale W Y i = attnVec (scores Y) (Y · W)`: the softmax scores come from the
 input `Y`, the value rows are the learned projection `Y · W`. Because the output is a convex
 combination of the value rows, the head is `1`-Lipschitz in the value matrix, so its weight-Lipschitz
-constant is the input row-`ℓ¹` bound (`attnHead_weight_lip`) — finite because the input is clamped to
+constant is the input row-`ℓ¹` bound (`attnHead_weight_lip`), finite because the input is clamped to
 the certified region. Composed with the loss, this discharges the `hlip` hypothesis of the capstone.
 
 ## Main definitions
 
-- `attnHead` — a dot-product attention head with a learnable value projection.
+- `attnHead`: a dot-product attention head with a learnable value projection.
 
 ## Main results
 
-- `attnHead_weight_lip` — the head is `β`-Lipschitz in the value-projection weights, `β` the input
+- `attnHead_weight_lip`: the head is `β`-Lipschitz in the value-projection weights, `β` the input
   row-`ℓ¹` bound.
 -/
 
@@ -36,8 +36,6 @@ the certified region. Composed with the loss, this discharges the `hlip` hypothe
 ## References
 - [31] attention nonexpansive averaging / bounded-domain; [32] attention-class capacity; [16][54][26]
   Dudley/covering; [36] capacity template.
-- Provenance: Innovation (executed instantiation) — the attention-head certified bound on the
-  clamped region with learnable value projection; legs matched/vendored.
 -/
 
 open MeasureTheory
@@ -141,7 +139,7 @@ true risk is at most the executed empirical risk plus the closed capacity-and-ro
 `2·(12√2·B_int/√m) + ε + 2·Lℓ·envBound`, where the affine entropy integral carries the
 attention-class Lipschitz constant `L = Lℓ·(d·B)·Lw`. The learnable weight is the *attention* value
 projection, so the capacity genuinely measures the attention class on the certified region `K = {‖x‖≤B}`
-— the input cap the clamp realizes. -/
+the input cap the clamp realizes. -/
 theorem attnHead_certified_generalization {n d p m : ℕ} [NeZero n] [Nonempty (Fin p)]
     [MeasurableSpace (Fin n → Fin d → ℝ)] [BorelSpace (Fin n → Fin d → ℝ)]
     {P : Measure (Fin n → Fin d → ℝ)} [IsProbabilityMeasure P]

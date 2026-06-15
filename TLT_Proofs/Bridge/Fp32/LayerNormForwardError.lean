@@ -13,12 +13,12 @@ The third per-sub-layer literal forward error (after attention `attnLiteralForwa
 `ffnExec_forward_error`). Layer-norm is `(x − mean)/std · γ + β`; its only structural novelty over the
 FFN is the **division** by the standard deviation. The whole leg therefore rides on:
 
-* `abs_div_sub_div_le` — the perturbed-quotient bound `|a'/b' − a/b| ≤ |a'−a|/b' + |a|·|b'−b|/(b'·b)`,
-  the one genuinely new sub-argument (a clean real-analysis fact, reusable);
-* the shipped atoms for the surrounding rounds (`fp32Round_abs_error`, `fp32Sum_error_le`, the sqrt atom),
-  abstracted here as per-op error budgets `ρround / ρm / ρs`;
+* `abs_div_sub_div_le`: the perturbed-quotient bound `|a'/b' − a/b| ≤ |a'−a|/b' + |a|·|b'−b|/(b'·b)`,
+  a real-analysis fact;
+* the rounding atoms for the surrounding operations (`fp32Round_abs_error`, `fp32Sum_error_le`, the sqrt atom),
+  abstracted as per-op error budgets `ρround / ρm / ρs`;
 * the verified `ε = 1e-6` regulariser, which floors `rowStdCoord ≥ √ε` (`rowStdCoord_ge_sqrt_eps`), so the
-  division denominator is provably bounded below — no Pl-kill, no extra bundle field.
+  division denominator is bounded below.
 
 The forward error then telescopes through the quotient exactly as the FFN telescoped through its two
 matmuls: a coordinate bound lifted to the sup norm. It feeds `block3_forward_error` beside attention + FFN.
@@ -51,16 +51,14 @@ noncomputable def lnStarExec {s d : ℕ} (γ β : Fin d → ℝ) (meanE stdE : F
     (X : Fin s → Fin d → ℝ) : Fin s → Fin d → ℝ :=
   fun i j => fp32Round ((X i j - meanE i) / stdE i * γ j + β j)
 
-/-- **The layer-norm literal forward error.** Given the per-op rounding budgets — `ρround` for the final
-affine round, `ρm` for the mean reduction (`fp32Sum`), `ρs` for the std (`fp32Sum` + sqrt atom) — and the
+/-- **The layer-norm literal forward error.** Given the per-op rounding budgets (`ρround` for the final
+affine round, `ρm` for the mean reduction (`fp32Sum`), `ρs` for the std (`fp32Sum` + sqrt atom)) and the
 score bound `B`, `|γ| ≤ Cγ`, the executed layer-norm is within
 `ρround + Cγ·(ρm/√ε + 2B·ρs/ε)` of `layerNormCoord`. The `ε = 1e-6` regulariser floors both standard
 deviations at `√ε` (`rowStdCoord_ge_sqrt_eps` + `hstdE`), so the perturbed quotient `abs_div_sub_div_le`
-controls the `/std` with denominators `≥ ε`. The mean/std reductions are *budgeted* (`ρm`/`ρs`),
-dischargeable from `fp32Sum_error_le` + the sqrt atom exactly as the FFN's `rdotBudget` discharges from
-`Vexec_error` — abstracted here, in the manner of `block2_forward_error` carrying its per-step errors, to
-keep the quotient composition clean. The sup norm converts to `dist` (`dist_eq_norm`) to feed
-`block3_forward_error` beside attention + FFN. -/
+controls the `/std` with denominators `≥ ε`. The mean/std reductions are supplied as budgets `ρm`/`ρs`,
+dischargeable from `fp32Sum_error_le` and the sqrt atom. The sup norm converts to `dist` (`dist_eq_norm`)
+to feed `block3_forward_error` alongside attention and FFN. -/
 theorem lnExec_forward_error {s d : ℕ} (γ β : Fin d → ℝ) (meanE stdE : Fin s → ℝ)
     (X : Fin s → Fin d → ℝ) {B Cγ ρround ρm ρs : ℝ}
     (hB : 0 ≤ B) (hCγ0 : 0 ≤ Cγ) (hρm : 0 ≤ ρm) (hρs : 0 ≤ ρs) (hρr : 0 ≤ ρround)

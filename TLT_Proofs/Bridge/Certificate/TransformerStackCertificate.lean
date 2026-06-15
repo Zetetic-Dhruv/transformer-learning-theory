@@ -9,28 +9,24 @@ import TLT_Proofs.Bridge.Lipschitz.LinearLayerWeightLipschitz
 /-!
 # The full transformer encoder stack: adding the feed-forward block
 
-T1 (`AttnStackCertificate`) gave the depth-graded soft-attention capacity. The full transformer
-encoder layer is the post-norm attention block followed by a post-norm feed-forward residual block
-`layerNorm_{γ₂,β₂}(Y + ffn Y)`. This file adds the feed-forward sub-block as a `ParamLayerLocal`:
+`AttnStackCertificate` gave the depth-graded soft-attention capacity. The full transformer encoder
+layer is the post-norm attention block followed by a post-norm feed-forward residual block
+`layerNorm_{γ₂,β₂}(Y + ffn Y)`. The feed-forward sub-block is formalized as a `ParamLayerLocal`:
 
-* `ffnCoord_input_lipschitz` — the feed-forward map is globally `bW₁·bW₂`-Lipschitz in the input
-  (`bW₁, bW₂` the column-ℓ¹ norms of the two weight matrices) — unlike attention, no input cap is
-  needed (linear ∘ ReLU ∘ linear is globally Lipschitz);
-* `ffnCoord_param_lipschitz` — the feed-forward map is Lipschitz in its `(W₁, b₁, W₂, b₂)` weights on
+* `ffnCoord_input_lipschitz`: the feed-forward map is globally `bW₁·bW₂`-Lipschitz in the input
+  (`bW₁, bW₂` the column-ℓ¹ norms of the two weight matrices); linear ∘ ReLU ∘ linear is globally
+  Lipschitz, so no input cap is needed.
+* `ffnCoord_param_lipschitz`: the feed-forward map is Lipschitz in its `(W₁, b₁, W₂, b₂)` weights on
   the bounded input domain.
 
-These are the missing capacity ingredients (the minimal-FFN certificate kept its capacity abstract);
-together with the layer-norm estimates they make the feed-forward residual block a depth-uniform
-`ParamLayerLocal`, so the full encoder stack composes through `paramComp_param_lipschitz_on'` exactly
-as the attention stack does.
+Together with the layer-norm estimates, these make the feed-forward residual block a depth-uniform
+`ParamLayerLocal` that composes with the attention block through `paramComp_param_lipschitz_on'`.
 -/
 
 /-!
 ## References
 - [36] FFN globally Lipschitz; [31] residual self-attention on-ball; [33] seq-length-free depth-
   graded capacity; [41] universal-transformer; [16][54][26] Dudley/covering; LayerNorm Lipschitz.
-- Provenance: Innovation (executed instantiation) — the depth-L full single-head encoder stack
-  certified bound; supporting FFN/LayerNorm/residual Lipschitz lemmas are matched.
 -/
 
 open MeasureTheory
@@ -44,7 +40,7 @@ variable {s d h : ℕ}
 /-- **The feed-forward block is globally input-Lipschitz.** `ffnCoord = (·W₂) ∘ relu ∘ (·W₁ + b₁) + b₂`
 moves by at most `bW₁·bW₂·dist X X'`, where `bW₁ ≥ ∑ₖ|W₁ k l|` and `bW₂ ≥ ∑ₗ|W₂ l j|` are column-ℓ¹
 bounds: the inner linear map contracts by `bW₁`, ReLU is `1`-Lipschitz, the outer linear map by `bW₂`.
-No input cap is needed — linear/ReLU layers are globally Lipschitz (contrast self-attention). -/
+No input cap is needed, since linear/ReLU layers are globally Lipschitz (contrast self-attention). -/
 lemma ffnCoord_input_lipschitz (W1 : Fin d → Fin h → ℝ) (b1 : Fin h → ℝ)
     (W2 : Fin h → Fin d → ℝ) (b2 : Fin d → ℝ) {bW1 bW2 : ℝ} (hbW1 : 0 ≤ bW1) (hbW2 : 0 ≤ bW2)
     (hW1 : ∀ l, (∑ k, |W1 k l|) ≤ bW1) (hW2 : ∀ j, (∑ l, |W2 l j|) ≤ bW2)
@@ -150,7 +146,7 @@ open Capacity
 
 /-- The post-norm feed-forward residual block as a depth-uniform `ParamLayerLocal`: the feed-forward
 inner map has fixed weights (input-Lipschitz constant `bW₁·bW₂`), and the learnable parameters are the
-post-norm layer-norm affine `(γ, β)` — exactly the parameter class of the attention block, so the two
+post-norm layer-norm affine `(γ, β)`, exactly the parameter class of the attention block, so the two
 compose into one transformer encoder stack. -/
 noncomputable def normFFNBlock {s d h p : ℕ} {Cγ Cβ Lγ Lβ bW1 bW2 : ℝ}
     (hCγ0 : 0 ≤ Cγ) (_hCβ0 : 0 ≤ Cβ) (hLγ0 : 0 ≤ Lγ) (hLβ0 : 0 ≤ Lβ)
@@ -167,14 +163,13 @@ noncomputable def normFFNBlock {s d h p : ℕ} {Cγ Cβ Lγ Lβ bW1 bW2 : ℝ}
     exact mul_nonneg (div_nonneg (mul_nonneg hCγ0 (by positivity)) (Real.sqrt_nonneg _))
       (add_nonneg zero_le_one (mul_nonneg hbW1 hbW2))
 
-/-- **Depth-graded full-transformer weight-Lipschitz (the T2 headline).** A depth-`L` stack of
-transformer encoder layers — each layer the post-norm attention block followed by the post-norm
-feed-forward residual block (`[attnBlock, ffnBlock]`, flattened over `L` copies) — is
-`lparamLipBound`-Lipschitz in the learnable layer-norm weights, on the forward-invariant activation
-ball `closedBall 0 (√d·Cγ + Cβ)`. The constant grows with depth `L`: the full transformer's
-depth-graded soft capacity, discharged through `paramComp_param_lipschitz_on'` exactly as the
-attention-only stack, with each block's input-Lipschitz, weight-Lipschitz, and forward-invariance
-estimate dispatched by whether it is the attention or feed-forward block. -/
+/-- **Depth-graded full-transformer weight-Lipschitz.** A depth-`L` stack of transformer encoder
+layers, each consisting of the post-norm attention block followed by the post-norm feed-forward
+residual block (`[attnBlock, ffnBlock]`, flattened over `L` copies), is `lparamLipBound`-Lipschitz in
+the learnable layer-norm weights on the forward-invariant activation ball `closedBall 0 (√d·Cγ + Cβ)`.
+The constant grows with depth `L`, giving the full transformer's depth-graded soft capacity. Per-block
+obligations (input-Lipschitz, weight-Lipschitz, forward-invariance) are dispatched by block type via
+`paramComp_param_lipschitz_on'`. -/
 theorem transformerEncoderStack_weight_lip {s d hdim p : ℕ} [NeZero s] (hd : 0 < d)
     {scale R Cγ Cβ Lγ Lβ bW1 bW2 : ℝ} (hscale : 0 < scale) (hCγ0 : 0 ≤ Cγ) (hCβ0 : 0 ≤ Cβ)
     (hLγ0 : 0 ≤ Lγ) (hLβ0 : 0 ≤ Lβ) (hbW1 : 0 ≤ bW1) (hbW2 : 0 ≤ bW2)
@@ -266,16 +261,15 @@ lemma continuous_normFFNBlock_weight {s d hdim q : ℕ}
     ((continuous_apply_apply i j).comp continuous_snd).add
       ((continuous_apply_apply i j).comp ((continuous_ffnCoord W1 b1 W2 b2).comp continuous_snd))))
 
-/-- **Depth-graded full-transformer certified generalization bound (the T2 capstone).** For a depth-`L`
-stack of transformer encoder layers (post-norm attention block ∘ post-norm feed-forward residual
-block), presented as the executed layer list `Ls` whose ideal forward at the certified weights is the
-clamped stack (`hagree`): except on a sample event of McDiarmid-small probability, the executed true
-risk is at most the executed empirical risk plus the closed capacity budget
-`2·(12√2·(1/√m)·B_int) + ε` and the rounding correction `2·Lℓ·envBound`. The capacity constant
-`lparamLipBound` grows with depth `L` — the full transformer's depth-graded soft capacity. The input
-cap (clamp to the layer-norm activation ball of radius `√d·Cγ + Cβ`) is the hypothesis self-attention's
-lack of a global Lipschitz constant forces; the feed-forward block, being globally Lipschitz, needs
-none. -/
+/-- **Depth-graded full-transformer certified generalization bound.** For a depth-`L` stack of
+transformer encoder layers (post-norm attention block ∘ post-norm feed-forward residual block),
+presented as the executed layer list `Ls` whose ideal forward at the certified weights is the clamped
+stack (`hagree`): except on a sample event of McDiarmid-small probability, the executed true risk is
+at most the executed empirical risk plus the closed capacity budget `2·(12√2·(1/√m)·B_int) + ε` and
+the rounding correction `2·Lℓ·envBound`. The capacity constant `lparamLipBound` grows with depth `L`.
+The input cap (clamp to the layer-norm activation ball of radius `√d·Cγ + Cβ`) is required by
+self-attention's lack of a global Lipschitz constant; the feed-forward block, being globally Lipschitz,
+needs no such cap. -/
 theorem transformerEncoderStack_certified_generalization {s d hdim p m : ℕ} [NeZero s]
     [Nonempty (Fin p)] [MeasurableSpace (Fin s → Fin d → ℝ)] [BorelSpace (Fin s → Fin d → ℝ)]
     {P : Measure (Fin s → Fin d → ℝ)} [IsProbabilityMeasure P]

@@ -11,15 +11,14 @@ import TLT_Proofs.TemperedDesignLaw.HardeningEnvelope
 The deviation of an *executed* soft layer from the hard route splits, by one triangle step, into two
 ledgers over the *same* layer: a **numerical** ledger (the executed mixture vs the ideal-real mixture) and a
 **tempered** ledger (the ideal mixture vs the hard route, the margin-exponential hardening). This is the
-per-layer kernel of the design law's central identity — the sharpness `β` plays the role of precision `u`,
+per-layer kernel of the design law's central identity. The sharpness `β` plays the role of precision `u`,
 and the two error sources add exactly as the rounding and approximation envelopes do.
 
-* `executedSoft_sub_hard_two_ledger` — `‖executed − hard‖ ≤ rnd + (k−1)·exp(−β·γ)·D`: the numerical ledger
+* `executedSoft_sub_hard_two_ledger`: `‖executed − hard‖ ≤ rnd + (k−1)·exp(−β·γ)·D`. The numerical ledger
   `rnd` (an abstract per-layer rounding bound, concretized by the IEEE executed mixture downstream) plus the
   tempered ledger.
-* `temperedLedger_antitone_beta` — the tempered ledger is *monotone decreasing* in the sharpness: more
-  sharpness, less hardening leakage. A statement about the bound on the certified region — no limit, no
-  divergence vocabulary.
+* `temperedLedger_antitone_beta`: the tempered ledger is monotone decreasing in the sharpness. More
+  sharpness, less hardening leakage.
 -/
 
 open scoped BigOperators
@@ -51,7 +50,7 @@ theorem executedSoft_sub_hard_two_ledger {X : Type u} [MeasurableSpace X] {k : �
 
 /-- **The tempered ledger is monotone in sharpness.** For nonnegative margin and payload diameter, the
 hardening ledger `(k−1)·exp(−β·γ)·D` decreases as the sharpness `β` increases: more sharpness, less leakage.
-A statement about the bound on the region — the envelope never grows, so there is nothing to diverge. -/
+The envelope never grows as `β` increases. -/
 theorem temperedLedger_antitone_beta {k : ℕ} {D γ β β' : ℝ}
     (hk1 : 0 ≤ (k : ℝ) - 1) (hD : 0 ≤ D) (hγ : 0 ≤ γ) (hββ' : β ≤ β') :
     ((k : ℝ) - 1) * Real.exp (-(β' * γ)) * D ≤ ((k : ℝ) - 1) * Real.exp (-(β * γ)) * D := by

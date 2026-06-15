@@ -15,7 +15,7 @@ import Mathlib.MeasureTheory.Integral.IntegrableOn
 A function `f` of `m` independent coordinates that changes by at most `c` when any single coordinate
 is altered concentrates around its mean: `P[f − E f ≥ ε] ≤ exp(−2ε²/(m·c²))`. This converts the
 in-expectation uniform-deviation bound (the expected supremum of the empirical Rademacher process) into
-a high-probability per-net generalization bound — the form the float-transfer spine consumes.
+a high-probability per-net generalization bound.
 
 The proof is the moment-generating-function tensorization: peel one coordinate at a time
 (`measurePreserving_piFinSuccAbove`), bounding each conditional increment's MGF by Hoeffding's lemma
@@ -23,20 +23,19 @@ The proof is the moment-generating-function tensorization: peel one coordinate a
 
 ## Main definitions
 
-- `HasBoundedDifferences` — bounded change under a single-coordinate perturbation.
-- `condIntegrate` — the conditional expectation integrating out the first coordinate.
+- `HasBoundedDifferences`: bounded change under a single-coordinate perturbation.
+- `condIntegrate`: the conditional expectation integrating out the first coordinate.
 
 ## Main results
 
-- `mgf_le_of_range_zero_mean` — one-coordinate Hoeffding bound in range form.
-- `mgf_bddiff_le` — the moment-generating-function tensorization, `E[exp(t(f − E f))] ≤ exp(m·c²·t²/8)`.
-- `mcdiarmid` — the bounded-differences concentration inequality.
+- `mgf_le_of_range_zero_mean`: one-coordinate Hoeffding bound in range form.
+- `mgf_bddiff_le`: the moment-generating-function tensorization, `E[exp(t(f − E f))] ≤ exp(m·c²·t²/8)`.
+- `mcdiarmid`: the bounded-differences concentration inequality.
 -/
 
 /-!
 ## References
 - [18] McDiarmid 1989; [15] Hoeffding's lemma; [21] entropy-method (MGF) tensorization route.
-- Provenance: Classical-instantiation (MGF-tensorization proof of the bounded-differences ineq.).
 -/
 
 open MeasureTheory ProbabilityTheory Real

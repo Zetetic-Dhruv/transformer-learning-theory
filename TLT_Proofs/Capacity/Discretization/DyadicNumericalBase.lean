@@ -17,19 +17,18 @@ base-change invariance.
 
 ## Main definitions
 
-- `Dyadic` — the dyadic rationals, `↥(Subring.closure {(2⁻¹ : ℚ)})`.
-- `dyadicToReal` — the ring-hom inclusion into `ℝ`.
+- `Dyadic`: the dyadic rationals, `↥(Subring.closure {(2⁻¹ : ℚ)})`.
+- `dyadicToReal`: the ring-hom inclusion into `ℝ`.
 
 ## Main results
 
-- `denseRange_dyadicToReal` — the dyadics are dense in `ℝ` (binary-grid rounding).
-- `instance : DenseNumBase Dyadic` — the canonical dense base.
+- `denseRange_dyadicToReal`: the dyadics are dense in `ℝ` (binary-grid rounding).
+- `instance : DenseNumBase Dyadic`: the canonical dense base.
 -/
 
 /-!
 ## References
 - ℤ[1/2] dyadic ring: density + finite binary expansion (standard; Wikipedia "Dyadic rational").
-- Provenance: Classical-instantiation (canonical facts about ℤ[1/2]).
 -/
 
 open Metric

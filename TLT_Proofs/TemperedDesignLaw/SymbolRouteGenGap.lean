@@ -8,36 +8,35 @@ import TLT_Proofs.TemperedDesignLaw.HardCertDischarge
 import TLT_Proofs.TemperedDesignLaw.ArrangementVC
 
 /-!
-# A5-2c — the FULL symbol-ROUTE population generalization gap
+# A5-2c: the FULL symbol-ROUTE population generalization gap
 
-This file lands the population generalization bound for the **hard symbol route's 0-1 loss** (the
-genuine routing-error channel), as opposed to the per-pair score-comparison channel of
-`SymbolChannelGenGap.lean`. Two clean sub-results.
+Population generalization bound for the **hard symbol route's 0-1 loss** (the routing-error
+channel), as opposed to the per-pair score-comparison channel of `SymbolChannelGenGap.lean`.
 
-## 1. `boolClass_gen_gap` — the template, generalized
+## 1. `boolClass_gen_gap`: the template, generalized
 
-The proof of `comparisonClass_gen_gap` (`SymbolChannelGenGap.lean`) uses only that the class's
-concepts are measurable (`hmeas_C`), the target is measurable (`hc_meas`), and a `WellBehavedVC`
-regularity leg — it is *fully general* in the Bool class. `boolClass_gen_gap` is exactly that proof
-with the class `C : ConceptClass X Bool` abstract: a reusable Bool generalization bound. The
-comparison-class version is then `boolClass_gen_gap` applied with `comparisonConcept_measurable`.
+`boolClass_gen_gap` is the generalization bound for an arbitrary measurable Bool class
+`C : ConceptClass X Bool`. The symmetrization machinery (`symmetrization_step` +
+`double_sample_pattern_bound`) requires only that every concept in `C` is measurable (`hmeas_C`),
+the target is measurable (`hc_meas`), and a `WellBehavedVC` regularity leg (`hWB`). The
+comparison-class version is `boolClass_gen_gap` applied with `comparisonConcept_measurable`.
 
 ## 2. The route-loss application
 
-* `routeLossConcept A hk ρ y x := decide (A.route hk ρ x ≠ y x)` — the 0-1 routing loss against the
+* `routeLossConcept A hk ρ y x := decide (A.route hk ρ x ≠ y x)`: the 0-1 routing loss against the
   target labelling `y`, as a Boolean concept on `X`.
-* `routeLossClass A hk y := Set.range (fun ρ => routeLossConcept A hk ρ y)` — the loss class as `ρ`
+* `routeLossClass A hk y := Set.range (fun ρ => routeLossConcept A hk ρ y)`: the loss class as `ρ`
   varies.
 
 Then:
-* `routeLossConcept_measurable` — measurable, from `route_measurable` (joint `Ρ × X`) sectioned at `ρ`
+* `routeLossConcept_measurable`: measurable, from `route_measurable` (joint `Ρ × X`) sectioned at `ρ`
   via `measurable_prodMk_left`, paired with measurable `y`, and discreteness of `Fin k`.
-* `routeLossClass_growthFunction_le` — the **crux**: the loss factors through the route, so on every
-  sample the loss-pattern count is at most the route-pattern count, which
-  `symbolClass_growth_prod` (S3) bounds by the arrangement Sauer product. The growth function is the
-  `sSup` of the per-sample restriction counts, so this uniform per-sample bound bounds the `sSup`.
-* `symbolRoute_gen_gap` — `boolClass_gen_gap` for `routeLossClass`, with the growth function
-  replaced by the arrangement Sauer product via the crux: the symbol-route population gap is at most
+* `routeLossClass_growthFunction_le`: the loss factors through the route, so on every sample the
+  loss-pattern count is at most the route-pattern count, which `symbolClass_growth_prod` (S3) bounds
+  by the arrangement Sauer product. The growth function is the `sSup` of the per-sample restriction
+  counts, so this uniform per-sample bound bounds the `sSup`.
+* `symbolRoute_gen_gap`: `boolClass_gen_gap` for `routeLossClass`, with the growth function
+  replaced by the arrangement Sauer product. The symbol-route population gap is at most
   `2 · (∏ Sauer) · exp(-mε²/8)`.
 -/
 
@@ -53,17 +52,17 @@ variable {X : Type u} [MeasurableSpace X] {k : ℕ}
 
 /-! ## 1. The template, generalized: an arbitrary measurable Bool class -/
 
-/-- **A5-2c.1 — population generalization gap for an arbitrary measurable Bool class.**
+/-- **A5-2c.1: population generalization gap for an arbitrary measurable Bool class.**
 
-This is `comparisonClass_gen_gap` with the concept class `C` abstract. The symmetrization machinery
-(`symmetrization_step` + `double_sample_pattern_bound`) needs only that every concept in `C` is
-measurable (`hmeas_C`), the target is measurable (`hc_meas`), and the `WellBehavedVC` regularity leg
-(`hWB`). So the population (one-sided uniform) generalization gap holds for *any* such class:
+For a concept class `C : ConceptClass X Bool`, the population (one-sided uniform) generalization
+gap satisfies
 
-`Dᵐ{∃ h ∈ C, TrueErr h − EmpErr h ≥ ε} ≤ 2 · GrowthFunction X C (2m) · exp(−mε²/8)`.
+`Dᵐ{∃ h ∈ C, TrueErr h − EmpErr h ≥ ε} ≤ 2 · GrowthFunction X C (2m) · exp(−mε²/8)`,
 
-`comparisonClass_gen_gap` is this applied to `comparisonClass A i j` with
-`comparisonConcept_measurable`; `symbolRoute_gen_gap` (below) is this applied to `routeLossClass`. -/
+assuming measurability of every concept in `C` (`hmeas_C`), measurability of the target (`hc_meas`),
+and the `WellBehavedVC` regularity leg (`hWB`). Applied to `comparisonClass A i j` with
+`comparisonConcept_measurable` one recovers `comparisonClass_gen_gap`; applied to `routeLossClass`
+one recovers `symbolRoute_gen_gap` below. -/
 theorem boolClass_gen_gap [Infinite X]
     (C : ConceptClass X Bool) (hmeas_C : ∀ h ∈ C, Measurable h)
     (D : Measure X) [IsProbabilityMeasure D]
@@ -141,7 +140,7 @@ theorem routeLossConcept_measurable (A : FiniteScoreRouterCode X k) (hk : 0 < k)
   rw [hpre]
   exact hpair MeasurableSet.of_discrete
 
-/-! ## (b) The crux: the loss factors through the route, so the growth function is bounded -/
+/-! ## (b) The loss factors through the route, so the growth function is bounded -/
 
 /-- **The route-loss restriction is the image of the route restriction.** On a sample `S`, every loss
 pattern realized by `routeLossClass A hk y` is the pointwise `decide (· ≠ y ·)` image of a route
@@ -208,7 +207,7 @@ theorem routeLossClass_growthFunction_le (A : FiniteScoreRouterCode X k) (hk : 0
 
 /-! ## (c) The symbol-route population generalization gap -/
 
-/-- **A5-2c — the FULL symbol-route population generalization gap (growth-function form).**
+/-- **A5-2c: the FULL symbol-route population generalization gap (growth-function form).**
 
 For a router code `A`, a measurable target labelling `y : X → Fin k`, and a sample size `m` large
 enough, the probability under the `m`-fold product measure that **some** route-loss concept in
@@ -237,18 +236,18 @@ theorem symbolRoute_gen_gap_growth [Infinite X]
     exact routeLossConcept_measurable A hk ρ hy
   exact boolClass_gen_gap (routeLossClass A hk y) hmeas_C D c hc_meas hWB m hm ε hε hm_large
 
-/-- **A5-2c — the FULL symbol-route population generalization gap (arrangement Sauer form).**
+/-- **A5-2c: the FULL symbol-route population generalization gap (arrangement Sauer form).**
 
-Same as `symbolRoute_gen_gap_growth`, but with the growth function replaced by the shipped
-arrangement-VC Sauer–Shelah product (`routeLossClass_growthFunction_le`, the crux): under per-pair
+Same as `symbolRoute_gen_gap_growth`, but with the growth function replaced by the
+arrangement-VC Sauer–Shelah product (`routeLossClass_growthFunction_le`): under per-pair
 linearity of the score differences (each `x ↦ sⱼ(x) − sᵢ(x)` in a finite-dimensional `Wᵢⱼ`),
 
 `Dᵐ{∃ h ∈ routeLossClass, TrueErr h − EmpErr h ≥ ε}
    ≤ 2 · (∏_{(i,j)} ∑_{r ≤ finrank Wᵢⱼ} (2m choose r)) · exp(−mε²/8)`.
 
-This is the symbol-route 0-1 population generalization gap in closed form against the arrangement
-dimension — the genuine routing-error analogue of `comparisonClass_gen_gap_sauer`. Conditional on
-`hlin` (load-bearing: false for arbitrary measurable scores). -/
+The symbol-route 0-1 population generalization gap in closed form against the arrangement
+dimension, analogous to `comparisonClass_gen_gap_sauer`. Conditional on `hlin`; the linearity
+hypothesis is not satisfied for arbitrary measurable scores. -/
 theorem symbolRoute_gen_gap [Infinite X]
     (A : FiniteScoreRouterCode X k) (hk : 0 < k)
     {y : X → Fin k} (hy : Measurable y)

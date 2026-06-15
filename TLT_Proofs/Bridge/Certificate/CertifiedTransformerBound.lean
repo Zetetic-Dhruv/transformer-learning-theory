@@ -19,21 +19,18 @@ capacity-and-rounding budget** only on a sample event of McDiarmid-small probabi
 
 `R_true^exec ≤ R̂_emp^exec + 2·(12√2·(1/√m)·B) + ε + 2·Lℓ·envBound`,
 
-with `B` the affine entropy integral — a determinate quantity in the weight-ball radius `R`, the
+with `B` the affine entropy integral, a determinate quantity in the weight-ball radius `R`, the
 parameter-Lipschitz constant `L`, the input dimension `d`, the loss bound `b`, and the sample size `m`.
 
 ## Main results
 
-- `certified_executed_generalization_dudley` — the certified computable float32 generalization bound.
+- `certified_executed_generalization_dudley`: the certified computable float32 generalization bound.
 -/
 
 /-!
 ## References
 - [16][54] Dudley (12√2); [25][26] affine entropy integrand from a Lipschitz-parametric covering
   number; [31] the R-ball-conditional Lipschitz boundary; [36] capacity template.
-- Provenance: Innovation — the closed float32 bound about the executed model; Dudley/covering legs
-  classical/vendored, the executed join + honest R-ball boundary are TLT.
-- TLT contribution (Dhruv Gupta), `certified_executed_generalization_dudley`: the executed-model end-to-end certificate joining an ideal Dudley/Rademacher/McDiarmid capacity bound to the finite-precision IEEE binary32 executed forward via the rounding envelope 2·L·envBound — a generalization bound about the model the hardware runs. Method: abs_le / measureReal_mono reduce the executed-bad event to the ideal-bad event through the bridge identity and envelope legs. (Capacity machinery is classical/vendored; TLT claims only the join.)
 -/
 
 open MeasureTheory
@@ -53,7 +50,7 @@ continuous in the weights, and whose value-vector map is `L`-Lipschitz on the we
 `R` (`hlip`): except on a sample event of probability at most the McDiarmid rate
 `exp(−2ε²/(m·(2b/m)²))`, the executed true risk is at most the executed empirical risk plus the
 closed capacity-and-rounding budget `2·(12√2·(1/√m)·B) + ε + 2·Lℓ·envBound`, where `B` is the affine
-Dudley entropy integral. The `R`-ball-conditional Lipschitz hypothesis is the genuine boundary
+Dudley entropy integral. The `R`-ball-conditional Lipschitz hypothesis is the necessary boundary
 (self-attention is not globally Lipschitz); the budget is computable from the model's weights. -/
 theorem certified_executed_generalization_dudley [IsProbabilityMeasure P] {d : ℕ} [Nonempty (Fin d)]
     (hm : 0 < m) {R : ℝ} (hR : 0 ≤ R) (F : ParamSpace d → V → ℝ) {b : ℝ} (hb : 0 < b)

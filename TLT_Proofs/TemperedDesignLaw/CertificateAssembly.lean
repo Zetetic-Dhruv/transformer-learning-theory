@@ -10,44 +10,40 @@ import TLT_Proofs.TemperedDesignLaw.LiteralAttentionTempered
 import TLT_Proofs.TemperedDesignLaw.GapIdentification
 
 /-!
-# TD16 capstone (Strategy C) — a genuine inhabitant of `TemperedDesignLawCertificate`
+# TD16: an inhabitant of `TemperedDesignLawCertificate`
 
-This module *assembles* an honest inhabitant of the root contract
-`TemperedDesignLawCertificate R Ω μ (Fin d → ℝ) (Fin nK)` on a single set of concrete carriers, by
-reusing the landed standalone witnesses of `RootContractInhabitation`, `ExpressivityLattice`,
+This module constructs an inhabitant of the root contract
+`TemperedDesignLawCertificate R Ω μ (Fin d → ℝ) (Fin nK)` on a single set of concrete carriers,
+by combining the standalone witnesses of `RootContractInhabitation`, `ExpressivityLattice`,
 `LiteralAttentionTempered`, and `GapIdentification`.
 
-Per Strategy C the **hard-tame mathematical leg** `temperedHardTameLeg` is built first, in isolation,
-fully wiring exactness (`litAttn_symbol_invariant`), the runtime route-stability checker and its
-soundness lemma, the genuine `(L,K)` expressivity ladder (`ExpressivityLattice`), and a real
-statistical certificate; it is shown non-degenerate and compiles on its own. The full certificate
-`temperedDesignLawCertificate` is then assembled from it together with the capacity, numerical, and
-measurability legs.
-
-## Honesty discipline (A4/A5)
+The **hard-tame mathematical leg** `temperedHardTameLeg` is constructed first, wiring together
+the symbol-channel exactness (`litAttn_symbol_invariant`), the runtime route-stability checker and
+its soundness lemma, the `(L,K)` expressivity ladder (`ExpressivityLattice`), and a statistical
+bound. The full certificate `temperedDesignLawCertificate` is then assembled from the hard-tame leg
+together with the capacity, numerical, and measurability legs.
 
 The certificate is a **conditional** instance. The only facts carried as explicit, named hypotheses
 are the genuinely external inputs:
 
-* `smooth_cert` / `hard_cert` — the two gap-bound facts `gap β ≤ smoothWitness 0 1 β` and
-  `gap β ≤ hardWitness 1 1 1 2 β` on the certified window. These are discharged by S1 (smooth/Dudley)
-  and S5 (hard symbol-plus-leakage) respectively. The *abstract* gap function `gap` is an independent
-  input bounded by the two genuine certificate shapes — it is **not** the certificate min (no
-  circularity) and **not** identically zero (no collapse).
-* `stat_cert : symbolGap ≤ symbolBound` — the S5 statistical certificate, carried as a real
-  inequality. Its satisfiability from the genuine S5 theorem `temperedSymbol_expectedGap_hard_le` is
-  proved separately in `temperedDesignLaw_statBound_satisfiable`.
-* `hwild_nonBorel` — the classical non-Borel base score range driving the measurability cliff.
+* `smooth_cert` / `hard_cert`: the two gap-bound facts `gap β ≤ smoothWitness 0 1 β` and
+  `gap β ≤ hardWitness 1 1 1 2 β` on the certified window. These correspond to the S1 (smooth/Dudley)
+  and S5 (hard symbol-plus-leakage) bounds respectively. The abstract gap function `gap` is an independent
+  input bounded by the two certificate shapes.
+* `stat_cert : symbolGap ≤ symbolBound`: the S5 statistical bound, as a real inequality.
+  Its satisfiability from `temperedSymbol_expectedGap_hard_le` is proved separately in
+  `temperedDesignLaw_statBound_satisfiable`.
+* `hwild_nonBorel`: the classical non-Borel base score range.
 
-Everything else is **proved unconditionally**, reusing the landed witnesses: the certificate geometry
+Every other field is proved unconditionally from the named witnesses: the certificate geometry
 (`smoothWitness_mono`, `hardWitness_anti`, `smoothWitness_binds_left`, `hardWitness_binds_right`,
-`concrete_crossover_exists`), the numerical cone window (`betaMax`), the measurability **shapes**
+`concrete_crossover_exists`), the numerical cone window (`betaMax`), the measurability shapes
 (`softEvent_measurable_witness`, `hardTameEvent_measurable_witness`,
 `hardWildEvent_nonBorel_witness`, `hardWildEvent_nullRepair_witness`), the symbol-channel exactness,
 the runtime checker soundness, and the expressivity ladder.
 
 Two non-vacuity lemmas (`gapZero_satisfies_certs`, `temperedDesignLaw_statBound_satisfiable`) exhibit
-concrete inhabitants of the carried hypotheses, so the conditional def is provably inhabitable.
+concrete inhabitants of the carried hypotheses, confirming that the conditional definition is inhabitable.
 -/
 
 open MeasureTheory Set Real
@@ -60,26 +56,31 @@ namespace TLT.TemperedDesignLaw
 
 universe u
 
-/-! ## Strategy C, step 1 — the hard-tame mathematical leg in isolation
+/-! ## Step 1: the hard-tame mathematical leg
 
 The leg is built on the literal scaled-dot-product attention carrier: inputs `Fin d → ℝ`, routes
 `Fin nK`, parameter `ρ` a key matrix `Fin nK → Fin d → ℝ`. Every field except the carried statistical
-certificate is proved from a landed theorem. -/
+certificate is proved from a named theorem. -/
 
-/-- **The hard-tame mathematical leg.** Fully wired on the literal attention carrier:
+/-- **The hard-tame mathematical leg.** Constructed on the literal attention carrier:
 
-* `hardSymbol` / `executedSymbol` are the argmax route of the *exact* attention scores; their
-  agreement under the runtime budget-`0` route-stability checker is the **landed** soundness lemma
-  `routeStableCheck_sound` (so the checker is load-bearing, not decorative).
-* `exact_positive_beta` is the **landed** symbol-invariance witness `exact_positive_beta_witness`
+* `hardSymbol` / `executedSymbol` are the argmax route of the exact attention scores; their
+  agreement under the runtime budget-`0` route-stability checker follows from
+  `routeStableCheck_sound`.
+* `exact_positive_beta` is the symbol-invariance witness `exact_positive_beta_witness`
   (`litAttn_symbol_invariant`): for every `β > 0` the soft top-one reading equals the hard route.
-* the expressivity ladder is the genuine `(L,K)` lattice of `ExpressivityLattice` — its diagonal
-  depth ladder and each width slice are monotone, with base grade `(0,0)` the symbol class.
-* the statistical certificate `symbolGap ≤ symbolBound` is the carried external input (its
-  satisfiability from S5 is `temperedDesignLaw_statBound_satisfiable`). -/
+* the expressivity ladder is the supplied `ExpressivityLadder E`: its monotone depth and width slices,
+  base grade `(0,0) = E.grade 0 0`, and strict depth separation `E.strict` (which a collapsed grade
+  cannot satisfy). The constrained affine-mux cascade supplies the witness at the binary carrier
+  (`MuxCertificate.binaryExpressivityLadder`).
+* the statistical leg is the supplied `StatisticalCertificate S`: a nonnegative gap `S.gap`, a strictly
+  positive bound `S.bound` (the genuine Sauer envelope is positive for finite sample size, so the bound is
+  never the trivial `0`), and the certificate `S.certified : S.gap ≤ S.bound`. Its satisfiability from
+  `temperedSymbol_expectedGap_hard_le` is `temperedDesignLaw_statBound_satisfiable`. -/
 def temperedHardTameLeg (d nK : ℕ) (hk : 0 < nK)
     (ρ : (Bridge.attentionScoreRouter d nK).Ρ)
-    (symbolGap symbolBound : ℝ) (stat_cert : symbolGap ≤ symbolBound) :
+    (S : StatisticalCertificate)
+    (E : ExpressivityLadder (Fin d → ℝ) (Fin nK)) :
     HardTameMathLeg (Fin d → ℝ) (Fin nK) where
   hardSymbol := fun x => (Bridge.attentionScoreRouter d nK).route hk ρ x
   softTop1 := fun β x =>
@@ -93,51 +94,47 @@ def temperedHardTameLeg (d nK : ℕ) (hk : 0 < nK)
     show leastArgmax (softWeights (litAttnTempered d nK β hβ) ρ x) hk
         = (Bridge.attentionScoreRouter d nK).route hk ρ x
     exact exact_positive_beta_witness d nK β hβ hk hβpos ρ x
-  -- The executed route is the argmax of the *exact* attention scores read through the runtime
-  -- budget `b = 0`; its agreement with the hard route is the landed stability lemma.
+  -- The executed route is the argmax of the exact attention scores read through the runtime
+  -- budget `b = 0`; its agreement with the hard route follows from `routeStableCheck_sound`.
   executedSymbol := fun x =>
     leastArgmax (fun i => (Bridge.attentionScoreRouter d nK).score ρ x i) hk
   routeStableCheck := fun x =>
     routeStableCheck (litAttnTempered d nK 1 (by norm_num)) hk ρ 0 x
   routeStableCheck_sound := by
     intro x hcheck
-    -- discharge via the landed runtime soundness lemma: the exact scores are within budget `0`
+    -- apply the runtime soundness lemma: the exact scores are within budget `0`
     have h := routeStableCheck_sound (litAttnTempered d nK 1 (by norm_num)) hk ρ 0 x
       (fun i => (Bridge.attentionScoreRouter d nK).score ρ x i)
       (fun i => by simp [litAttnTempered]) hcheck
     -- `h : leastArgmax (exact scores) hk = hardRoute (litAttn) hk ρ x`
     simpa [hardRoute] using h
-  symbolClass := expressivityGrade 0 0 hk
-  expressivityGrade := fun L K => expressivityGrade L K hk
-  expressivity_monotone_depth := expressivityGrade_monotone_depth hk
-  expressivity_monotone_width := fun L => expressivityGrade_monotone_width L hk
+  symbolClass := E.grade 0 0
+  expressivityGrade := E.grade
+  expressivity_monotone_depth := E.monotone_depth
+  expressivity_monotone_width := E.monotone_width
   expressivity_base := rfl
-  symbolGap := symbolGap
-  symbolBound := symbolBound
-  statistically_certified := stat_cert
+  expressivity_strict := E.strict
+  symbolGap := S.gap
+  symbolBound := S.bound
+  statistically_certified := S.certified
+  symbolGap_nonneg := S.gap_nonneg
+  symbolBound_pos := S.bound_pos
 
-/-- **Non-degeneracy of the expressivity ladder.** The route function realized by any depth-`L`,
-width-`K` attention cascade genuinely lies in the leg's grade `(L,K)` — the grade tracks the
-realizable behaviour of an honest `(L,K)`-indexed assembly, not a constant set. -/
-theorem temperedHardTameLeg_expressivity_nondegenerate (d nK : ℕ) (hk : 0 < nK)
-    (ρ : (Bridge.attentionScoreRouter d nK).Ρ) (symbolGap symbolBound : ℝ)
-    (stat_cert : symbolGap ≤ symbolBound)
-    {L K : ℕ} (A : TemperedRouterFamily (Fin d → ℝ) nK) (σ : A.router.Ρ)
-    (pool : Fin K → RegionMapLayer (Fin d → ℝ)) (sel : Fin L → Fin K) :
-    cascadeRoute A hk σ pool sel
-      ∈ (temperedHardTameLeg d nK hk ρ symbolGap symbolBound stat_cert).expressivityGrade L K :=
-  cascadeRoute_mem_expressivityGrade A hk σ pool sel
+/-! The expressivity ladder's non-degeneracy is the structural `expressivity_strict` field of the leg:
+a proper depth inclusion `expressivityGrade L L ⊂ expressivityGrade (L+1) (L+1)`, which a collapsed
+grade cannot satisfy. On the constrained cascade it is discharged by
+`MuxHierarchy.binCascadeGrade_ssubset_succ` (see `temperedExpressivityStrict_satisfiable`). -/
 
-/-! ## Strategy C, step 2 — the capacity profile
+/-! ## Step 2: the capacity profile
 
-The geometry fields are proved unconditionally from the landed witnesses at the non-degenerate
-configuration (unit slope, two classes, unit leakage/margin); the two `gap`-bound facts are the
-carried external inputs `smooth_cert` (S1) and `hard_cert` (S5). The `gap` is supplied as an
-independent abstract input, so the profile is not the circular "gap := the min". -/
+The geometry fields are proved from the named witnesses at the non-degenerate configuration (unit
+slope, two classes, unit leakage/margin); the two `gap`-bound facts are the carried external inputs
+`smooth_cert` (S1) and `hard_cert` (S5). The `gap` is an independent abstract input. -/
 
 /-- **The capacity profile.** Smooth side `smoothWitness 0 1` (strictly increasing), hard side
 `hardWitness 1 1 1 2` (strictly decreasing leakage), crossing at the given `betaStar`. The two
-`gap`-bound legs are carried as `smooth_cert`/`hard_cert`; everything else is a landed witness. -/
+`gap`-bound facts are carried as `smooth_cert`/`hard_cert`; the remaining fields are proved from the
+named witnesses. -/
 def temperedCapacityProfile (R : RegionData) (gap : ℝ → ℝ)
     (hcross : smoothWitness 0 1 R.betaStar = hardWitness 1 1 1 2 R.betaStar)
     (smooth_cert : ∀ β, 0 ≤ β → β ≤ betaMax R.S → gap β ≤ smoothWitness 0 1 β)
@@ -156,15 +153,16 @@ def temperedCapacityProfile (R : RegionData) (gap : ℝ → ℝ)
     hardWitness_binds_right (by norm_num) (by norm_num) (by norm_num) (by norm_num) hcross hβright
   betaStar_crosses := hcross
 
-/-! ## Strategy C, step 3 — the measurability-cliff leg
+/-! ## Step 3: the measurability-cliff leg
 
-The three event **shapes** are the landed measurability witnesses on the common sample space
-`GhostPairs1`: the soft and tame singleton-class bad events are Borel, the base-up MoE cascade event
-is non-Borel (under the carried classical non-Borel base range) yet null-measurable for any finite
-measure, and the crossing cost is the wild event's measure mass. -/
+The three event shapes are the measurability witnesses on the sample space `GhostPairs1`: the soft
+and tame singleton-class bad events are Borel, the base-up MoE cascade event is non-Borel (under the
+carried classical non-Borel base range) yet null-measurable for any finite measure, and the crossing
+cost is the wild event's measure mass. -/
 
-/-- **The measurability-cliff leg.** Soft/tame events Borel (landed), wild cascade event non-Borel
-(carried `hwild_nonBorel`) but null-measurable (landed), crossing cost the wild mass. -/
+/-- **The measurability-cliff leg.** Soft/tame events Borel (proved from named witnesses), wild
+cascade event non-Borel (carried `hwild_nonBorel`) but null-measurable (proved from named witnesses),
+crossing cost equal to the wild mass. -/
 def temperedMeasurabilityLeg
     {Bse : Type} [TopologicalSpace Bse] [PolishSpace Bse] [MeasurableSpace Bse] [BorelSpace Bse]
     [StandardBorelSpace Bse] {width : ℕ}
@@ -183,10 +181,10 @@ def temperedMeasurabilityLeg
   crossingCost_eq_outerMass := rfl
   crossingCost_nonneg := crossingCost_nonneg_witness M L μ
 
-/-! ## Strategy C, step 4 — the numerical leg and the region data -/
+/-! ## Step 4: the numerical leg and the region data -/
 
 /-- **The cone ceiling at unit score range is at least `2`.** Hence the certified window
-`[0, betaMax 1]` contains every sharpness in `[0, 2]` — in particular the crossover and the run
+`[0, betaMax 1]` contains every sharpness in `[0, 2]`, in particular the crossover and the run
 sharpness `β = 0`. The numerator `1/8 − log2/2⁴⁸ − 2⁻⁴⁹` exceeds `2·log2/10⁸`, the denominator
 `δinv = log2/10⁸`. -/
 theorem two_le_betaMax_one : (2 : ℝ) ≤ betaMax 1 := by
@@ -225,14 +223,14 @@ def temperedNumericalLeg (betaStar : ℝ) (hbetaStar : betaStar ∈ Set.Icc (0 :
     show (0 : ℝ) ≤ betaMax 1
     exact le_trans (by norm_num) two_le_betaMax_one
 
-/-! ## Strategy C, step 5 — the assembled certificate -/
+/-! ## Step 5: the assembled certificate -/
 
-/-- **The TD16 certificate (Strategy C assembly).** A genuine inhabitant of
+/-- **The TD16 certificate.** An inhabitant of
 `TemperedDesignLawCertificate` on the carriers `Ω = GhostPairs1`, `X = Fin d → ℝ`, `Route = Fin nK`,
-assembled from the four legs above. The crossover `betaStar` is the one from
-`concrete_crossover_exists`; the region is `temperedRegionData betaStar`. The carried hypotheses are
-the genuine external inputs (the two `gap`-bound certificates, the statistical certificate, and the
-classical non-Borel base range); every other field is a landed unconditional witness. -/
+assembled from the four legs above. The crossover `betaStar` comes from `concrete_crossover_exists`;
+the region is `temperedRegionData betaStar`. The carried hypotheses are the two `gap`-bound bounds,
+the statistical bound, and the classical non-Borel base range; every other field is proved
+unconditionally from a named theorem. -/
 def temperedDesignLawCertificate
     -- carrier dimensions and the attention parameter
     (d nK : ℕ) (hk : 0 < nK) (ρ : (Bridge.attentionScoreRouter d nK).Ρ)
@@ -249,8 +247,12 @@ def temperedDesignLawCertificate
     -- carried external input (i): the two gap-bound certificates (S1 smooth, S5 hard)
     (smooth_cert : ∀ β, 0 ≤ β → β ≤ betaMax (1 : ℝ) → gap β ≤ smoothWitness 0 1 β)
     (hard_cert : ∀ β, 0 ≤ β → β ≤ betaMax (1 : ℝ) → gap β ≤ hardWitness 1 1 1 2 β)
-    -- carried external input (iii): the S5 statistical certificate
-    (symbolGap symbolBound : ℝ) (stat_cert : symbolGap ≤ symbolBound)
+    -- carried external input (iii): the statistical certificate (a nonnegative gap, a strictly positive
+    -- Sauer envelope, and the bound; `bound_pos` is the type-forcing teeth that excludes the trivial `0 ≤ 0`)
+    (S : StatisticalCertificate)
+    -- carried external input (iv): the expressivity ladder (its strict depth separation is the
+    -- type-forcing teeth; a collapsed grade cannot inhabit `ExpressivityLadder.strict`)
+    (E : ExpressivityLadder (Fin d → ℝ) (Fin nK))
     -- carried external input (ii): the classical non-Borel base range
     (hwild_nonBorel : ¬ MeasurableSet (Set.range M.g)) :
     TemperedDesignLawCertificate (temperedRegionData betaStar hbetaStar)
@@ -259,18 +261,17 @@ def temperedDesignLawCertificate
     smooth_cert hard_cert
   numerical := temperedNumericalLeg betaStar hbetaStar
   measurability := temperedMeasurabilityLeg M Ldepth μ hwild_nonBorel
-  hardTame := temperedHardTameLeg d nK hk ρ symbolGap symbolBound stat_cert
+  hardTame := temperedHardTameLeg d nK hk ρ S E
 
-/-! ## Non-vacuity — the carried hypotheses are satisfiable
+/-! ## Non-vacuity: the carried hypotheses are satisfiable
 
-These lemmas exhibit concrete inhabitants of the carried hypotheses, so the conditional certificate
-is provably inhabitable (not vacuously parameterized over unsatisfiable assumptions). -/
+These lemmas exhibit concrete inhabitants of the carried hypotheses, confirming that the conditional
+certificate is not vacuously parameterized over unsatisfiable assumptions. -/
 
-/-- **The gap-bound hypotheses are satisfiable (no collapse).** The independent gap `gap := fun _ => 0`
-satisfies both carried certificate bounds on the window, because the smooth side `smoothWitness 0 1`
-and the hard side `hardWitness 1 1 1 2` are nonnegative there. This shows the conditional capacity
-profile is inhabitable with a gap that is **not** the certificate min — the two bounds are genuine
-upper bounds on an independent quantity, not a definitional identity. -/
+/-- **The gap-bound hypotheses are satisfiable.** The gap `gap := fun _ => 0` satisfies both carried
+bounds on the window, because `smoothWitness 0 1` and `hardWitness 1 1 1 2` are nonnegative there.
+In particular the two bounds are genuine upper bounds on an independent quantity, not a definitional
+identity. -/
 theorem gapZero_satisfies_certs :
     (∀ β, 0 ≤ β → β ≤ betaMax (1 : ℝ) → (fun _ : ℝ => (0 : ℝ)) β ≤ smoothWitness 0 1 β) ∧
     (∀ β, 0 ≤ β → β ≤ betaMax (1 : ℝ) → (fun _ : ℝ => (0 : ℝ)) β ≤ hardWitness 1 1 1 2 β) := by
@@ -283,11 +284,11 @@ theorem gapZero_satisfies_certs :
     push_cast
     nlinarith [hexp]
 
-/-- **The statistical hypothesis is satisfiable from the genuine S5 theorem.** Given the full S5
-inputs, the *real* expected hard-symbol generalization gap `(∫⁻ ofReal G).toReal` is bounded by the
-*real* Sauer–`√(log/m)` envelope `√(2 log 2 / m) + (∏ Sauer)·(2/√m)·√(2π)`. This is exactly the shape
-`symbolGap ≤ symbolBound` carried by the certificate, so the carried `stat_cert` is inhabited by the
-landed `temperedSymbol_expectedGap_hard_le` — not an arbitrary assumption. -/
+/-- **The statistical hypothesis is satisfiable.** Given the full S5 inputs, the real expected
+hard-symbol generalization gap `(∫⁻ ofReal G).toReal` is bounded by the Sauer–`√(log/m)` envelope
+`√(2 log 2 / m) + (∏ Sauer)·(2/√m)·√(2π)`. This is the shape `symbolGap ≤ symbolBound` carried by
+the certificate; the carried `stat_cert` is therefore inhabited by
+`temperedSymbol_expectedGap_hard_le`. -/
 theorem temperedDesignLaw_statBound_satisfiable {X : Type u} [MeasurableSpace X] [Infinite X]
     {k : ℕ} (A : FiniteScoreRouterCode X k) (hk : 0 < k)
     {y : X → Fin k} (hy : Measurable y)
@@ -328,19 +329,32 @@ theorem temperedDesignLaw_statBound_satisfiable {X : Type u} [MeasurableSpace X]
   rwa [ENNReal.toReal_add ENNReal.ofReal_ne_top ENNReal.ofReal_ne_top,
     ENNReal.toReal_ofReal hann, ENNReal.toReal_ofReal hbnn] at hmono
 
-/-! ## A fully concrete, axiom-clean witness
+/-- A placeholder statistical certificate (gap `0`, bound `1`): the bound is positive, so it satisfies the
+type-forcing `bound_pos` field. Used by the non-vacuity witnesses where the real envelope is not the point;
+the genuine Sauer envelope is carried by `temperedDesignLawCertificate_real`. -/
+def placeholderStatCert : StatisticalCertificate where
+  gap := 0
+  bound := 1
+  gap_nonneg := le_refl 0
+  bound_pos := one_pos
+  certified := zero_le_one
 
-To certify that the conditional assembly is genuinely inhabitable, this fully discharges every
-carried hypothesis at a concrete configuration: the gap `gap := fun _ => 0` (independent of the
-certificate min, satisfying both certificate bounds by `gapZero_satisfies_certs`), the statistical
-certificate `0 ≤ 1` (an honest real inequality of the S5 shape, satisfiable by
-`temperedDesignLaw_statBound_satisfiable`), and the zero measure (finite). The only remaining genuine
-external input is the classical non-Borel base range, carried as the last hypothesis. -/
+/-! ## Concrete witness (general carrier)
+
+`temperedDesignLawCertificate_concrete` discharges the numeric, gap, statistical, and measure fields at
+a concrete configuration (gap `fun _ => 0` via `gapZero_satisfies_certs`, statistical bound `0 ≤ 1`, the
+zero measure), leaving two external inputs carried: the expressivity ladder `E` (whose strict separation
+is the type-forcing teeth) and the classical non-Borel base range `hwild_nonBorel`.
+
+The binary-carrier instantiation with the constrained-cascade ladder, where the strict separation is the
+landed theorem `MuxHierarchy.binCascadeGrade_ssubset_succ`, is
+`MuxCertificate.temperedDesignLawCertificate_binary`. -/
 def temperedDesignLawCertificate_concrete
     (d nK : ℕ) (hk : 0 < nK) (ρ : (Bridge.attentionScoreRouter d nK).Ρ)
     {Bse : Type} [TopologicalSpace Bse] [PolishSpace Bse] [MeasurableSpace Bse] [BorelSpace Bse]
     [StandardBorelSpace Bse] {width : ℕ}
     (M : Boundary.BaseUpMoECascadeCode Bse width) (Ldepth : ℕ)
+    (E : ExpressivityLadder (Fin d → ℝ) (Fin nK))
     (hwild_nonBorel : ¬ MeasurableSet (Set.range M.g)) :
     TemperedDesignLawCertificate
       (temperedRegionData (Classical.choose concrete_crossover_exists)
@@ -351,6 +365,6 @@ def temperedDesignLawCertificate_concrete
     (Classical.choose_spec concrete_crossover_exists).1
     (Classical.choose_spec concrete_crossover_exists).2
     (fun _ => 0) gapZero_satisfies_certs.1 gapZero_satisfies_certs.2
-    0 1 (by norm_num) hwild_nonBorel
+    placeholderStatCert E hwild_nonBorel
 
 end TLT.TemperedDesignLaw

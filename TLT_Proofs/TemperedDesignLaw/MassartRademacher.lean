@@ -53,7 +53,6 @@ theorem empiricalRademacherComplexity_le_massart
   obtain ⟨h₀, hh₀⟩ := hC
   set Sset := Finset.univ.image xs with hSset
   set Nset := (restrictionSet C Sset).ncard with hNset
-  -- === STEP 1: Restriction collapse ===
   -- The correlation depends on h only through the labelling pattern `fun i => h (xs i)`.
   let dpats : Finset (Fin m → Bool) :=
       Finset.univ.filter (fun p => ∃ h ∈ C, ∀ i, h (xs i) = p i)
@@ -87,7 +86,6 @@ theorem empiricalRademacherComplexity_le_massart
     rw [dif_neg (Nat.pos_iff_ne_zero.mp hm)]
     apply mul_le_mul_of_nonneg_left _ (le_of_lt h1card_pos)
     exact Finset.sum_le_sum (fun σ _ => h_ssup_le_sup' σ)
-  -- === STEP 2: Index dpats by Fin N and apply Massart ===
   set N := dpats.card with hN_card
   have hN_pos : 0 < N := Finset.Nonempty.card_pos hdpats_ne
   have hcard_dpats : Fintype.card { p // p ∈ dpats } = N := Fintype.card_coe dpats
@@ -116,7 +114,7 @@ theorem empiricalRademacherComplexity_le_massart
             ∑ σ, dpats.sup' hdpats_ne (cf σ) := h_empRad_le
       _ = _ := by
           congr 1; apply Finset.sum_congr rfl; intro σ _; exact h_sup'_eq σ
-  -- === MGF bound for each Z_j (sub-Gaussianity, Hoeffding cgf) ===
+  -- MGF bound for each Z_j (sub-Gaussianity, Hoeffding cgf)
   set σ_param := (1 : ℝ) / Real.sqrt m with hσ_param
   have hσ_pos : 0 < σ_param := by positivity
   have h_mgf_Z : ∀ j : Fin N, ∀ t : ℝ, 0 ≤ t →
@@ -145,7 +143,6 @@ theorem empiricalRademacherComplexity_le_massart
     exact h_bound
   -- Apply finite_massart_lemma: EmpRad ≤ σ_param · √(2 log N)
   have h_massart := finite_massart_lemma hm hN_pos Z σ_param hσ_pos h_mgf_Z
-  -- === STEP 3: Bound N by the restriction cardinality ===
   -- Each realized pattern over `Fin m` is determined by its restriction to `S = image xs`.
   have h_dpats_card_le_ncard : (N : ℝ) ≤ (Nset : ℝ) := by
     set R := { f : ↥Sset → Bool | ∃ c ∈ C, ∀ x : ↥Sset, c ↑x = f x } with hR_def
@@ -179,7 +176,6 @@ theorem empiricalRademacherComplexity_le_massart
           rw [← hcs.2]
           rw [hc₁, hc₂]
           exact h_at)
-    -- R = restrictionSet C Sset, so R.ncard = Nset
     have hR_eq : R = restrictionSet C Sset := by
       ext f
       simp only [hR_def, restrictionSet, Set.mem_setOf_eq]
@@ -188,7 +184,6 @@ theorem empiricalRademacherComplexity_le_massart
         ≤ ↑R.toFinset.card := by exact_mod_cast h_inj_card
       _ = ↑R.ncard := by rw [Set.ncard_eq_toFinset_card']
       _ = (Nset : ℝ) := by rw [hR_ncard]
-  -- === STEP 4: Combine ===
   have hN_real_pos : (0 : ℝ) < N := Nat.cast_pos.mpr hN_pos
   have hNset_pos : (0 : ℝ) < Nset := lt_of_lt_of_le hN_real_pos h_dpats_card_le_ncard
   have h_log_N_le : Real.log ↑N ≤ Real.log (Nset : ℝ) :=

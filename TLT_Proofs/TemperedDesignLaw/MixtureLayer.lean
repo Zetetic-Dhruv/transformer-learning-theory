@@ -13,14 +13,14 @@ emits the `β`-tempered mixture `mixtureOutput (softmax (β • score θ)) (val 
 parameter is the per-layer Lipschitz constant that the depth telescoping (`paramComp_param_lipschitz`,
 already in the library) composes into the stack bound `paramLipBound`:
 
-* `temperedMixtureMap` — the layer's forward map `θ ↦ mixtureOutput (softmax (β • score θ)) (val θ)`.
-* `temperedMixtureMap_param_dist_le` — the per-layer parameter modulus: with a `Ks`-Lipschitz score read,
+* `temperedMixtureMap`: the layer's forward map `θ ↦ mixtureOutput (softmax (β • score θ)) (val θ)`.
+* `temperedMixtureMap_param_dist_le`: the per-layer parameter modulus. With a `Ks`-Lipschitz score read,
   a `Kv`-Lipschitz payload read, and a payload-size bound `P`, the layer is `(2·β·Ks·P + Kv)`-Lipschitz in
   the parameter.
 
 The product rule splits the change into the weight term (the simplex weights move by `2β·Ks` and carry the
 payload size `P`) and the payload term (the weights sum to one and carry the payload Lipschitz `Kv`). The
-sharpness `β` multiplies only the weight term — the per-layer constant the sharpness-scaled capacity bound
+sharpness `β` multiplies only the weight term, the per-layer constant the sharpness-scaled capacity bound
 feeds into the telescope.
 -/
 

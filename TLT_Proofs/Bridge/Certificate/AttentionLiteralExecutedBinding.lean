@@ -17,7 +17,7 @@ import TLT_Proofs.Bridge.Certificate.GridExtension
 `Bridge/Fp32/AttentionForwardError` proves a forward-error envelope for a *rounding model* of the
 attention head (`execAttnStar`: every scalar op = real op + one `fp32Round`, `Real.exp` rounded). This
 file upgrades that to the **literal** TorchLean kernel: the executed forward in the final theorem is
-`Spec.scaledDotProductAttention` at backend `IEEE32Exec`, read back over `ℝ` through `toReal` — the
+`Spec.scaledDotProductAttention` at backend `IEEE32Exec`, read back over `ℝ` through `toReal`: the
 exact tensor op the hardware runs, not a hand-rolled surrogate.
 
 The bridge is op-by-op. `Spec.scaledDotProductAttention` is
@@ -31,29 +31,27 @@ The one genuine discrepancy is the softmax. TorchLean's `softmaxVecSpec` is the 
 form `exp(x − m)/Σ exp(x − m)`; the model's softmax is the **plain** `exp x/Σ exp x`. Over `ℝ` the
 shift cancels (`vecGet_softmaxVecSpec`), but at `IEEE32Exec` the executed kernel rounds the subtraction
 `x − m`, evaluates the bit-level polynomial `IEEE32Exec.exp` on the shifted logit, folds, and rounds
-the quotient — none of which telescopes back to the no-shift model. We therefore do **not** route the
-softmax through the model. Instead we expose the executed per-row softmax weights as honest data and
+the quotient; none of which telescopes back to the no-shift model. We therefore do **not** route the
+softmax through the model. Instead we expose the executed per-row softmax weights as explicit data and
 bound them against the *ideal* `softmax` directly, with an explicit total-variation hypothesis
 `hsmTV`. Everything else (the two value matmuls and the score scaling) is reduced to the model and
 reuses its closed-form budgets.
 
 The result `attnLiteralForwardError` bounds the literal kernel against `attnHead √d W (clampCoord B Y)`
 by a derived closed form `rndStarLit`, and `attnHead_executed_certified_generalization_literal`
-instantiates the executed certificate with the literal kernel as `execAttn` — no free rounding bound.
+instantiates the executed certificate with the literal kernel as `execAttn` (no free rounding bound).
 
 ## Main results
 
-- `execAttnLit` — the literal `IEEE32Exec` `scaledDotProductAttention`, read over `ℝ`.
-- `attnLiteralForwardError` — its forward-error envelope against the ideal head.
-- `attnHead_executed_certified_generalization_literal` — the executed certificate, literal kernel.
+- `execAttnLit`: the literal `IEEE32Exec` `scaledDotProductAttention`, read over `ℝ`.
+- `attnLiteralForwardError`: its forward-error envelope against the ideal head.
+- `attnHead_executed_certified_generalization_literal`: the executed certificate, literal kernel.
 -/
 
 /-!
 ## References
 - [53] literal `scaledDotProductAttention` + IEEE32 execution; [29] max-stabilized softmax;
   [43] summation backward error; [46] executed exp value error.
-- Provenance: Innovation — the executed certificate bound about the literal finite-precision attention
-  kernel the hardware runs (not the rounding model surrogate).
 -/
 
 open TorchLean.Floats (neuralMagnitude neuralBpow binaryRadix)
@@ -109,7 +107,7 @@ private lemma foldl_body_congr {β ι : Type} (f g : β → ι → β) (h : ∀ 
   | cons hd tl ih => rw [List.foldl_cons, List.foldl_cons, h init hd]; exact ih _
 
 /-- The literal `IEEE32Exec` matmul coordinate, as the literal left fold of products with the float
-accumulator `posZero` — the form `toReal_foldl_add` consumes (the non-associative float `+` order).
+accumulator `posZero`, the form `toReal_foldl_add` consumes (the non-associative float `+` order).
 The accumulator is written `posZero` (which is `matMulSpec`'s `Zero.zero` by instance), sidestepping the
 `(0 : IEEE32Exec)` `OfNat`-vs-`Zero` diamond; `foldl_body_congr` then reduces to the per-product
 equality. -/
@@ -139,10 +137,10 @@ exactly. This is the keystone reuse: every *arithmetic* channel of the literal k
 scores and the value mix `P·V`) inherits the model's closed-form `rdotBudget`, so no rounding analysis
 is re-derived. Only the softmax channel does not route through the model (see the file header). -/
 
-/-- The honest no-overflow precondition for the literal matmul coordinate `(A·B)[i,j]`: every partial
+/-- The no-overflow precondition for the literal matmul coordinate `(A·B)[i,j]`: every partial
 sum of the rounded products stays finite, and each scalar product is finite. A float matmul can
 overflow, so these facts are not implied by the real input bounds; they are surfaced as explicit
-hypotheses rather than fabricated. -/
+hypotheses. -/
 def MatMulCoordFinite {m n p : ℕ} (A : Tensor IEEE32Exec (.dim m (.dim n .scalar)))
     (B : Tensor IEEE32Exec (.dim n (.dim p .scalar))) (i : Fin m) (j : Fin p) : Prop :=
   IE32FoldlFinite posZero ((List.finRange n).map (fun k => get2 A i k * get2 B k j))
@@ -150,7 +148,7 @@ def MatMulCoordFinite {m n p : ℕ} (A : Tensor IEEE32Exec (.dim m (.dim n .scal
 
 /-- **The literal→model arithmetic bridge (keystone).** The literal `IEEE32Exec` matmul coordinate,
 read over `ℝ` through `toReal`, IS the model's rounded dot product `rdot` of the `toReal`-read row and
-column — exactly, under the honest finiteness precondition. The proof pushes `toReal` through the
+column, exactly under the finiteness precondition. The proof pushes `toReal` through the
 literal left fold (`toReal_foldl_add`) and through each scalar product
 (`toReal_mul_eq_fp32Round_of_isFinite`), landing on the model's `fp32Foldl 0 (List.ofFn …)`. -/
 lemma toReal_get2_matMulSpec_ie {m n p : ℕ} (A : Tensor IEEE32Exec (.dim m (.dim n .scalar)))
@@ -218,7 +216,7 @@ lemma denom_eq_foldl_vecGet {m : ℕ} (s : Tensor IEEE32Exec (.dim m .scalar)) :
     | scalar v => simp [Tensor.vecGet, get_eq, Tensor.toScalar, hgk]
 
 /-- The literal row max of a score row (seeded at entry `0`). The float `max` returns one of its inputs,
-so this is exact — no rounding. Defined by the same `match` as `softmaxVecSpec`'s internal max, so the
+so this is exact (no rounding). Defined by the same `match` as `softmaxVecSpec`'s internal max, so the
 coordinate read below reduces definitionally on the row-max channel. -/
 def litRowMax {n' : ℕ} (t : Tensor IEEE32Exec (.dim (n' + 1) .scalar)) : IEEE32Exec :=
   match t with
@@ -234,7 +232,7 @@ def litShifted {n' : ℕ} (t : Tensor IEEE32Exec (.dim (n' + 1) .scalar)) (i : F
 def litDenom {n' : ℕ} (t : Tensor IEEE32Exec (.dim (n' + 1) .scalar)) : IEEE32Exec :=
   (List.finRange (n' + 1)).foldl (fun acc k => acc + MathFunctions.exp (litShifted t k)) 0
 
-/-! ## KU-stab step 1 — pushing `toReal` through the literal softmax weight
+/-! ## Pushing `toReal` through the literal softmax weight
 
 With the staged read `vecGet (softmaxVecSpec zt) i = exp(softmaxShiftedIE zt i) / softmaxDenomIE zt`, we
 push `toReal` through (div + denominator fold) to land the literal per-row softmax weight over ℝ in the
@@ -242,7 +240,7 @@ model's `rsoftmax`-shape: `fp32Round(litExp_i / fp32Foldl 0 (litExp))`, `litExp 
 shifted`. This is pure structural rounding-arithmetic (the `δ_exp` exp-atom enters only at the TV step). -/
 
 /-- **Step 1a (toReal of the literal softmax denominator).** Pushes `toReal` through `softmaxDenomIE`'s
-float fold into the model's `fp32Foldl` shape, under the honest no-overflow fold-finiteness hypothesis. -/
+float fold into the model's `fp32Foldl` shape, under the no-overflow fold-finiteness hypothesis. -/
 lemma toReal_softmaxDenomIE {n' : ℕ} (zt : Tensor IEEE32Exec (.dim (n' + 1) .scalar))
     (hfin : IE32FoldlFinite posZero
       ((List.finRange (n' + 1)).map (fun j => MathFunctions.exp (softmaxShiftedIE zt j)))) :
@@ -255,9 +253,9 @@ lemma toReal_softmaxDenomIE {n' : ℕ} (zt : Tensor IEEE32Exec (.dim (n' + 1) .s
     rfl
 
 /-- **Step 1 (literal softmax weight over ℝ).** The literal per-row softmax weight, read over ℝ, is
-`fp32Round(litExp_i / fp32Foldl 0 (litExp))` — the model's `rsoftmax`-shape with `litExp = toReal∘`
+`fp32Round(litExp_i / fp32Foldl 0 (litExp))`, the model's `rsoftmax`-shape with `litExp = toReal∘`
 `IEEE32Exec.exp∘shifted` in place of `rexp`. Pure structural `toReal`-push; the `δ_exp` exp-atom is not
-used here. The finiteness hypotheses are the honest no-overflow conditions on the executed quotient and
+used here. The finiteness hypotheses are the no-overflow conditions on the executed quotient and
 denominator fold. -/
 lemma toReal_litSoftmax {n' : ℕ} (zt : Tensor IEEE32Exec (.dim (n' + 1) .scalar)) (i : Fin (n' + 1))
     (hdiv : isFinite (MathFunctions.exp (softmaxShiftedIE zt i) / softmaxDenomIE zt) = true)
@@ -271,10 +269,10 @@ lemma toReal_litSoftmax {n' : ℕ} (zt : Tensor IEEE32Exec (.dim (n' + 1) .scala
   change toReal (div (MathFunctions.exp (softmaxShiftedIE zt i)) (softmaxDenomIE zt)) = _
   rw [toReal_div_eq_fp32Round_of_isFinite _ _ hdiv, toReal_softmaxDenomIE zt hfold]
 
-/-! ## KU-stab step 2 instance — the literal kernel as a `genSoftmax`
+/-! ## The literal kernel as a `genSoftmax`
 
 The literal per-row softmax weight over ℝ is the exp-value-parametric rounded softmax `genSoftmax`
-(`GenSoftmaxForwardError`) at the instance `e = litExp` — the `toReal` of the executed `exp` of the
+(`GenSoftmaxForwardError`) at the instance `e = litExp`, the `toReal` of the executed `exp` of the
 shifted logits. With this, `genSoftmaxTV` (the e-parametric total-variation bound) applies directly,
 the per-key error `ε = δ_exp` being the bit-level exp atom. -/
 
@@ -285,7 +283,7 @@ def litExp {n' : ℕ} (zt : Tensor IEEE32Exec (.dim (n' + 1) .scalar)) : Fin (n'
   fun j => toReal (MathFunctions.exp (softmaxShiftedIE zt j))
 
 /-- **Step 1 → step 2 bridge.** The literal per-row softmax weight over ℝ is exactly
-`genSoftmax (litExp zt)` — the exp-value-parametric rounded softmax at `e = litExp zt`. Combines the
+`genSoftmax (litExp zt)`, the exp-value-parametric rounded softmax at `e = litExp zt`. Combines the
 `toReal`-push (`toReal_litSoftmax`) with `List.ofFn = (finRange).map`. -/
 lemma toReal_softmaxVec_eq_genSoftmax {n' : ℕ} (zt : Tensor IEEE32Exec (.dim (n' + 1) .scalar))
     (i : Fin (n' + 1))
@@ -309,7 +307,7 @@ lemma scalarVal_eq_vecGet {n : ℕ} (g : Fin n → Tensor IEEE32Exec .scalar) (k
 /-- **The shifted logit read over ℝ.** The literal shifted logit is the rounded difference
 `fp32Round(scoreⱼ − rowMax)` of the real score row entry and the real row maximum. The shift is a single
 rounded `sub`, and `rowMax` is constant in `j`, so the *ideal* softmax target is invariant to it
-(`softmax_shift_invariant`) — only the rounding of the subtraction survives as an error term. -/
+(`softmax_shift_invariant`); only the rounding of the subtraction survives as an error term. -/
 lemma toReal_softmaxShiftedIE {n' : ℕ} (zt : Tensor IEEE32Exec (.dim (n' + 1) .scalar))
     (j : Fin (n' + 1)) (hx : isFinite (Tensor.vecGet zt j) = true)
     (hm : isFinite (softmaxRowMaxIE zt) = true)
@@ -331,7 +329,7 @@ lemma get2_softmaxSpec_dim_ie {nQ nK : ℕ} (f : Fin nQ → Tensor IEEE32Exec (.
       = Tensor.vecGet (Activation.softmaxVecSpec (f i)) j := by
   simp only [Activation.softmaxSpec, get2_dim_ie]
 
-/-! ## KU-stab step 3 — the literal executed head and its forward error
+/-! ## The literal executed head and its forward error
 
 `execAttnLit` is the literal `IEEE32Exec` `scaledDotProductAttention`, read back over ℝ coordinate-wise.
 Per the fp32-grid input convention, the certificate quantifies over fp32-representable inputs, so the
@@ -348,7 +346,7 @@ def litScaleFactor {α : Type} [Context α] (dModel : Nat) : α := 1 / MathFunct
 
 /-- The scaled-score matrix the kernel feeds to the softmax: `(Q·Kᵀ)·(1/√dModel)`. Kept **generic** over
 `[Context α]` exactly as `scaledDotProductAttention` is, so it elaborates `sqrt`/`1`/`↑dModel` through the
-*same* `Context.*` projections as the kernel — avoiding the standalone-vs-`Context`-projected instance
+*same* `Context.*` projections as the kernel, avoiding the standalone-vs-`Context`-projected instance
 diamond that a concrete restatement would create. Localizes the kernel's internal scale in one def. -/
 def litScaledScores {α : Type} [Context α] [DecidableRel ((· > ·) : α → α → Prop)]
     {nQ nK dModel : Nat} {h1 : nQ ≠ 0} {h2 : nK ≠ 0}
@@ -379,7 +377,7 @@ lemma execAttnLit_coord {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
 
 /-- **The literal softmax weight read over ℝ.** The `(i,k)` entry of the row-softmax of a score matrix
 `dim f`, read over ℝ, is the exp-value-parametric rounded softmax `genSoftmax (litExp (f i))` at the
-`i`-th row — combining the row read (`get2_softmaxSpec_dim_ie`) with the step1→2 bridge. -/
+`i`-th row, combining the row read (`get2_softmaxSpec_dim_ie`) with the step1→2 bridge. -/
 lemma toReal_litWeight {n : ℕ} (f : Fin (n + 1) → Tensor IEEE32Exec (.dim (n + 1) .scalar))
     (i k : Fin (n + 1))
     (hdiv : isFinite (MathFunctions.exp (softmaxShiftedIE (f i) k) / softmaxDenomIE (f i)) = true)
@@ -396,7 +394,7 @@ lemma get2_matrixTensor_ie {m n : ℕ} (X : Fin m → Fin n → IEEE32Exec) (i :
 
 /-- **The literal value projection read over ℝ is the model's executed value `Vexec`.** With the value
 tensor the executed matmul of the fp32 input `Yt` and value-weight `Wt`, each `(i,j)` coordinate over ℝ is
-`Vexec (toReal∘Wt) (toReal∘Yt) i j` — bounded vs the ideal `matMulCoord` by the model's `Vexec_error`. -/
+`Vexec (toReal∘Wt) (toReal∘Yt) i j`, bounded against the ideal `matMulCoord` by the model's `Vexec_error`. -/
 lemma toReal_litValue {n d : ℕ} (Yt : Fin n → Fin d → IEEE32Exec) (Wt : Fin d → Fin d → IEEE32Exec)
     (i : Fin n) (j : Fin d)
     (hfin : MatMulCoordFinite (Spec.matrixTensor Yt) (Spec.matrixTensor Wt) i j) :
@@ -406,7 +404,7 @@ lemma toReal_litValue {n d : ℕ} (Yt : Fin n → Fin d → IEEE32Exec) (Wt : Fi
   simp only [get2_matrixTensor_ie]
 
 /-- **The literal scaled-score read over ℝ.** Each `(i,k)` scaled score is `fp32Round(executed-Q·Kᵀ-dot
-· toReal(1/√d))` — a rounded dot, then a rounded scale-multiply. Combines `get2_scaleSpec_ie`, the
+· toReal(1/√d)): a rounded dot, then a rounded scale-multiply. Combines `get2_scaleSpec_ie`, the
 `toReal`-mul bridge, and the matmul keystone. -/
 lemma toReal_litScore {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
     (ctx : Spec.AttentionContext IEEE32Exec (n + 1) (n + 1) d h1 h2) (i k : Fin (n + 1))
@@ -437,8 +435,8 @@ lemma toReal_litScore_eq_Sexec {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
   rw [toReal_litScore ctx i k hmatfin hmulfin, Sexec, hQ, hK]
   simp only [get2_matrixTensor_ie, get2_matrixTransposeSpec_ie, div_eq_mul_inv, one_mul, inv_inv]
 
-/-- **The literal coord-error triangle.** The executed output `rdot smLit (Vt·c)` — literal softmax-weight
-row `smLit` (compared to the *shifted*-score softmax `z'`) against value row `Vt` — is within the derived
+/-- **The literal coord-error triangle.** The executed output `rdot smLit (Vt·c)` (literal softmax-weight
+row `smLit` compared to the *shifted*-score softmax `z'`, against value row `Vt`) is within the derived
 envelope of the ideal `attnHead scale W Y i c`. Mirrors `execAttnStar_coord_error`: `rdot_mix_error` for
 the mix, `attnOut_scores_bound` + `softmax_shift_invariant` (the max-shift `mR` cancels in the ideal) for
 the score channel, `attnOut_values_bound` for the values. -/
@@ -537,7 +535,7 @@ lemma abs_toReal_softmaxShiftedIE_sub_le {n' : ℕ}
   exact fp32Round_rel_on_normal _ hne hnorm
 
 /-- **The score-channel perturbation (T_score input).** The shifted logits read over ℝ are within
-`u·(2B') + scErr` (sup-norm) of `(exact score − rowMax)` — the subRound rounding (`≤ u·|score − rowMax| ≤
+`u·(2B') + scErr` (sup-norm) of `(exact score − rowMax)`: the subRound rounding (`≤ u·|score − rowMax| ≤
 u·2B'` via the float-max bound) plus the score rounding `scErr`. -/
 lemma litPert {n' : ℕ} (zt : Tensor IEEE32Exec (.dim (n' + 1) .scalar)) (sExact : Fin (n' + 1) → ℝ)
     {B' scErr : ℝ} (hB' : 0 ≤ B') (hsc : 0 ≤ scErr)
@@ -610,7 +608,7 @@ lemma toReal_le_softmaxRowMaxIE {n' : ℕ} (f : Fin (n' + 1) → Tensor IEEE32Ex
   have h := foldl_scalarMax_ge f hf (List.finRange (n' + 1)) (scalarVal (f ⟨0, Nat.succ_pos n'⟩)) (hf _)
   simpa [softmaxRowMaxIE] using h.2 k (List.mem_finRange k)
 
-/-- **C5 — the literal shifted logit lies on the softmax cone.** For a score row bounded by `B'`, the
+/-- **The literal shifted logit lies on the softmax cone.** For a score row bounded by `B'`, the
 shifted logit `softmaxShiftedIE zt k` read over ℝ satisfies `≤ 2uB'` (upper edge `η`, since `score −
 rowMax ≤ 0` plus the relative round) and `|·| ≤ 2B' + 2uB'` (radius `T`). This is the cone hypothesis of
 `exec32_exp_error_on_cone`, derived from the run-time score bound. -/
@@ -645,11 +643,11 @@ lemma shifted_mem_cone {n' : ℕ} (zt : Tensor IEEE32Exec (.dim (n' + 1) .scalar
   rw [abs_le]
   constructor <;> nlinarith [hsubabs.1, hsubabs.2, abs_le.mp hdiffB, humul]
 
-/-- **The literal executed-head no-overflow bundle.** Every field is an honest condition on the run-time
+/-- **The literal executed-head no-overflow bundle.** Every field is a condition on the run-time
 binary32 intermediates of the literal `scaledDotProductAttention` (no overflow / no underflow / normal
 range), mirroring the model's `ExecAttnNormal`. `F` are the score rows (`litScaledScores ctx = dim F`),
 `Dlo` the softmax-denominator floor, `E_lit` the exp-sum bound. The certificate is conditional on these,
-exactly as the hardware run satisfies them; nothing is faked. -/
+exactly as the hardware run satisfies them. -/
 structure ExecAttnLitNormal {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
     (ctx : Spec.AttentionContext IEEE32Exec (n + 1) (n + 1) d h1 h2)
     (Yt : Fin (n + 1) → Fin d → IEEE32Exec) (Wt : Fin d → Fin d → IEEE32Exec)
@@ -680,7 +678,7 @@ structure ExecAttnLitNormal {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
 
 /-- **Per-coordinate literal forward error (parametric).** Given the derived envelope facts (`htv`,
 `hsum`, `hpert`, `hverr`, `hbV`) and the read-finiteness for `(i,c)`, the literal output is within the
-`litCoordError_core` envelope of the ideal head at the executed scale `1/toReal(1/√d)`. Clean by design:
+`litCoordError_core` envelope of the ideal head at the executed scale `1/toReal(1/√d)`. Assembled via
 `execAttnLit_coord` + the two channel-read rewrites + `litCoordError_core`. -/
 lemma attnLiteralForwardError_coord {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
     (ctx : Spec.AttentionContext IEEE32Exec (n + 1) (n + 1) d h1 h2)
@@ -736,7 +734,7 @@ noncomputable def litTV (N : ℕ) (Dlo δ_exp E_lit : ℝ) : ℝ :=
     + (2 * ((N : ℝ) * δ_exp) + u * (((N : ℝ) + 1) * E_lit) / (1 - (N : ℝ) * u)) / Dlo
 
 /-- **The derived literal rounding envelope `rndLit`.** The model's `rndStar` with `softmaxTV → litTV`
-(the `δ_exp`/`E_lit`-parametric softmax variation) and the honest extra `2·bV·subRoundErr` from the
+(the `δ_exp`/`E_lit`-parametric softmax variation) and the extra `2·bV·subRoundErr` from the
 max-stabilization. A closed form in the bounds `B, Λ, scale, Dlo, δ_exp, E_lit` and shapes `n, d`. -/
 noncomputable def rndLit (n d : ℕ) (B Λ scale Dlo δ_exp E_lit : ℝ) : ℝ :=
   rdotBudget (n + 1) (bVval d B Λ * (1 + litTV (n + 1) Dlo δ_exp E_lit))
@@ -782,7 +780,7 @@ lemma litPert_bundle {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
     rw [hconn k]; exact Sexec_entry_error _ _ hB hscale hX hN.snorm hdu i k
 
 /-- **The softmax-TV envelope `htv`.** `genSoftmaxTV`'s per-row bound is `≤ litTV` once the exp-sum is
-bounded by `E_lit` (the bound is increasing in the exp-sum) — `gcongr` over `eSum ≤ E_lit`. -/
+bounded by `E_lit` (the bound is increasing in the exp-sum): `gcongr` over `eSum ≤ E_lit`. -/
 lemma genSoftmaxTV_le_litTV {n : ℕ} {e z : Fin (n + 1) → ℝ} {Dlo δ_exp E_lit : ℝ}
     (h : GenNormal e) (he : ∀ j, |e j - Real.exp (z j)| ≤ δ_exp)
     (hnu : ((n + 1 : ℕ) : ℝ) * u < 1) (hDlo0 : 0 < Dlo) (hDlo : Dlo ≤ genDenom e)
@@ -820,10 +818,10 @@ lemma rndLit_nonneg {n d : ℕ} {B Λ scale Dlo δ_exp E_lit : ℝ}
 
 /-- **The literal fp32 attention forward-error theorem.** The literal `IEEE32Exec`
 `scaledDotProductAttention`, read over ℝ (`execAttnLit`), is within the derived closed-form envelope
-`rndLit` of the ideal head `attnHead` at the executed scale `1/toReal(1/√d)`, given the honest no-overflow
+`rndLit` of the ideal head `attnHead` at the executed scale `1/toReal(1/√d)`, given the no-overflow
 bundle `ExecAttnLitNormal` and the single bit-level exp atom `δ_exp` (`|toReal(exp s) − Real.exp(toReal
-s)| ≤ δ_exp`, supplied per shifted logit). The envelope is a genuine closed form in `B, Λ, Dlo, δ_exp,
-E_lit` and the shapes `n, d`; nothing is supplied beyond the operating-range data and the one atom. -/
+s)| ≤ δ_exp`, supplied per shifted logit). The envelope is a closed form in `B, Λ, Dlo, δ_exp,
+E_lit` and the shapes `n, d`. -/
 theorem attnLiteralForwardError {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
     (ctx : Spec.AttentionContext IEEE32Exec (n + 1) (n + 1) d h1 h2)
     (Yt : Fin (n + 1) → Fin d → IEEE32Exec) (Wt : Fin d → Fin d → IEEE32Exec)
@@ -862,10 +860,10 @@ lemma softmaxShiftedIE_eq_sub {n' : ℕ} (t : Tensor IEEE32Exec (.dim (n' + 1) .
   cases t with
   | dim f => simp only [softmaxShiftedIE, scalarVal_eq_vecGet]; rfl
 
-/-- **C6 — discharge of the per-input exp atom `hδ` on the cone.** On a score row bounded by `B'`, every
+/-- **Discharge of the per-input exp atom `hδ` on the cone.** On a score row bounded by `B'`, every
 literal shifted logit lands on the softmax cone (`shifted_mem_cone`), where the executed `IEEE32Exec.exp`
 matches `Real.exp` within `δexpCone` (`exec32_exp_error_on_cone`, its output finiteness from
-`exp_output_finite_on_cone`). So the `δ_exp`-atom premise of `attnLiteralForwardError` is a theorem with
+`exp_output_finite_on_cone`). The `δ_exp`-atom premise of `attnLiteralForwardError` then holds with
 `δ_exp := δexpCone (2B'+2uB') (2uB')`. -/
 theorem hδ_discharge {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
     (ctx : Spec.AttentionContext IEEE32Exec (n + 1) (n + 1) d h1 h2)
@@ -888,11 +886,11 @@ theorem hδ_discharge {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
     (2 * u * B') (2 * B' + 2 * u * B') hη2 hcone.1 hcone.2 hρ
   simpa only [litExp] using herr
 
-/-- **The cone-form head certificate** — `attnLiteralForwardError` with the analytic `δ_exp`-atom `hδ`
-RETIRED. On a score row bounded by `B'` (the run-time stabilized-logit magnitude), with the closed-form
+/-- **The cone-form head certificate.** `attnLiteralForwardError` with the analytic `δ_exp`-atom `hδ`
+discharged. On a score row bounded by `B'` (the run-time stabilized-logit magnitude), with the closed-form
 cone conditions `2uB' ≤ ½` and `rrρ(2B'(1+u)) ≤ ⅛`, the literal executed head is within the fully
-closed-form `rndLit … (δexpCone (2B'(1+u)) (2uB')) …` of the ideal head. No exp-accuracy premise remains;
-the bit-level `IEEE32Exec.exp` accuracy is now a *theorem* on the cone the softmax stabilization enforces. -/
+closed-form `rndLit … (δexpCone (2B'(1+u)) (2uB')) …` of the ideal head. The `δ_exp` premise is
+absent: the bit-level `IEEE32Exec.exp` accuracy follows from the cone the softmax stabilization enforces. -/
 theorem attnLiteralForwardError_onCone {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
     (ctx : Spec.AttentionContext IEEE32Exec (n + 1) (n + 1) d h1 h2)
     (Yt : Fin (n + 1) → Fin d → IEEE32Exec) (Wt : Fin d → Fin d → IEEE32Exec)
@@ -922,17 +920,17 @@ theorem attnLiteralForwardError_onCone {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
 /-! ## The grid-extended executed map and its ∀-input forward error
 
 `gridExec` is the literal kernel on each certified fp32 input of the (finite) operating regime, and the
-ideal clamped head everywhere else — the abstract measurable grid extension `TLT.GridExt.gridExt`
+ideal clamped head everywhere else; the abstract measurable grid extension `TLT.GridExt.gridExt`
 instantiated at `ideal := attnHead (1/c) W`, `clamp := clampCoord B`, with the regime read `toReal ∘ Yt`
 and the kernel `execAttnLit ∘ ctxOf`. Because `IEEE32Exec` is finite, the regime is a finite set of
 inputs; the extension is the ideal plus a finite correction supported exactly on the regime's pre-images,
 so it is measurable termwise and reads off as the kernel on the regime. The off-regime value is the
-ideal — an inert measurable extension, since the input law lives on the regime. The forward error against
+ideal, an inert measurable extension (the input law lives on the regime). The forward error against
 the clamped head is then *exactly* the per-input bound `rnd`, with no input-quantization slack: on the
 regime it is the literal forward error; off the regime it is zero. -/
 
 /-- The grid-extended executed attention map: literal kernel on the regime `inputs`, clamped ideal head
-elsewhere — the abstract `gridExt` extension at the attention ideal/clamp/read/kernel. -/
+elsewhere, via the abstract `gridExt` extension at the attention ideal/clamp/read/kernel. -/
 noncomputable def gridExec {n d : ℕ} {h1 h2 : (n + 1) ≠ 0} (B c : ℝ) (W : Fin d → Fin d → ℝ)
     (inputs : Finset (Fin (n + 1) → Fin d → IEEE32Exec))
     (ctxOf : (Fin (n + 1) → Fin d → IEEE32Exec) →
@@ -941,7 +939,7 @@ noncomputable def gridExec {n d : ℕ} {h1 h2 : (n + 1) ≠ 0} (B c : ℝ) (W : 
   gridExt (attnHead (1 / c) W) (clampCoord B) inputs
     (fun Yt a b => toReal (Yt a b)) (fun Yt => execAttnLit (ctxOf Yt)) y
 
-/-- **The grid extension carries the per-input forward error verbatim — no slack.** Given the literal
+/-- **The grid extension carries the per-input forward error verbatim, with no slack.** Given the literal
 forward error `rnd` on every regime input (`hregime`, each an instance of `attnLiteralForwardError`) and
 distinct regime reads (`hinj`), the grid-extended map is within `rnd` of the clamped ideal head at *every*
 real input: `rnd` on the regime, `0` off it. -/
@@ -991,8 +989,8 @@ For TorchLean's literal `IEEE32Exec` `scaledDotProductAttention` (read over ℝ 
 its finite operating regime `inputs` of fp32 inputs, presented through the per-input forward error
 `hfwd` (each an instance of `attnLiteralForwardError`, exact `rndLit`, one named atom `δ_exp`): except on
 a McDiarmid-small sample event, the executed true risk is at most the executed empirical risk plus the
-closed capacity budget `2·(12√2·B_int/√m) + ε` and the rounding correction `2·Lℓ·rndLit` — with NO
-input-quantization slack, because the grid extension binds the kernel to the clamped head exactly on the
+closed capacity budget `2·(12√2·B_int/√m) + ε` and the rounding correction `2·Lℓ·rndLit`, with no
+input-quantization slack: the grid extension binds the kernel to the clamped head exactly on the
 regime where the hardware's inputs live. The ideal head `attnHead (1/c) W ∘ clampCoord B` is the literal
 kernel's real-arithmetic limit; the bound is therefore about the model the binary32 hardware runs. -/
 theorem attnHead_literal_certified_generalization
@@ -1043,7 +1041,7 @@ theorem attnHead_literal_certified_generalization
 takes the per-input forward error `hfwd` as a premise; it is exactly the conclusion of `attnLiteralForwardError`.
 Given instead the per-input operating-regime bundle (`ExecAttnLitNormal`), the `exp`-atom bound `hδ`, the
 context shape, and the fp32 weights `Wt` decoding the head's value projection (`hWdec`), the certificate
-holds with **no** forward-error premise — the forward error is derived internally, per regime input. The
+holds with no forward-error premise; the forward error is derived internally, per regime input. The
 scale `c` is the executed `toReal (litScaleFactor d)`. -/
 theorem attnHead_literal_certified_generalization_of_bundle
     {n d p m : ℕ} [Nonempty (Fin p)]
@@ -1106,9 +1104,9 @@ theorem attnHead_literal_certified_generalization_of_bundle
 
 /-- **Grid support: under `P(regime) = 1`, `gridExec` IS the literal kernel `P`-almost-everywhere.** The
 capstone is silent on grid support, so under an atomless `P` the finite regime is `P`-null and the bound
-degenerates to the ideal head plus slack. With `hP` the executed map agrees `P`-a.e. with the literal
-kernel `execAttnLit (ctxOf Yt)` on the matching fp32 input — `hP` is load-bearing here, and this a.e.
-identity is the exact "program it actually runs" semantics the capstone's bound then inherits. -/
+degenerates to the ideal head plus slack. Under `hP`, the executed map agrees `P`-a.e. with the literal
+kernel `execAttnLit (ctxOf Yt)` on the matching fp32 input, giving the "program it actually runs"
+semantics the capstone's bound then inherits. -/
 theorem gridExec_ae_eq_kernel {n d : ℕ} {h1 h2 : (n + 1) ≠ 0} (B c : ℝ) (W : Fin d → Fin d → ℝ)
     [MeasurableSpace (Fin (n + 1) → Fin d → ℝ)] [BorelSpace (Fin (n + 1) → Fin d → ℝ)]
     {P : Measure (Fin (n + 1) → Fin d → ℝ)} [IsProbabilityMeasure P]
@@ -1123,20 +1121,5 @@ theorem gridExec_ae_eq_kernel {n d : ℕ} {h1 h2 : (n + 1) ≠ 0} (B c : ℝ) (W
   gridExt_ae_eq_kernel (attnHead (1 / c) W) (clampCoord B) inputs
     (fun Yt a b => toReal (Yt a b)) (fun Yt => execAttnLit (ctxOf Yt))
     (continuous_clampCoord B).measurable hinj P hP
-
--- SOFTMAX STRUCTURAL READ — DONE (axiom-clean), now imported from the staged TorchLean module
--- `TorchLean.Staged.SoftmaxCoord` (file `NN/Spec/Layers/SoftmaxVecCoordReadStaged.lean`, quarantined for
--- an upstream PR). It provides `vecGet_softmaxVecSpec_ie : vecGet (softmaxVecSpec t) i =
--- exp(softmaxShiftedIE t i) / softmaxDenomIE t` (the stabilized read, shift explicit) via the library's
--- own idiom: `scalarElim := softmaxVecSpec.match_1` (the spec's own matcher — the earlier downstream
--- attempts failed by using `vecGet`/`toScalar`/a fresh `match`, all distinct matchers), the per-term
--- reduction `cases (f i)` + `simp [scalarElim,…]`, and `posZero` for the fold accumulator (the same
--- `OfNat`/`Zero` diamond as `get2_matMulSpec_ie`). The TLT-side `litRowMax`/`litShifted`/`litDenom`
--- (`vecGet`-based) are SUPERSEDED by the staged `softmaxRowMaxIE`/`softmaxShiftedIE`/`softmaxDenomIE`.
---
--- NEXT NODES (KU-stab continued): (1) push `toReal` through the staged read —
--- `toReal (vecGet (softmaxVecSpec zt) i)` via `sub`/`exp`(δ_exp atom)/denom-`foldl`(`toReal_foldl_add`)/
--- `div`; (2) the stabilized-softmax total-variation bound vs the ideal softmax; (3) assemble
--- `execAttnLit` + `attnLiteralForwardError` + instantiate the executed certificate.
 
 end TLT.Fp32AttnLit

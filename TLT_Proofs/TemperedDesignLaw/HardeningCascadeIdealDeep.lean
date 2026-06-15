@@ -12,16 +12,15 @@ import TLT_Proofs.TemperedDesignLaw.RegionForwardSlack
 The depth-`L` envelope, the `trajInRegions` discharge, and the homogeneous-replicate collapse now compose
 into one statement whose only hypothesis is the *ideal-side* slack `idealDeep`:
 
-* `hardeningCascade_depth_of_idealDeep` — for a non-expansive region-exec layer repeated `L` times, if the
+* `hardeningCascade_depth_of_idealDeep`: for a non-expansive region-exec layer repeated `L` times, if the
   ideal trajectory stays deep in the regions (`idealDeep`), the executed/ideal composition gap is at most
   `L · rnd`.
 
-This is the cascade-to-depth-`L` object the literal binding instantiates: with the layer the tempered
-hardening layer, `rnd = (k−1)·exp(−β·g)·D`, and `idealDeep` reduced (via `marginInterior_of_margin_slack`)
-to the ideal trajectory's routing margins exceeding `g` by the envelope's slack, the gap between the soft
-mixture cascade and the hard route cascade is `≤ L·(k−1)·exp(−β·g)·D`. The proof is the composition of the
-two real lemmas — the forward-error discharge and the homogeneous depth collapse — and carries no new
-content beyond them. -/
+With the layer taken as the tempered hardening layer, `rnd = (k−1)·exp(−β·g)·D`, and `idealDeep` expressed
+(via `marginInterior_of_margin_slack`) as the ideal trajectory's routing margins exceeding `g` by the
+envelope's slack, the gap between the soft mixture cascade and the hard route cascade is
+`≤ L·(k−1)·exp(−β·g)·D`. The proof composes `regionForward_slack` (discharge of `trajInRegions` from
+`idealDeep`) with `rExecComp_replicate_le` (homogeneous depth collapse). -/
 
 noncomputable section
 

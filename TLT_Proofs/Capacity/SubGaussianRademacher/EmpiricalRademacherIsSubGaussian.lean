@@ -11,10 +11,7 @@ import SLT.SubGaussian
 
 Indexing the empirical Rademacher average by its value vector `v : Fin m → ℝ`, with the supremum
 metric on `Fin m → ℝ`, the process `empRadVec v = (1/m)·∑ᵢ vᵢ·sign(σᵢ)` is a sub-Gaussian process with
-proxy `1/√m` (`empRadVec_isSubGaussianProcess`). This is exactly the hypothesis that the chaining
-bound `dudley` consumes: given a totally bounded value-vector set (the empirical image of a function
-class) with finite entropy integral, the expected supremum of the empirical Rademacher process is
-controlled by the Dudley entropy integral of that set in the supremum metric.
+proxy `1/√m` (`empRadVec_isSubGaussianProcess`).
 
 ## References
 
@@ -33,8 +30,8 @@ namespace TLT.Capacity
 def empRadVec {m : ℕ} (v : Fin m → ℝ) (σ : SignVector m) : ℝ := empRad (fun w => w) v σ
 
 /-- **The empirical Rademacher process is sub-Gaussian** in the supremum metric on value vectors, with
-proxy `1/√m`. This is the hypothesis consumed by `dudley`: it turns a covering-number bound on the
-value-vector set into a bound on the expected supremum of the empirical Rademacher process. -/
+proxy `1/√m`. The increment MGF satisfies
+`E[exp(l·(empRadVec v − empRadVec v'))] ≤ exp(l²·‖v − v'‖²_∞/(2m))`. -/
 theorem empRadVec_isSubGaussianProcess {m : ℕ} (hm : 0 < m) :
     IsSubGaussianProcess (radMeasure m) (empRadVec (m := m)) (1 / Real.sqrt m) := by
   intro v v' l

@@ -1,14 +1,13 @@
 /-
 # The concrete literal transformer-stack certificate
 
-Both block carriers' `hrnd`s with the LayerNorm budget DISCHARGED (via `lnStarExec_residual_budget`):
-`mhBlock_hrnd_discharged` (attention) and `ffnBlock_hrnd_discharged` (FFN) prove the literal block —
-`lnStarExec` on the genuine `Vexec` mean/std reductions of the residual `X + gridExec(FFN)(X)` — is within
-the fully-closed budget `lnBudgetVal d Bln Cγ Maff + Λ_ln · rnd` of the ideal block, with NO abstract
-LayerNorm slot. These are the `hrndMH`/`hrndFFN` the capstone `litMHEncoderStack_certified_generalization`
-consumes; `litMHEncoderStack_literal_certified_generalization` plugs them, instantiating the parametric
-capstone with the actual `IEEE32Exec` residual blocks (attention bound to `Spec.scaledDotProductAttention`,
-FFN to `Spec.FeedForward.forward`; LayerNorm a faithful executed ℝ-model).
+`mhBlock_hrnd_discharged` (attention) and `ffnBlock_hrnd_discharged` (FFN) prove that the literal block
+(`lnStarExec` on the `Vexec` mean/std reductions of the residual `X + gridExec(FFN)(X)`) is within the
+fully-closed budget `lnBudgetVal d Bln Cγ Maff + Λ_ln · rnd` of the ideal block, with no abstract
+LayerNorm slot. The abstract LayerNorm hypotheses are discharged by `lnStarExec_residual_budget`.
+`litMHEncoderStack_literal_certified_generalization` instantiates the parametric capstone with the actual
+`IEEE32Exec` residual blocks (attention bound to `Spec.scaledDotProductAttention`, FFN to
+`Spec.FeedForward.forward`; LayerNorm a faithful executed ℝ-model).
 -/
 import TLT_Proofs.Bridge.Certificate.MHBlockRootBinding
 import TLT_Proofs.Bridge.Certificate.FFNBlockRootBinding
@@ -25,11 +24,11 @@ open TLT.MHBlockRoot TLT.Fp32LN TLT.FullBlockLit TLT.Capacity MeasureTheory
 
 noncomputable section
 
-/-- **The FFN block carrier `hrnd`, LayerNorm budget DISCHARGED.** The literal FFN residual block — with
-the executed mean/std the genuine `Vexec` reductions of the residual `X + gridExecFFN X` — is within the
+/-- **The FFN block carrier `hrnd`, LayerNorm budget discharged.** The literal FFN residual block, with
+the executed mean/std the `Vexec` reductions of the residual `X + gridExecFFN X`, is within the
 fully-closed `lnBudgetVal d Bln Cγ Maff + Λ_ln · ffn_rnd` of the ideal `normAttnCoord γ β (ffnCoord …)`.
 The abstract LayerNorm hypotheses of `ffnBlockRoot_hrnd` are discharged by `lnStarExec_residual_budget`
-on the residual; the honest LN normal-range regime (∀ y on the ball) is surfaced as hypotheses. -/
+on the residual; the LN normal-range regime (∀ y on the ball) is surfaced as hypotheses. -/
 lemma ffnBlock_hrnd_discharged {n d hdim : ℕ} (hd : 0 < d) (B : ℝ)
     (ffn : Spec.FeedForward d hdim IEEE32Exec) (hB : 0 ≤ B)
     (inputs : Finset (Fin n → Fin d → IEEE32Exec)) {ffn_rnd : ℝ} (hffn_rnd : 0 ≤ ffn_rnd)
@@ -79,12 +78,12 @@ lemma ffnBlock_hrnd_discharged {n d hdim : ℕ} (hd : 0 < d) (B : ℝ)
       (hsqNormal y hy) (hMaffB y hy) (haffNormal y hy))
     hlnlip x
 
-/-- **The MH (attention) block carrier `hrnd`, LayerNorm budget DISCHARGED.** Mirror of
-`ffnBlock_hrnd_discharged` for the attention block: the literal multi-head residual block — executed
-mean/std the genuine `Vexec` reductions of `X + gridExec X` — is within the fully-closed
-`lnBudgetVal d Bln Cγ Maff + Λ_ln · attn_rnd` of the ideal `normAttnCoord γ β (multiHeadAttn (H:=1) …)`.
-The abstract LayerNorm hypotheses of `mhBlockRoot_hrnd` are discharged by `lnStarExec_residual_budget`.
-The `hrndMH` the capstone consumes (attention bound to `Spec.scaledDotProductAttention`). -/
+/-- **The MH (attention) block carrier `hrnd`, LayerNorm budget discharged.** The literal multi-head
+residual block, with executed mean/std the `Vexec` reductions of `X + gridExec X`, is within the
+fully-closed `lnBudgetVal d Bln Cγ Maff + Λ_ln · attn_rnd` of the ideal
+`normAttnCoord γ β (multiHeadAttn (H:=1) …)`. The abstract LayerNorm hypotheses of `mhBlockRoot_hrnd`
+are discharged by `lnStarExec_residual_budget`. Attention is bound to
+`Spec.scaledDotProductAttention`. -/
 lemma mhBlock_hrnd_discharged {n d : ℕ} {h1 h2 : (n + 1) ≠ 0} (hd : 0 < d) (c : ℝ)
     (W : Fin d → Fin d → ℝ) {Cγ Cβ : ℝ} (hCγ0 : 0 ≤ Cγ) (hCβ0 : 0 ≤ Cβ)
     (inputs : Finset (Fin (n + 1) → Fin d → IEEE32Exec))
@@ -145,16 +144,14 @@ lemma mhBlock_hrnd_discharged {n d : ℕ} {h1 h2 : (n + 1) ≠ 0} (hd : 0 < d) (
       (hnMean y hy) (hnVar y hy) (hsqNormal y hy) (hMaffB y hy) (haffNormal y hy))
     hlnlip x
 
-/-- **The concrete literal multi-head transformer encoder STACK certificate.** The depth-`L`, `H=1`
-executed encoder stack with the ACTUAL `IEEE32Exec` residual blocks — multi-head attention bound to
-`Spec.scaledDotProductAttention` (`gridExec`/`execAttnLit`), feed-forward to `Spec.FeedForward.forward`
-(`gridExecFFN`/`ffnExecLit`), each LayerNorm a faithful executed ℝ-model on the genuine `Vexec` mean/std
-reductions — satisfies the shipped Dudley generalization bound. The named bundle: `hrndMH`/`hrndFFN` are
-the LN-discharged block carriers (`mhBlock_hrnd_discharged`/`ffnBlock_hrnd_discharged`), plugged into the
-parametric capstone `litMHEncoderStack_certified_generalization`. The conclusion is the capstone's, with
-the literal `Es`; every per-op rounding inside `rndMH`/`rndFFN` is the closed-form floor-driven budget.
-(Stated as a `def` whose inferred type IS the capstone's Dudley bound at the literal `Es`, to avoid
-restating the depth-`L` entropy-integral conclusion verbatim.) -/
+/-- **The concrete literal multi-head transformer encoder stack certificate.** The depth-`L`, `H=1`
+executed encoder stack with the actual `IEEE32Exec` residual blocks (multi-head attention bound to
+`Spec.scaledDotProductAttention` via `gridExec`/`execAttnLit`, feed-forward to
+`Spec.FeedForward.forward` via `gridExecFFN`/`ffnExecLit`, each LayerNorm a faithful executed ℝ-model
+on the `Vexec` mean/std reductions) satisfies the Dudley generalization bound. `hrndMH`/`hrndFFN` are the LN-discharged block
+carriers (`mhBlock_hrnd_discharged`/`ffnBlock_hrnd_discharged`), plugged into the parametric capstone
+`litMHEncoderStack_certified_generalization`. The conclusion is the capstone's at the literal `Es`.
+Stated as a `def` whose inferred type is the capstone's Dudley bound at the literal `Es`. -/
 def litMHEncoderStack_literal_certified_generalization
     {n d p hdim m : ℕ} [Nonempty (Fin p)]
     [MeasurableSpace (Fin (n + 1) → Fin d → ℝ)] [BorelSpace (Fin (n + 1) → Fin d → ℝ)]

@@ -18,27 +18,26 @@ route readout). The grade at `(L, K)` is the set of route-label functions `X →
 the ideal composition of a **length-`L`** stack of route-region layers, each drawn from a fixed
 **width-`K`** pool of experts, with the route read off after the cascade.
 
-* `cascadeLayers pool sel` — assemble the length-`L` layer list from a width-`K` expert `pool` and a
+* `cascadeLayers pool sel`: assemble the length-`L` layer list from a width-`K` expert `pool` and a
   per-slot selector `sel : Fin L → Fin K`.
-* `cascadeRoute` — the route-label readout: run the ideal composition, then take the `leastArgmax`
+* `cascadeRoute`: the route-label readout; run the ideal composition, then take the `leastArgmax`
   route of the underlying router.
-* `expressivityGrade L K` — the realizable route set: a `def` that depends on `(L, K)` **by
+* `expressivityGrade L K`: the realizable route set, a `def` that depends on `(L, K)` **by
   construction** (the layer list has length `L`, the pool is indexed by `Fin K`).
 
 The lattice is **non-degenerate**: `expressivityGrade L K` is the image of an `(L, K)`-shaped index
-type, not a constant set. The monotonicity edges are **real cascade embeddings**, not reflexivity:
+type, not a constant set. The monotonicity edges are real cascade embeddings, not reflexivity:
 
-* `expressivityGrade_mono_depth` (DEPTH) — `expressivityGrade L K ⊆ expressivityGrade (L+1) K`, proved by
-  **prepending an identity `RegionMapLayer`** (`idRegionLayer`): the depth-`L` ideal composition is
+* `expressivityGrade_mono_depth` (DEPTH): `expressivityGrade L K ⊆ expressivityGrade (L+1) K`, proved by
+  **prepending an identity `RegionMapLayer`** (`idRegionLayer`). The depth-`L` ideal composition is
   literally the depth-`(L+1)` ideal composition of the stack with one extra identity slot, because
   the identity layer's `ideal` map is `id` and `rmIdealComp` consumes it without changing the state.
-* `expressivityGrade_mono_width` (WIDTH) — `expressivityGrade L K ⊆ expressivityGrade L (K+1)`,
-  proved by **adjoining a never-selected dummy expert**: enlarging the pool from `Fin K` to
-  `Fin (K+1)` and reindexing the selector through `Fin.castSucc` leaves the assembled stack — hence
-  the route — unchanged.
-* `expressivityGrade_monotone_depth` / `expressivityGrade_monotone_width` — the corrected field
-  shape: `Monotone` ladders in `L` and in `K`, the honest replacement for the degenerate
-  collapse-equality.
+* `expressivityGrade_mono_width` (WIDTH): `expressivityGrade L K ⊆ expressivityGrade L (K+1)`,
+  proved by **adjoining a never-selected dummy expert**. Enlarging the pool from `Fin K` to
+  `Fin (K+1)` and reindexing the selector through `Fin.castSucc` leaves the assembled stack
+  unchanged, hence the route unchanged.
+* `expressivityGrade_monotone_depth` / `expressivityGrade_monotone_width`: `Monotone` ladders in `L`
+  and in `K`.
 -/
 
 open scoped BigOperators
@@ -59,7 +58,7 @@ variable {X : Type u} [MeasurableSpace X] {k : ℕ}
 /-! ### The identity region layer (the depth embedding witness) -/
 
 /-- The **identity region layer**: ideal and executed maps are both `id`, and the region is the whole
-space. Composing it into a cascade leaves the ideal composition unchanged — it is the depth-embedding
+space. Composing it into a cascade leaves the ideal composition unchanged; it is the depth-embedding
 witness for the monotone ladder. -/
 def idRegionLayer (X : Type u) : RegionMapLayer X where
   ideal := id
@@ -96,15 +95,14 @@ def cascadeRoute {L K : ℕ} (A : TemperedRouterFamily X k) (hk : 0 < k) (ρ : A
 width-`K` tempered argmax cascade: some router `A`, parameter `ρ`, width-`K` expert pool and length-`L`
 selector whose ideal composition, read out by the route, equals the function.
 
-This is the honest replacement for the degenerate `expressivityGrade L K := symbolClass`. It depends
-on `(L, K)` **by construction**: the witnessing selector has domain `Fin L` and the pool has domain
-`Fin K`, so the realizable set is the image of an `(L, K)`-shaped index type, not a constant. -/
+This depends on `(L, K)` **by construction**: the witnessing selector has domain `Fin L` and the pool
+has domain `Fin K`, so the realizable set is the image of an `(L, K)`-shaped index type, not a constant. -/
 def expressivityGrade (L K : ℕ) (hk : 0 < k) : Set (X → Fin k) :=
   {f | ∃ (A : TemperedRouterFamily X k) (ρ : A.router.Ρ)
         (pool : Fin K → RegionMapLayer X) (sel : Fin L → Fin K),
         f = cascadeRoute A hk ρ pool sel}
 
-/-! ### DEPTH monotonicity (LABEL A) — prepend an identity layer -/
+/-! ### DEPTH monotonicity (LABEL A): prepend an identity layer -/
 
 /-- The width-`K` selector for depth `L+1` that puts the new identity slot first (selecting the fresh
 expert at index `0` of the enlarged pool) and shifts the old selector up by one. Used as the
@@ -150,7 +148,7 @@ theorem expressivityGrade_mono_depth (L K : ℕ) (hk : 0 < k) :
     rw [cascadeLayers_depthSucc pool sel, rmIdealComp_idRegionLayer_cons]
   exact congrArg (A.router.route hk ρ) hstate.symm
 
-/-! ### WIDTH monotonicity — adjoin a never-selected dummy expert -/
+/-! ### WIDTH monotonicity: adjoin a never-selected dummy expert -/
 
 /-- **Width-embedding stack identity.** Assembling the `L`-stack from the enlarged pool
 (`Fin.snoc pool (idRegionLayer X)`, a never-selected dummy expert at index `K`) and the `castSucc`-
@@ -185,20 +183,18 @@ theorem expressivityGrade_mono_width (L K : ℕ) (hk : 0 < k) :
 
 /-! ### The corrected field shape: Monotone ladders -/
 
-/-- **The corrected `expressivity_graded` field — DEPTH (LABEL A).** The honest replacement for the
-degenerate collapse-equality `expressivityGrade L K = symbolClass`: the realizable route set is a
-`Monotone` ladder in the *joint* depth/width index `L`, i.e. growing depth (with width to host the
-identity expert) never shrinks the realizable class. Proved from the genuine cascade embedding
-`expressivityGrade_mono_depth`. -/
+/-- **Depth monotonicity ladder (DEPTH, LABEL A).** The realizable route set is a `Monotone` ladder
+in the *joint* depth/width index `L`: growing depth (with width to host the identity expert) never
+shrinks the realizable class. Proved from the cascade embedding `expressivityGrade_mono_depth`. -/
 theorem expressivityGrade_monotone_depth (hk : 0 < k) :
     Monotone (fun L : ℕ => (expressivityGrade L L hk : Set (X → Fin k))) := by
   apply monotone_nat_of_le_succ
   intro L
   exact expressivityGrade_mono_depth L L hk
 
-/-- **The corrected `expressivity_graded` field — WIDTH.** At fixed depth `L`, the realizable route
-set is a `Monotone` ladder in the width `K`: adjoining experts never shrinks the realizable class.
-Proved from the genuine cascade embedding `expressivityGrade_mono_width`. -/
+/-- **Width monotonicity ladder.** At fixed depth `L`, the realizable route set is a `Monotone` ladder
+in the width `K`: adjoining experts never shrinks the realizable class. Proved from the cascade
+embedding `expressivityGrade_mono_width`. -/
 theorem expressivityGrade_monotone_width (L : ℕ) (hk : 0 < k) :
     Monotone (fun K : ℕ => (expressivityGrade L K hk : Set (X → Fin k))) := by
   apply monotone_nat_of_le_succ
@@ -209,7 +205,7 @@ theorem expressivityGrade_monotone_width (L : ℕ) (hk : 0 < k) :
 
 /-- **Non-degeneracy anchor (constructive direction).** Every route assembled from a depth-`L`,
 width-`K` cascade lies in `expressivityGrade L K`. Together with the `def` of `expressivityGrade`
-(an existential over an `(L, K)`-shaped witness — a pool `Fin K → RegionMapLayer X` and a selector
+(an existential over an `(L, K)`-shaped witness, a pool `Fin K → RegionMapLayer X` and a selector
 `Fin L → Fin K`), this shows the grade genuinely tracks the realizable behaviour of an `(L, K)`
 cascade, not a fixed constant set: its members are exactly the readouts of `(L, K)`-indexed
 assemblies. -/
@@ -221,7 +217,7 @@ theorem cascadeRoute_mem_expressivityGrade {L K : ℕ} (A : TemperedRouterFamily
 /-- The depth-`0` grade (no layers) is exactly the bare `symbolClass` route readout image: at `L = 0`
 the ideal composition is the identity, so `cascadeRoute` collapses to `A.router.route hk ρ`. This
 pins the *base* of the ladder to the shipped `symbolClass`, while strictly positive depth genuinely
-composes the cascade — so the grade is **not** the constant `symbolClass`. -/
+composes the cascade, so the grade is **not** the constant `symbolClass`. -/
 theorem expressivityGrade_zero_depth (K : ℕ) (hk : 0 < k) :
     (expressivityGrade 0 K hk : Set (X → Fin k))
       = {f | ∃ (A : TemperedRouterFamily X k) (ρ : A.router.Ρ), f = A.router.route hk ρ} := by
@@ -244,4 +240,3 @@ theorem expressivityGrade_zero_depth (K : ℕ) (hk : 0 < k) :
 
 end TLT.TemperedDesignLaw
 
--- Axiom audit (must be {propext, Classical.choice, Quot.sound}):

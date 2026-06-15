@@ -12,7 +12,7 @@ import FLT_Proofs.Theorem.BorelAnalyticSeparation
 The single routing primitive of the library: `FiniteScoreRouterCode X k`, a `k`-head
 score-based router whose argmax route is jointly measurable, together with the measurable
 `k`-valued router family it represents. Binary (score-comparison) routing is the `k = 2`
-specialization — `route_two_eq_scoreComparison` characterizes the 2-head argmax route as a score comparison
+specialization. `route_two_eq_scoreComparison` characterizes the 2-head argmax route as a score comparison
 (head `0` wins ties), recovering the Boolean decision via `Fin 2 ≃ Bool` at every call site.
 
 ## Main results
@@ -160,12 +160,11 @@ theorem FiniteScoreRouterCode.route_measurable {X : Type u} [MeasurableSpace X] 
   have hctbl : (Set.univ : Set (Fin k)).Countable := Set.countable_univ
   exact MeasurableSet.biInter (hctbl.mono (Set.subset_univ _)) (fun j _ => h_lt j)
 
-/-! ## Item 6′: route_two_eq_scoreComparison — the binary (2-head) route is a score comparison
+/-! ## Item 6′: route_two_eq_scoreComparison (the binary 2-head route is a score comparison)
 
 For `k = 2` the argmax route is a score comparison: `route = 0` iff head `0`'s score is at
 least head `1`'s (head `0` wins ties), else `route = 1`. This is the score-comparison /
-binary-attention reading of finite routing at its smallest nondegenerate width, and the
-form `T3`'s hard quadrant consumes. -/
+binary-attention reading of finite routing at its smallest nondegenerate width. -/
 theorem FiniteScoreRouterCode.route_two_eq_scoreComparison {X : Type u} [MeasurableSpace X]
     (A : FiniteScoreRouterCode X 2) (ρ : A.Ρ) (x : X) :
     A.route (by norm_num) ρ x =

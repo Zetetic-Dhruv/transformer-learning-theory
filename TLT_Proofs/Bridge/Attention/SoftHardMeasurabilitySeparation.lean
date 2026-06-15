@@ -12,25 +12,23 @@ import TLT_Proofs.Strictness.AttentionNonBorelWitness
 The measurability behaviour of attention depends on whether routing is soft (softmax-weighted) or
 hard (argmax). This file states the separation:
 
-* **soft** — the softmax-weighted attention concept class satisfies `WellBehavedVCMeasTarget` for
-  *every* width `d`, head count `nK`, and parameter space (no σ-compactness needed): the softmax
-  family is jointly measurable, so `borel_param` applies unconditionally;
-* **hard** — there is an argmax attention router with continuous scores over a Polish, non-σ-compact
+* **soft**: the softmax-weighted attention concept class satisfies `WellBehavedVCMeasTarget` for
+  *every* width `d`, head count `nK`, and parameter space (no σ-compactness needed); the softmax
+  family is jointly measurable, so `borel_param` applies unconditionally.
+* **hard**: there is an argmax attention router with continuous scores over a Polish, non-σ-compact
   parameter space whose empirical-process bad event is *not* Borel (the non-Borel witness).
 
 Softmax thus removes the measurability pathology that argmax routing can exhibit.
 
 ## Main result
 
-- `soft_vs_hard_attention_measurabilitySeparation` — the conjunction of the two halves.
+- `soft_vs_hard_attention_measurabilitySeparation`: the conjunction of the two halves.
 -/
 
 /-!
 ## References
 - [27] hard-vs-soft attention (expressivity axis); [7][1][2] measurability axis; builds on the
   soft-well-behaved + hard-non-Borel witness.
-- Provenance: Innovation — soft/hard attention separation on the measurability/Borel axis,
-  orthogonal to the published expressivity-axis separations.
 -/
 
 open MeasureTheory Set TLT.Strictness

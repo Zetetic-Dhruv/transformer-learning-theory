@@ -12,44 +12,44 @@ import TLT_Proofs.TemperedDesignLaw.CertificateReal
 /-!
 # The affine-mux depth hierarchy atom (Strategy C: scores carried in a fixed `W ≤ X → ℝ`)
 
-This module establishes the FUNDAMENTAL depth-hierarchy atom for affine-mux argmax cascades — the
+This module establishes the fundamental depth-hierarchy atom for affine-mux argmax cascades, as a
 *constrained* replacement for the degenerate `expressivityGrade` of `ExpressivityDegeneracy.lean`.
 There the unconstrained router already realizes every measurable route, so the lattice collapses. The
 fix here is a genuine two-part constraint:
 
 * scores are **affine** functionals (and, in the Strategy-C framing, their linear parts lie in a fixed
   finite-dimensional subspace `W = coordSpan d ≤ ((Fin d → ℝ) → ℝ)`, the same `W` used in the capacity
-  work — see `AffineFunctional.linFun_mem_coordSpan`, making the `dim W = d` connection explicit);
+  work (see `AffineFunctional.linFun_mem_coordSpan`, making the `dim W = d` connection explicit);
 * region maps are **`n`-way mux-gated** piecewise-affine maps (gate by the argmax of `n` affine scores,
   apply the selected affine branch).
 
 ## The canonical shape (shared by all provers, so the results compose)
 
-* `AffineFunctional d`     — `{ lin : Fin d → ℝ, const : ℝ }` with `eval x = (∑ i, lin i * x i) + const`.
-* `AffineSelfMap d`        — affine `X → X` map `{ mat, shift }` with `id`/`comp`.
-* `AffineMuxLayer d n`     — `n ≥ 1` scores + `n` affine branches; `applyLayer` gates by `leastArgmax`.
-* `MuxCascade d L`         — a depth-`L`, `Fin L`-indexed family of layers of varying arities.
-* `cascade` / `cascadeRoute` — the composed region map, then a `k`-way affine argmax readout.
-* `muxCascadeGrade d k L`  — the set of route functions realizable by SOME depth-`L` cascade + SOME `k`
+* `AffineFunctional d`: `{ lin : Fin d → ℝ, const : ℝ }` with `eval x = (∑ i, lin i * x i) + const`.
+* `AffineSelfMap d`: affine `X → X` map `{ mat, shift }` with `id`/`comp`.
+* `AffineMuxLayer d n`: `n ≥ 1` scores + `n` affine branches; `applyLayer` gates by `leastArgmax`.
+* `MuxCascade d L`: a depth-`L`, `Fin L`-indexed family of layers of varying arities.
+* `cascade` / `cascadeRoute`: the composed region map, then a `k`-way affine argmax readout.
+* `muxCascadeGrade d k L`: the set of route functions realizable by SOME depth-`L` cascade + SOME `k`
   affine route scores. This is the constrained analogue of `expressivityGrade`.
 
 ## The three results
 
-* **(A) Definitions** — all of the above, compiling, building-as-root clean.
+* **(A) Definitions**: all of the above.
 * **(B) Region-count bound** (`muxCascade_pieces_le_prod`): a depth-`L` cascade is piecewise-affine with
-  at most `∏ᵢ arityᵢ` maximal affine pieces. We define `pieceCount` as `Nat.card (range cascadeTrace)`
-  — the number of distinct *active-branch traces* — and the bound is the cardinality of the finite trace
+  at most `∏ᵢ arityᵢ` maximal affine pieces. `pieceCount` is `Nat.card (range cascadeTrace)`,
+  the number of distinct *active-branch traces*, and the bound is the cardinality of the finite trace
   codomain `∀ i, Fin (arityᵢ)` (`MuxCascade.trace_codomain_card`). Each trace value indexes a fixed
-  composition of branch-selected affine maps (one affine cell), so the count is the honest piece count.
+  composition of branch-selected affine maps (one affine cell), so this is the genuine piece count.
 * **(C) Convexity / XOR base separation**:
-  - `muxCascadeGrade_zero_cells_convex`: every grade-0 route has CONVEX cells (intersections of affine
-    half-spaces — power-diagram cells).
-  - `xorRoute_mem_grade_one`: the genuinely non-convex sign-XOR route is realized at depth 1 by an
-    explicit arity-2 fold layer + a final argmax readout (the load-bearing construction).
-  - `xorRoute_not_mem_grade_zero`: a REAL proved non-membership via the convexity obstruction (three
-    points `(1,-1) ↦ 1`, `(-1,1) ↦ 1`, midpoint `(0,0) ↦ 0`).
-  - `muxCascadeGrade_zero_ssubset_one`: the strict separation `grade 0 ⊂ grade 1` — depth strictly buys
-    expressivity, at the base, PROVED.
+  - `muxCascadeGrade_zero_cells_convex`: every grade-0 route has convex cells (intersections of affine
+    half-spaces, i.e. power-diagram cells).
+  - `xorRoute_mem_grade_one`: the sign-XOR route, non-convex, is realized at depth 1 by an explicit
+    arity-2 fold layer followed by a final argmax readout.
+  - `xorRoute_not_mem_grade_zero`: non-membership via the convexity obstruction (three points
+    `(1,-1) ↦ 1`, `(-1,1) ↦ 1`, midpoint `(0,0) ↦ 0`).
+  - `muxCascadeGrade_zero_ssubset_one`: the strict separation `grade 0 ⊂ grade 1`; depth strictly buys
+    expressivity at the base.
 -/
 
 open scoped BigOperators
@@ -79,7 +79,7 @@ def AffineFunctional.linFun {d : ℕ} (f : AffineFunctional d) : (Fin d → ℝ)
   fun x => ∑ i, f.lin i * x i
 
 /-- **Strategy-C carrier (the `W = coordSpan d` framing).** The linear part of every affine functional
-lies in the fixed `d`-dimensional subspace `coordSpan d ≤ ((Fin d → ℝ) → ℝ)` — the same `W` used in the
+lies in the fixed `d`-dimensional subspace `coordSpan d ≤ ((Fin d → ℝ) → ℝ)`, the same `W` used in the
 capacity / arrangement-VC work. This makes the `dim W = d` connection explicit: the affine scores are a
 valid linear-score carrier, exactly as the attention score differences are. -/
 theorem AffineFunctional.linFun_mem_coordSpan {d : ℕ} (f : AffineFunctional d) :
@@ -125,7 +125,7 @@ structure AffineMuxLayer (d n : ℕ) where
   scores : Fin n → AffineFunctional d
   branches : Fin n → AffineSelfMap d
 
-/-- The branch index selected by an affine-mux layer at `x` — the `leastArgmax` of its `n` affine
+/-- The branch index selected by an affine-mux layer at `x`: the `leastArgmax` of its `n` affine
 scores. -/
 def AffineMuxLayer.gate {d n : ℕ} (L : AffineMuxLayer d n) (hn : 0 < n) (x : Fin d → ℝ) : Fin n :=
   leastArgmax (fun i => (L.scores i).eval x) hn
@@ -137,7 +137,7 @@ def AffineMuxLayer.applyLayer {d n : ℕ} (L : AffineMuxLayer d n) (hn : 0 < n)
   (L.branches (L.gate hn x)).apply x
 
 /-- The arity-1 *identity* mux layer (one trivial score, one identity branch). Its gate is always `0`
-and its action is the identity — it embeds a depth-`L` cascade into depth-`L+1`. -/
+and its action is the identity; it embeds a depth-`L` cascade into depth-`L+1`. -/
 def AffineMuxLayer.idLayer (d : ℕ) : AffineMuxLayer d 1 where
   scores := fun _ => ⟨fun _ => 0, 0⟩
   branches := fun _ => AffineSelfMap.id d
@@ -193,8 +193,8 @@ def muxCascadeGrade (d k L : ℕ) (hk : 0 < k) : Set ((Fin d → ℝ) → Fin k)
 
 /-! ## (B) The region-count bound: ≤ ∏ arities affine pieces -/
 
-/-- **Each trace value is one fixed affine piece (honest count).** Running the cascade depends on the
-input only through which branch is selected at each layer — i.e. through the trace. Hence on any two
+/-- **Each trace value is one fixed affine piece.** Running the cascade depends on the
+input only through which branch is selected at each layer, i.e. through the trace. Hence on any two
 inputs with the same trace prefix, `runUpTo m` produces states obtained by applying the *same* sequence
 of (fixed, branch-determined) affine self-maps. Concretely: if `C.trace x = C.trace y` agree on all
 layers `< m`, then the selected branch at each such layer is the same, so `runUpTo m` is a fixed
@@ -284,7 +284,7 @@ theorem affineLt_convex {d : ℕ} (p q : AffineFunctional d) :
     C.run x = x := rfl
 
 /-- **(C) GRADE-0 CELLS ARE CONVEX.** For any route `f ∈ muxCascadeGrade d k 0`, every route-cell
-`{x | f x = j}` is a power-diagram cell — an intersection of affine half-spaces — hence convex. The cell
+`{x | f x = j}` is a power-diagram cell (an intersection of affine half-spaces), hence convex. The cell
 is `{x | f x = j} = (⋂ i, {routeScore i ≤ routeScore j}) ∩ (⋂ i, i < j → {routeScore i < routeScore j})`,
 a finite intersection of convex affine `≤`/`<` half-spaces (`convex_iInter`). -/
 theorem muxCascadeGrade_zero_cells_convex {d k : ℕ} (hk : 0 < k) (f : (Fin d → ℝ) → Fin k)
@@ -338,8 +338,8 @@ theorem leastArgmax_two (v : Fin 2 → ℝ) :
 /-- The sign-XOR route on `R² = Fin 2 → ℝ`: `0` when the two sign-bits *agree*, `1` when they *differ*.
 We use the boundary convention consistent with a single sign-fold: in the `x 0 ≥ 0` half-plane "agree"
 means `x 1 ≥ 0`; in the `x 0 < 0` half-plane "agree" means `x 1 ≤ 0` (the sign of `x 1` matched against
-the sign of `x 0`). The route-`1` region is then `{x 0 ≥ 0, x 1 < 0} ∪ {x 0 < 0, x 1 > 0}` — an open
-quadrant union, genuinely NON-convex (it contains `(1,-1)` and `(-1,1)` but not their midpoint `(0,0)`).
+the sign of `x 0`). The route-`1` region is then `{x 0 ≥ 0, x 1 < 0} ∪ {x 0 < 0, x 1 > 0}`, an open
+quadrant union, non-convex: it contains `(1,-1)` and `(-1,1)` but not their midpoint `(0,0)`.
 
 This `def` is *equivalent to* the propositional sign-XOR `if (0 ≤ x 0) = (0 ≤ x 1) then 0 else 1`
 everywhere off the single boundary line `{x 0 < 0, x 1 = 0}` (a null set), where the deterministic
@@ -347,7 +347,7 @@ everywhere off the single boundary line `{x 0 < 0, x 1 = 0}` (a null set), where
 def xorRoute : (Fin 2 → ℝ) → Fin 2 :=
   fun x => if 0 ≤ x 0 then (if 0 ≤ x 1 then 0 else 1) else (if x 1 ≤ 0 then 0 else 1)
 
-/-! ### (C.4) Depth-1 realization of `xorRoute` — the load-bearing construction -/
+/-! ### (C.4) Depth-1 realization of `xorRoute` -/
 
 /-- The fold layer: arity 2, gate on the sign of `x 0` (`gate = 0` iff `x 0 ≥ 0`), branch 0 = identity,
 branch 1 = negate the `x 1` coordinate. After this layer the state is `(x0, x1)` when `x0 ≥ 0` and
@@ -432,10 +432,10 @@ theorem xorRouteScores_eval (s : Fin 2 → ℝ) :
     have : xorRouteScores 1 = ⟨fun l => if l = 1 then -1 else 0, 0⟩ := by simp [xorRouteScores]
     rw [this]; simp [AffineFunctional.eval]
 
-/-- **(C) DEPTH-1 XOR REALIZATION — the load-bearing construction.** The depth-1 affine-mux cascade
-`xorCascade` (one arity-2 fold layer that conditionally negates `x 1` on the sign of `x 0`) followed by
-the affine readout `xorRouteScores` (argmax on the sign of the folded `x 1`) computes exactly the
-sign-XOR route. Hence `xorRoute ∈ muxCascadeGrade 2 2 1`. -/
+/-- **(C) DEPTH-1 XOR REALIZATION.** The depth-1 affine-mux cascade `xorCascade` (one arity-2 fold
+layer that conditionally negates `x 1` on the sign of `x 0`) followed by the affine readout
+`xorRouteScores` (argmax on the sign of the folded `x 1`) computes exactly the sign-XOR route.
+Hence `xorRoute ∈ muxCascadeGrade 2 2 1`. -/
 theorem xorRoute_eq_cascadeRoute :
     xorRoute = cascadeRoute xorCascade xorRouteScores (by norm_num) := by
   funext x
@@ -489,10 +489,10 @@ theorem xorRoute_mid_eq_comb :
   funext i
   fin_cases i <;> simp [Matrix.cons_val_zero, Matrix.cons_val_one]
 
-/-- **(C) THE NON-MEMBERSHIP (a REAL proved non-membership).** `xorRoute ∉ muxCascadeGrade 2 2 0`. If it
+/-- **(C) Non-membership: `xorRoute ∉ muxCascadeGrade 2 2 0`.** If it
 were a grade-0 route, its route-`1` cell would be convex (`muxCascadeGrade_zero_cells_convex`). But the
 cell is non-convex: it contains `(1,-1)` and `(-1,1)` (both route `1`) yet not their midpoint `(0,0)`
-(route `0`). Contradiction. This is the convexity obstruction — depth genuinely buys expressivity. -/
+(route `0`), a contradiction. The convexity obstruction shows depth genuinely buys expressivity. -/
 theorem xorRoute_not_mem_grade_zero :
     xorRoute ∉ muxCascadeGrade 2 2 0 (by norm_num) := by
   intro hmem
@@ -539,8 +539,8 @@ theorem muxCascadeGrade_zero_subset_one {k : ℕ} (hk : 0 < k) :
 /-- **(C) THE STRICT SEPARATION ATOM.** `muxCascadeGrade 2 2 0 ⊂ muxCascadeGrade 2 2 1`. The `⊆` is the
 depth-monotone identity-layer embedding; the strictness is the XOR witness: `xorRoute` lies in grade 1
 (`xorRoute_mem_grade_one`) but not grade 0 (`xorRoute_not_mem_grade_zero`, via the convexity
-obstruction). Depth strictly buys expressivity, at the base, PROVED — the constrained replacement for
-the degenerate `expressivityGrade`. -/
+obstruction). This is the constrained replacement for the degenerate `expressivityGrade`, establishing
+strict depth separation at the base. -/
 theorem muxCascadeGrade_zero_ssubset_one (hk : 0 < 2) :
     muxCascadeGrade 2 2 0 hk ⊂ muxCascadeGrade 2 2 1 hk := by
   refine ⟨muxCascadeGrade_zero_subset_one hk, ?_⟩
@@ -553,9 +553,3 @@ theorem muxCascadeGrade_zero_ssubset_one (hk : 0 < 2) :
   exact xorRoute_not_mem_grade_zero h0
 
 end TLT.TemperedDesignLaw.MuxHierarchy
-
--- Axiom audit (must be {propext, Classical.choice, Quot.sound}):
--- #print axioms TLT.TemperedDesignLaw.MuxHierarchy.muxCascadeGrade_zero_ssubset_one
--- #print axioms TLT.TemperedDesignLaw.MuxHierarchy.muxCascade_pieces_le_prod
--- #print axioms TLT.TemperedDesignLaw.MuxHierarchy.xorRoute_mem_grade_one
--- #print axioms TLT.TemperedDesignLaw.MuxHierarchy.xorRoute_not_mem_grade_zero

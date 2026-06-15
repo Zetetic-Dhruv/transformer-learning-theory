@@ -26,7 +26,7 @@ open MeasureTheory
 namespace TLT.GridExt
 
 /-- The grid-extended map: the executed `kernel` on the pre-image, under `clamp`, of each `read i`
-for `i` in the finite family `inputs`, and the clamped `ideal` elsewhere — written as `ideal ∘ clamp`
+for `i` in the finite family `inputs`, and the clamped `ideal` elsewhere. Written as `ideal ∘ clamp`
 plus a finite correction supported on those pre-images. -/
 noncomputable def gridExt {V ι : Type*} [NormedAddCommGroup V]
     (ideal clamp : V → V) (inputs : Finset ι) (read kernel : ι → V) (y : V) : V :=
@@ -35,7 +35,7 @@ noncomputable def gridExt {V ι : Type*} [NormedAddCommGroup V]
 
 /-- The grid extension carries the per-input error verbatim: given the bound `rnd` between `kernel i`
 and `ideal (read i)` on every index (`hregime`) and distinct reads (`hinj`), `gridExt` is within `rnd`
-of the clamped ideal at every input — `rnd` on the pre-images, `0` off them. -/
+of the clamped ideal at every input (`rnd` on the pre-images, `0` off them). -/
 theorem gridExt_exec_close {V ι : Type*} [NormedAddCommGroup V]
     (ideal clamp : V → V) (inputs : Finset ι) (read kernel : ι → V) {rnd : ℝ} (hrnd : 0 ≤ rnd)
     (hregime : ∀ i ∈ inputs, dist (kernel i) (ideal (read i)) ≤ rnd)

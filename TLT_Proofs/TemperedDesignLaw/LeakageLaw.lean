@@ -8,7 +8,7 @@ import TLT_Proofs.TemperedDesignLaw.SymbolChannel
 /-!
 # The two-sided per-layer leakage law (TD2)
 
-The off-route mass — the mixture channel's total weight on classes other than the hard route — decays
+The off-route mass (the mixture channel's total weight on classes other than the hard route) decays
 margin-exponentially, two-sided:
 
 * **Upper** `offRouteMass ≤ (k−1)·exp(−β·γ)`: each off-route weight is `exp(β·sᵢ)/Z ≤
@@ -35,7 +35,7 @@ lemma score_le_secondScore {k : ℕ} (s : Fin k → ℝ) (top i : Fin k) (hi : i
   rw [secondScore, dif_pos ⟨i, hmem⟩]
   exact Finset.le_sup' s hmem
 
-/-- **TD2 (upper) — leakage decays margin-exponentially.** -/
+/-- **TD2 (upper): leakage decays margin-exponentially.** -/
 theorem TD2_leakage_upper_proof {X : Type u} [MeasurableSpace X] {k : ℕ}
     (A : TemperedRouterFamily X k) (hk : 0 < k) : TD2_leakage_upper A hk := by
   intro ρ x
@@ -60,7 +60,7 @@ theorem TD2_leakage_upper_proof {X : Type u} [MeasurableSpace X] {k : ℕ}
   rw [nsmul_eq_mul, Finset.filter_ne', Finset.card_erase_of_mem (Finset.mem_univ _),
     Finset.card_univ, Fintype.card_fin, Nat.cast_sub hk, Nat.cast_one]
 
-/-- **TD2 (lower) — leakage is not faster than exponential** (with `2 ≤ k`). -/
+/-- **TD2 (lower): leakage is not faster than exponential** (with `2 ≤ k`). -/
 theorem TD2_leakage_lower_proof {X : Type u} [MeasurableSpace X] {k : ℕ}
     (A : TemperedRouterFamily X k) (hk : 0 < k) : TD2_leakage_lower A hk := by
   intro hk2 ρ x

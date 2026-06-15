@@ -13,20 +13,17 @@ import Mathlib.MeasureTheory.Measure.Count
 The empirical Rademacher process at index `θ` is `R_θ(σ) = (1/m)·∑ᵢ g(θ)ᵢ·sign(σᵢ)`, where `σ` is a
 uniformly random sign vector and `g(θ)ᵢ` is the value of the `θ`-indexed function at sample `i`. Its
 increments are bounded Rademacher sums, hence sub-Gaussian: under the uniform sign measure,
-`E[exp(l·(R_θ − R_θ'))] ≤ exp(l²·c²/(2m))` whenever `c` bounds the per-sample increments. This is the
-hypothesis under which the chaining bound (`SLT.dudley`) applies to the empirical Rademacher complexity
-of a function class — the route from a covering-number bound to a generalization bound.
+`E[exp(l·(R_θ − R_θ'))] ≤ exp(l²·c²/(2m))` whenever `c` bounds the per-sample increments.
 
-The moment generating function bound is the kernel's `rademacher_mgf_bound`; this file packages it as
-an integral against the uniform sign measure (so it can feed the measure-theoretic chaining bound) and
-extends it to negative exponents by the sign symmetry of the Rademacher sum.
+The MGF bound `rademacher_mgf_bound` is integrated against the uniform sign measure and extended to
+negative exponents by the sign symmetry of the Rademacher sum.
 
 ## Main results
 
-- `radMeasure` — the uniform probability measure on the `2^m` sign vectors.
-- `integral_radMeasure` — integration against it is the average over sign vectors.
-- `empRad` — the empirical Rademacher average.
-- `empRad_increment_mgf_le` — the increment is sub-Gaussian with proxy `1/√m`.
+- `radMeasure`: the uniform probability measure on the `2^m` sign vectors.
+- `integral_radMeasure`: integration against it is the average over sign vectors.
+- `empRad`: the empirical Rademacher average.
+- `empRad_increment_mgf_le`: the increment is sub-Gaussian with proxy `1/√m`.
 
 ## References
 
@@ -66,8 +63,7 @@ def empRad {A : Type*} {m : ℕ} (g : A → Fin m → ℝ) (θ : A) (σ : SignVe
 
 /-- **The empirical Rademacher process increment is sub-Gaussian** (proxy `1/√m`): for any bound `c`
 on the per-sample increments `|g θ i − g θ' i|`, the increment's MGF under the uniform sign measure is
-at most `exp(l²·c²/(2m))`, for every `l`. This is the sub-Gaussian condition that lets the chaining
-bound control the empirical Rademacher complexity in the empirical metric. -/
+at most `exp(l²·c²/(2m))`, for every `l`. -/
 theorem empRad_increment_mgf_le {A : Type*} {m : ℕ} (hm : 0 < m) (g : A → Fin m → ℝ) (θ θ' : A)
     {c : ℝ} (hc0 : 0 ≤ c) (hc : ∀ i, |g θ i - g θ' i| ≤ c) (l : ℝ) :
     ∫ σ, Real.exp (l * (empRad g θ σ - empRad g θ' σ)) ∂(radMeasure m)

@@ -7,7 +7,7 @@ import TLT_Proofs.Bridge.Forward.ForwardContinuity
 import TLT_Proofs.Bridge.Spec.TransformerObjectVocabulary
 
 /-!
-# The transformer forward map is continuous — discharged as a `Resolution` of the root object
+# The transformer forward map is continuous, discharged as a `Resolution`
 
 The transformer forward pass, read over real coordinates, is an input embedding (a linear map), a
 stack of transformer layers, and an output projection (a linear map). Each layer is continuous
@@ -18,23 +18,20 @@ the layer-normalization division everywhere-defined by the verified positive reg
 left-fold of continuous layers is continuous (`continuous_listFoldl`). Composing these gives a
 continuous forward map.
 
-This file packages that continuity as a property of `TransformerObject` and discharges it as a
-`Resolution` — the root object's record that the conjecture "the forward map is continuous" is proved.
+The continuity is packaged as a property of `TransformerObject` and recorded as a `Resolution`.
 
 ## Main results
 
-- `ForwardMapContinuous` — the property that the coordinate forward map (embedding · layers ·
+- `ForwardMapContinuous`: the property that the coordinate forward map (embedding · layers ·
   projection) at the transformer's embedding dimension is continuous.
-- `transformerForwardMap_continuous` — that property holds for every real transformer.
-- `transformerForwardMap_continuous_resolution` — the discharged `Resolution`.
+- `transformerForwardMap_continuous`: that property holds for every real transformer.
+- `transformerForwardMap_continuous_resolution`: the discharged `Resolution`.
 -/
 
 /-!
 ## References
-- composition preserves continuity (`Continuous.comp`) and measurability (`Measurable.comp`);
-  `Measurable.div` unconditional (measurability survives at ε=0 where continuity fails).
-- Provenance: Classical-instantiation (real forward-map regularity; relocated from the fp32 cluster
-  — contains no fp32 content). `Resolution` wrappers are organizational scaffolding.
+- Composition preserves continuity (`Continuous.comp`) and measurability (`Measurable.comp`);
+  `Measurable.div` is unconditional (measurability survives at ε=0 where continuity fails).
 -/
 
 open scoped Topology
@@ -61,8 +58,7 @@ theorem transformerForwardMap_continuous (T : RealTransformer) : ForwardMapConti
   exact (continuous_matMulCoord Wout).comp
     ((continuous_listFoldl layers hL).comp (continuous_matMulCoord Wembed))
 
-/-- The discharged resolution recording that the forward map of `T` is continuous — closing the
-forward-continuity conjecture as a `Resolution` of the root transformer object. -/
+/-- The discharged `Resolution` recording that the forward map of `T` is continuous. -/
 def transformerForwardMap_continuous_resolution (T : RealTransformer) :
     Resolution T ForwardMapContinuous :=
   Resolution.discharged (transformerForwardMap_continuous T)
@@ -70,7 +66,7 @@ def transformerForwardMap_continuous_resolution (T : RealTransformer) :
 /-! ### The measurable forward map (regularizer-free)
 
 Measurability needs no nonzero-denominator hypothesis (`Measurable.div` is unconditional), so it holds
-for *measurable* layers — and the transformer layers are measurable for **every** layer-norm
+for *measurable* layers, and the transformer layers are measurable for **every** layer-norm
 regularizer `ε ≥ 0` (`measurable_layerNormCoordEps`), including `ε = 0`, where the forward map is
 measurable but not continuous. -/
 
@@ -90,8 +86,8 @@ theorem transformerForwardMap_measurable (T : RealTransformer) : ForwardMapMeasu
   exact (measurable_matMulCoord Wout).comp
     ((measurable_listFoldl layers hL).comp (measurable_matMulCoord Wembed))
 
-/-- The discharged resolution recording that the forward map of `T` is measurable — regularizer-free
-(it holds even at `ε = 0`, where continuity fails). -/
+/-- The discharged `Resolution` recording that the forward map of `T` is measurable, including at
+`ε = 0` where continuity fails. -/
 def transformerForwardMap_measurable_resolution (T : RealTransformer) :
     Resolution T ForwardMapMeasurable :=
   Resolution.discharged (transformerForwardMap_measurable T)

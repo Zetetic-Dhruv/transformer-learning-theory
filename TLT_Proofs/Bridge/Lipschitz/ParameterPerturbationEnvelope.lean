@@ -25,7 +25,7 @@ This file carries **two** layer abstractions, a genuine global/local pair:
 * `ParamLayerLocal` (local). The layer carries **only** its map and nominal constants; the
   Lipschitz estimates are supplied at composition time, conditional on an admissible weight set
   `K` and a forward-invariant activation domain `D`. This is required for self-attention, which
-  has **no** global Lipschitz constant (Kim et al. 2021) — its bound is valid only on a bounded
+  has **no** global Lipschitz constant (Kim et al. 2021); its bound is valid only on a bounded
   activation ball, which the layer-normalised architecture provides per block.
 
 `ParamLayer` is the special case of `ParamLayerLocal` with `K = univ`, `D = univ` and total
@@ -34,16 +34,15 @@ recovering the global envelope as a corollary of the local one.
 
 ## Main results
 
-- `ParamLayer` / `paramComp` / `paramComp_param_lipschitz` — global weight-Lipschitz envelope.
-- `ParamLayerLocal` / `lparamComp` / `paramComp_param_lipschitz_on(')` — conditional envelope.
-- `ParamLayer.toLocal` / `paramComp_eq_lparamComp_toLocal` — the global ⟶ local bridge.
+- `ParamLayer` / `paramComp` / `paramComp_param_lipschitz`: global weight-Lipschitz envelope.
+- `ParamLayerLocal` / `lparamComp` / `paramComp_param_lipschitz_on(')`: conditional envelope.
+- `ParamLayer.toLocal` / `paramComp_eq_lparamComp_toLocal`: the global to local bridge.
 -/
 
 /-!
 ## References
 - [35] Lemma 2 (telescoping weight-perturbation envelope `∑ₖ paramLip_k·∏_{j>k} lip_j`); [36]
   product-of-Lipschitz composition; [31] Thm 3.1 (motivates the local/conditional variant).
-- Provenance: Classical-instantiation (envelope = Neyshabur Lem 2; global/local pair is design).
 -/
 
 namespace TLT
@@ -130,7 +129,7 @@ theorem paramComp_param_lipschitz (Ls : List (ParamLayer Θ V)) (θ θ' : Θ) (x
 A weight-parametrised forward map has *no* uniform Lipschitz constants: a linear layer's
 input-Lipschitz constant scales with the magnitude of its weights, and its weight-Lipschitz
 constant scales with the magnitude of the activation it multiplies. Both estimates are therefore
-conditional — the input-Lipschitz bound holds for weights in an admissible set `K`, and the
+conditional: the input-Lipschitz bound holds for weights in an admissible set `K`, and the
 weight-Lipschitz bound holds for activations in a forward-invariant set `D`. Neither is a field of
 the layer; both are supplied at composition time with their domains. -/
 
@@ -227,7 +226,7 @@ theorem paramComp_param_lipschitz_on {K : Set Θ} {D : Set V} (Ls : List (ParamL
 
 /-- **Conditional input-Lipschitz of the composition (domain-restricted).** As
 `lparamComp_input_lip_on`, but the per-layer input-Lipschitz estimate need hold only on a
-forward-invariant activation domain `D` — admitting layers (such as attention) that are Lipschitz
+forward-invariant activation domain `D`, admitting layers (such as attention) that are Lipschitz
 only on a bounded domain, while the globally-Lipschitz layers satisfy it by ignoring the
 membership. -/
 lemma lparamComp_input_lip_on' {K : Set Θ} {D : Set V} (Ls : List (ParamLayerLocal Θ V))
@@ -251,7 +250,7 @@ lemma lparamComp_input_lip_on' {K : Set Θ} {D : Set V} (Ls : List (ParamLayerLo
 
 /-- **Conditional weight-Lipschitz envelope (domain-restricted input-Lipschitz).** As
 `paramComp_param_lipschitz_on`, but the per-layer input-Lipschitz estimate need hold only on the
-forward-invariant domain `D` — so attention, Lipschitz only on a bounded activation ball, is
+forward-invariant domain `D`; attention, Lipschitz only on a bounded activation ball, is thus
 admitted alongside the globally-Lipschitz linear and ReLU layers. -/
 theorem paramComp_param_lipschitz_on' {K : Set Θ} {D : Set V} (Ls : List (ParamLayerLocal Θ V))
     (hin : ∀ L ∈ Ls, ∀ θ ∈ K, ∀ a ∈ D, ∀ b ∈ D, dist (L.map θ a) (L.map θ b) ≤ L.lip * dist a b)

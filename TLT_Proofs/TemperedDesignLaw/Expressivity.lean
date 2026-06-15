@@ -6,18 +6,18 @@ Authors: Dhruv Gupta
 import TLT_Proofs.TemperedDesignLaw.MixtureLayer
 
 /-!
-# The sharpness rung — the mixture channel's modulus and unrealizability certificates
+# The sharpness rung: the mixture channel's modulus and unrealizability certificates
 
 A function is in the **tempered class** at sharpness `β` if it is realized as the tempered mixture map of a
 `Ks`-Lipschitz score read and a `Kv`-Lipschitz, `P`-bounded payload read over the *input*. The per-layer
 modulus (`temperedMixtureMap_param_dist_le`, instantiated on the input axis) then bounds every member
 uniformly:
 
-* `TemperedClass` — the set of input-to-output maps realizable at sharpness `β` with the stated moduli.
-* `temperedClass_dist_le` — the uniform modulus: every member is `(2·β·Ks·P + Kv)`-Lipschitz.
-* `not_mem_temperedClass_of_dist_gt` — the unrealizability certificate: a target with a witnessed pair
+* `TemperedClass`: the set of input-to-output maps realizable at sharpness `β` with the stated moduli.
+* `temperedClass_dist_le`: the uniform modulus; every member is `(2·β·Ks·P + Kv)`-Lipschitz.
+* `not_mem_temperedClass_of_dist_gt`: the unrealizability certificate. A target with a witnessed pair
   `x, x'` whose output gap exceeds the modulus is not in the class. The witness pair is the (dyadic-checkable)
-  certificate of unrealizability — no characterization of the realizable image is claimed, only the modulus.
+  certificate of unrealizability; no characterization of the realizable image is claimed, only the modulus.
 
 This is the upper, expressivity-bounding edge of the sharpness rung: at fixed sharpness the mixture channel
 cannot realize targets steeper than its modulus, and the modulus grows linearly in `β`.
@@ -54,7 +54,7 @@ theorem temperedClass_dist_le {k : ℕ} [NeZero k] {X : Type*} [PseudoMetricSpac
 
 /-- **The unrealizability certificate.** A target with a witnessed pair `x, x'` whose output gap exceeds the
 modulus `(2·β·Ks·P + Kv)·dist x x'` is not realizable in the tempered class. The witness pair is the
-certificate — a pointwise, checkable obstruction; the realizable image itself is not characterized. -/
+certificate: a pointwise, checkable obstruction; the realizable image itself is not characterized. -/
 theorem not_mem_temperedClass_of_dist_gt {k : ℕ} [NeZero k] {X : Type*} [PseudoMetricSpace X]
     {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V] {β Ks Kv P : ℝ} {f : X → V} {x x' : X}
     (hwit : (2 * β * Ks * P + Kv) * dist x x' < dist (f x) (f x')) :

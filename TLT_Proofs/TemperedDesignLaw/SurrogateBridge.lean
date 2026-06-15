@@ -8,7 +8,7 @@ import TLT_Proofs.TemperedDesignLaw.Conjectures
 import FLT_Proofs.Basic
 
 /-!
-# The margin-ramp surrogate bridge (TD16 — the smooth↔hard crossover via the learning route)
+# The margin-ramp surrogate bridge (TD16: the smooth/hard crossover via the learning route)
 
 The hard certificate (S5) and the smooth/Dudley certificate (S1) must bound the **same** channel for
 the single-gap TD16 crossover to close. S5 controls the **0-1 route loss** of the `leastArgmax` symbol
@@ -16,24 +16,24 @@ channel; S1's machinery only controls **output-Lipschitz** losses (`RouteFactore
 discontinuous 0-1 loss is not. This file builds the standard Bartlett–Mendelson *margin-ramp surrogate*
 of the routing 0-1 loss and proves it **dominates** the 0-1 route loss, packaged as an output-Lipschitz
 `RouteFactoredLoss`. The smooth certificate, applied to this surrogate's `RouteFactoredLoss` capacity,
-therefore upper-bounds the 0-1 route risk — the same quantity the hard certificate bounds.
+therefore upper-bounds the 0-1 route risk, the same quantity the hard certificate bounds.
 
-This is the LEARNING route: the construction is the textbook clamped margin ramp `min 1 (max 0 (1 − t/γ))`
-composed with the signed routing margin `s y − max_{i ≠ y} s i`. The novelty is only the *connection* to
+The construction is the textbook clamped margin ramp `min 1 (max 0 (1 − t/γ))`
+composed with the signed routing margin `s y − max_{i ≠ y} s i`, connected here to
 this library's `leastArgmax`/`secondScore` routing primitives and the `RouteFactoredLoss` interface.
 
 ## Main results
 
 - `marginRamp` + `marginRamp_nonneg` / `marginRamp_le_one` / `marginRamp_eq_one_of_nonpos` /
-  `marginRamp_lipschitz` — the clamped ramp and its four defining properties (it genuinely clamps to
+  `marginRamp_lipschitz`: the clamped ramp and its four defining properties (it clamps to
   `[0,1]`, equals `1` left of the boundary, and is `(1/γ)`-Lipschitz).
-- `routeSignedMargin` + `routeSignedMargin_lipschitz` — the signed routing margin, `2`-Lipschitz in the
+- `routeSignedMargin` + `routeSignedMargin_lipschitz`: the signed routing margin, `2`-Lipschitz in the
   score vector under the Pi sup norm.
-- `zeroOne_le_marginRamp` — **THE DOMINATION.** `0-1 route loss ≤ surrogate`, tight (`= 1 = 1`) at the
+- `zeroOne_le_marginRamp`: **THE DOMINATION.** `0-1 route loss ≤ surrogate`, tight (`= 1 = 1`) at the
   routing boundary.
-- `routeRampSurrogateLoss` — the **output-Lipschitz `RouteFactoredLoss`** with the genuine Lipschitz
+- `routeRampSurrogateLoss`: the **output-Lipschitz `RouteFactoredLoss`** with Lipschitz
   constant `Lℓ = 2/γ`. This is the object S1's smooth/Dudley capacity bound consumes.
-- `routeRisk01_le_surrogateRisk` — the **measure/integral** risk-domination: `∫ 0-1-route ≤ ∫ surrogate`.
+- `routeRisk01_le_surrogateRisk`: the **measure/integral** risk-domination: `∫ 0-1-route ≤ ∫ surrogate`.
   `routeRisk01_le_surrogateRisk_prob` discharges the surrogate's integrability automatically on a
   probability measure (the ramp is bounded in `[0,1]`). `routeRisk01_le_surrogateRisk_sample` is the
   finite-sample average form.
@@ -55,7 +55,7 @@ noncomputable section
 
 namespace TLT.TemperedDesignLaw
 
-/-! ## Part 1 — the clamped margin ramp -/
+/-! ## Part 1: the clamped margin ramp -/
 
 /-- **The clamped margin ramp** (Bartlett–Mendelson surrogate at scale `γ`): the affine map `1 − t/γ`
 clamped to `[0, 1]`. As a function of the margin `t`, it is `1` when the margin is non-positive (a routing
@@ -111,7 +111,7 @@ theorem marginRamp_lipschitz {γ : ℝ} (hγ : 0 < γ) (a b : ℝ) :
   gcongr
   rw [abs_of_pos (by positivity : (0 : ℝ) < 1 / γ)]
 
-/-! ## Part 2 — the signed routing margin -/
+/-! ## Part 2: the signed routing margin -/
 
 /-- **The signed routing margin** of the score vector `s` at the true label `y`: the gap between the true
 label's score and the best competing score `secondScore s y = max_{i ≠ y} s i`. It is `> 0` exactly when
@@ -174,7 +174,7 @@ theorem routeSignedMargin_lipschitz {k : ℕ} (s s' : Fin k → ℝ) (y : Fin k)
     _ ≤ ‖s - s'‖ + ‖s - s'‖ := by gcongr
     _ = 2 * ‖s - s'‖ := by ring
 
-/-! ## Part 3 — the domination (the non-vacuous core) -/
+/-! ## Part 3: the domination -/
 
 /-- **The margin is non-positive when the route is wrong.** If the `leastArgmax` route differs from the
 true label `y`, then `y`'s score is dominated by some competing score (the route's own), so the second-best
@@ -196,10 +196,9 @@ theorem routeSignedMargin_nonpos_of_ne {k : ℕ} (s : Fin k → ℝ) (hk : 0 < k
 margin-ramp surrogate of the signed routing margin:
 `zeroOneLoss (leastArgmax s) y ≤ marginRamp γ (routeSignedMargin s y)`.
 
-This is a genuine inequality, *tight at the routing boundary*: when the route is correct the left side is
-`0` and the right side is non-negative; when the route is wrong (or tied) BOTH sides equal `1`
-(`zeroOneLoss = 1` by definition and `marginRamp = 1` by `marginRamp_eq_one_of_nonpos`, since the margin is
-`≤ 0`). It is not the vacuous `0 ≤ anything`. -/
+The inequality is tight at the routing boundary: when the route is correct the left side is `0` and the
+right side is non-negative; when the route is wrong (or tied) both sides equal `1` (`zeroOneLoss = 1` by
+definition and `marginRamp = 1` by `marginRamp_eq_one_of_nonpos`, since the margin is `≤ 0`). -/
 theorem zeroOne_le_marginRamp {k : ℕ} (γ : ℝ) (hγ : 0 < γ) (s : Fin k → ℝ) (hk : 0 < k) (y : Fin k) :
     zeroOneLoss (Fin k) (leastArgmax s hk) y ≤ marginRamp γ (routeSignedMargin s y) := by
   unfold zeroOneLoss
@@ -207,14 +206,13 @@ theorem zeroOne_le_marginRamp {k : ℕ} (γ : ℝ) (hγ : 0 < γ) (s : Fin k →
   · rw [if_pos heq]; exact marginRamp_nonneg _ _
   · rw [if_neg heq, marginRamp_eq_one_of_nonpos hγ (routeSignedMargin_nonpos_of_ne s hk y heq)]
 
-/-! ## Part 4 — the output-Lipschitz `RouteFactoredLoss` (the S1 interface) -/
+/-! ## Part 4: the output-Lipschitz `RouteFactoredLoss` (the S1 interface) -/
 
 /-- **The route margin-ramp surrogate as a `RouteFactoredLoss`.** The loss is `marginRamp γ` composed with
 the signed routing margin; the output space is the score vector `Fin k → ℝ` (Pi sup norm), the target space
-is the label `Fin k`. The output-Lipschitz constant `Lℓ = 2/γ` is the genuine modulus obtained by composing
-the `(1/γ)`-Lipschitz ramp with the `2`-Lipschitz margin — NOT a junk constant. This is the object S1's
-smooth/Dudley capacity bound applies to, so the smooth certificate controls the 0-1 route risk through the
-domination above. -/
+is the label `Fin k`. The output-Lipschitz constant `Lℓ = 2/γ` is obtained by composing the
+`(1/γ)`-Lipschitz ramp with the `2`-Lipschitz margin. This is the object S1's smooth/Dudley capacity bound
+applies to, so the smooth certificate controls the 0-1 route risk through the domination above. -/
 def routeRampSurrogateLoss (γ : ℝ) (hγ : 0 < γ) {k : ℕ} :
     RouteFactoredLoss (Fin k → ℝ) (Fin k) where
   loss s y := marginRamp γ (routeSignedMargin s y)
@@ -237,11 +235,11 @@ theorem routeRampSurrogateLoss_loss (γ : ℝ) (hγ : 0 < γ) {k : ℕ} (s : Fin
 theorem routeRampSurrogateLoss_Lℓ (γ : ℝ) (hγ : 0 < γ) {k : ℕ} :
     (routeRampSurrogateLoss γ hγ (k := k)).Lℓ = 2 / γ := rfl
 
-/-! ## Part 5 — the risk consequence (the bridge statement)
+/-! ## Part 5: the risk consequence (the bridge statement)
 
-The pointwise domination lifts to risks by monotonicity. We give the **measure/integral** form — the link
-that lets the smooth certificate's bound on the surrogate's `RouteFactoredLoss` capacity (S1) control the
-0-1 route risk that the hard certificate (S5) bounds — and the finite-sample average form. -/
+The pointwise domination lifts to risks by monotonicity. We give the **measure/integral** form, which links
+the smooth certificate's bound on the surrogate's `RouteFactoredLoss` capacity (S1) to the 0-1 route risk
+that the hard certificate (S5) bounds, together with the finite-sample average form. -/
 
 /-- **THE BRIDGE (measure form).** For any measure `μ` on the sample space, the expected 0-1 route loss is
 at most the expected surrogate loss, by Bochner-integral monotonicity of the pointwise domination

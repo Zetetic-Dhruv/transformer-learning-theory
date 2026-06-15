@@ -9,36 +9,35 @@ import TLT_Proofs.Strictness.AttentionNonBorelWitness
 /-!
 # Base-up MoE cascades and the depth-L bad event (Cascade)
 
-This file constructs the **wild-side** object of the `P4_cascade` pipeline: a
-mixture-of-experts (MoE) cascade built by stacking `FiniteScoreRouterCode`
-routing layers *on top of* the non-Borel witness router, and the empirical-process
-bad event `cascadeBadEvent M L` it induces at routing depth `L`.
+This file constructs a mixture-of-experts (MoE) cascade built by stacking
+`FiniteScoreRouterCode` routing layers *on top of* the non-Borel witness router,
+and the empirical-process bad event `cascadeBadEvent M L` it induces at routing
+depth `L`.
 
-## Base-up placement (break point BPT3 / failure FD1)
+## Base-up placement
 
-The witness score map `g` — whose range is the analytic, possibly non-Borel set —
+The witness score map `g` (whose range is the analytic, possibly non-Borel set)
 is injected at the **base** (depth `0`), and the `FiniteScoreRouterCode` layers
-sit *above* it.  This is the load-bearing design decision:
+sit *above* it.  This is the key design decision:
 
 * If `g` were placed at the *final* layer, the depth-`L` event would merely
   *contain* the single-layer witness event untouched, and the non-invariance
-  theorem would collapse to a three-line corollary (the decorative-composition
-  failure `FD1`).
+  theorem would collapse to a projection corollary.
 * Placing `g` at the base forces the obstruction to propagate **up** through all
   `L` routing layers.  Concretely, `cascadeEval` routes each input `x` down a
   `width`-ary tree of depth `L` whose every internal node is a genuine
   `FiniteScoreRouterCode.route` decision and whose leaves are base witness
-  experts.  The routing is therefore *per input*, so the reduction to the planar
+  experts.  The routing is *per input*, so the reduction to the planar
   witness (the `cascadeReductionInvariant` proved below) is a genuine
   `L`-fold composite rather than a projection onto an untouched sub-event.
 
 ## One map, one reduction object, two lemmas (descriptive set theory)
 
 The eventual non-invariance theorem has an *analytic* half and a *non-Borel*
-half.  An early conjecture held that these must travel by **different** maps — the
-analytic half by a Suslin *image* (`MeasurableSet.analyticSet_image`), the
+half.  An early conjecture held that these must travel by **different** maps: the
+analytic half by a Suslin *image* (`MeasurableSet.analyticSet_image`) and the
 non-Borel half by *preimage under a measurable surjection*
-(`Measurable.measurableSet_preimage_iff_of_surjective`) — because there is **no**
+(`Measurable.measurableSet_preimage_iff_of_surjective`), because there is **no**
 measurable-preimage-of-analytic lemma (Mathlib's `AnalyticSet.preimage` needs
 *continuity*).  The reduction refutes that conjecture: **one** map carries both.
 
@@ -47,15 +46,15 @@ The reduction collapses `cascadeBadEvent M L` to the **depth-independent** set
 (`cascadeBadEvent_eq_singletonBadEvent`, itself non-Borelness-free), and that set
 is `samplePair1ToPlane ⁻¹' planarWitnessEvent (Set.range g)`
 (FLT `singleton_badEvent_eq_preimage_planar`).  The map `samplePair1ToPlane` is a
-**continuous surjection**, and `cascadeReductionInvariant` packages it as exactly
-that — so **both** halves consume the *same* reduction object, differing only in
+**continuous surjection**, and `cascadeReductionInvariant` packages it as exactly that;
+**both** halves consume the *same* reduction object, differing only in
 *which property of the map* they use:
 
 * **Analytic half.** `Set.range g` is analytic from continuity
   (`analyticSet_range_of_polishSpace`), hence so is its `planarWitnessEvent`
   (FLT `planarWitnessEvent_analytic`); the preimage under the **continuous** `red_L`
   is then analytic (`AnalyticSet.preimage`).  It is depth-uniform because the reduced
-  set is depth-*independent* — **not** because it "stays Borel": when `Set.range g`
+  set is depth-*independent*, not because it "stays Borel": when `Set.range g`
   is the non-Borel analytic set, the reduced set is itself non-Borel.
 * **Non-Borel half.** `planarWitnessEvent (Set.range g)` is non-Borel
   (FLT `planarWitnessEvent_not_measurable`); its non-measurability reflects back
@@ -64,25 +63,23 @@ that — so **both** halves consume the *same* reduction object, differing only 
 
 Exposing `Continuous` rather than the weaker `Measurable` in the reduction object is
 what lets a *single* object serve both legs: the analytic leg cannot run off
-`Measurable` alone.  This file builds the construction, the depth-uniform reduction
-(`cascadeBadEvent_eq_singletonBadEvent`, `cascadeReductionInvariant`), **and** the
-non-invariance leaf (`cascadeNonInvariance`); only the universal-repair leaf lives
-downstream.
+`Measurable` alone.  The construction, the depth-uniform reduction
+(`cascadeBadEvent_eq_singletonBadEvent`, `cascadeReductionInvariant`), and the
+non-invariance result (`cascadeNonInvariance`) are all established here; the
+universal-repair result is in the downstream file.
 
 ## Faithfulness anchor
 
 At depth `0` the construction collapses definitionally to the single-layer
 witness: `cascadeBadEvent M 0 = witnessBadEventSet M.g M.g_cont`
-(`cascadeBadEvent_zero`).  This pins `cascadeBadEvent` as the honest depth-graded
-generalisation of the established non-Borel witness.
+(`cascadeBadEvent_zero`).  This pins `cascadeBadEvent` as the depth-graded
+generalisation of the single-layer non-Borel witness.
 -/
 
 /-!
 ## References
 - [42] hierarchical MoE tree (argmax routing); [1][4] analytic preimage / Borel-image-without-
   injectivity; [7] Def. 3.2 bad event; [57] FLT `singletonBadEvent`, `planarWitnessEvent`.
-- Provenance: Innovation — the depth-uniform base-up MoE cascade collapse + non-invariance.
-- TLT contribution (Dhruv Gupta), `cascadeNonInvariance`: a depth-graded base-up MoE cascade whose depth-L bad event is analytic-not-Borel at every depth, yet collapses to the depth-independent planar singleton bad event — one continuous surjection carries both the analytic leg (continuity) and the non-Borel leg (surjectivity). Method: obstruction-propagates-to-base induction + realizability-survives-the-lift, exposing Continuous so AnalyticSet.preimage runs.
 -/
 
 open Classical
@@ -110,7 +107,7 @@ structure BaseUpMoECascadeCode (β : Type) [TopologicalSpace β] [PolishSpace β
   /-- The routing layers stacked above the base (depth = number of layers used). -/
   layer : ℕ → FiniteScoreRouterCode ℝ width
   /-- Each routing layer is **nondegenerate**: its parameter space is inhabited.
-  This is the exact twin of `hwidth` — `0 < width` excludes the degenerate
+  This is the exact twin of `hwidth`: `0 < width` excludes the degenerate
   zero-head router, `Nonempty (layer n).Ρ` excludes the degenerate
   parameter-free router.  It is load-bearing, not decorative: the realizability
   (`⊇`) direction of the depth-`L` reduction builds a uniform parameter by
@@ -125,7 +122,7 @@ variable {β : Type} [TopologicalSpace β] [PolishSpace β]
 /-- The parameter space of the depth-`n` cascade.  At depth `0` it is the base
 witness parameter `ℝ × ℝ × β` (the `patchEval` parameter of the witness class);
 at depth `n+1` it bundles the new layer's parameter with one depth-`n`
-sub-parameter per routing outcome — i.e. a `width`-ary tree of routing
+sub-parameter per routing outcome, i.e. a `width`-ary tree of routing
 parameters of height `n+1`. -/
 def CascadeParam (M : BaseUpMoECascadeCode β width) : ℕ → Type
   | 0 => ℝ × ℝ × β
@@ -159,7 +156,7 @@ noncomputable def cascadeClass (M : BaseUpMoECascadeCode β width) (L : ℕ) :
   Set.range (cascadeConcept M L)
 
 /-- The **depth-`L` empirical-process bad event** of the cascade, at sample size
-`1`, target `zeroConcept`, threshold `1/2` — the faithful depth-graded
+`1`, target `zeroConcept`, threshold `1/2`: the depth-graded
 generalisation of `witnessBadEventSet`. -/
 noncomputable def cascadeBadEvent (M : BaseUpMoECascadeCode β width) (L : ℕ) :
     Set GhostPairs1 :=
@@ -169,10 +166,9 @@ noncomputable def cascadeBadEvent (M : BaseUpMoECascadeCode β width) (L : ℕ) 
     EmpiricalError ℝ Bool h (fun i => (p.1 i, zeroConcept (p.1 i)))
         (zeroOneLoss Bool) ≥ (1 : ℝ) / 2}
 
-/-- **Faithfulness anchor (BPT3 base case).**  At depth `0` the cascade bad event
-*is* the single-layer non-Borel witness bad event.  This holds definitionally:
-`cascadeClass M 0` is the range of the base `patchEval` family, exactly the class
-underlying `witnessBadEventSet`. -/
+/-- **Faithfulness anchor.**  At depth `0` the cascade bad event equals the single-layer
+non-Borel witness bad event.  This holds definitionally: `cascadeClass M 0` is the range
+of the base `patchEval` family, exactly the class underlying `witnessBadEventSet`. -/
 theorem cascadeBadEvent_zero (M : BaseUpMoECascadeCode β width) :
     cascadeBadEvent M 0 = witnessBadEventSet M.g M.g_cont :=
   rfl
@@ -181,16 +177,16 @@ theorem cascadeBadEvent_zero (M : BaseUpMoECascadeCode β width) :
 
 The reduction collapses `cascadeBadEvent M L` to FLT's `singletonBadEvent (range g)`
 at *every* depth `L`, then transports it to `planarWitnessEvent (range g)` by the
-established `singleton_badEvent_eq_preimage_planar`.  The collapse is **not** a class
-equality — per-input MoE routing genuinely enlarges `cascadeClass` beyond
-`singletonClassOn (range g)` — but the `m = 1` bad event collapses regardless, because
+established `singleton_badEvent_eq_preimage_planar`.  The collapse is **not** a class equality; per-input MoE routing genuinely enlarges
+`cascadeClass` beyond `singletonClassOn (range g)`, but the `m = 1` bad event collapses
+regardless, because
 the gap predicate forces a positive witness `h (p.2 0) = true` whose firing pins
 `p.2 0 ∈ range g`, and `h` being a function forces `p.1 0 ≠ p.2 0`.
 -/
 
 /-- The `m = 1`, target-`zeroConcept`, threshold-`1/2` gap predicate fires **iff** the
 hypothesis separates the two ghost points: positive on `p.2 0`, negative on `p.1 0`.
-This is the depth-independent kernel of the whole reduction — it isolates the
+This is the depth-independent kernel of the whole reduction; it isolates the
 empirical-process arithmetic from any cascade structure. -/
 private lemma gap_ge_half_iff (h : Concept ℝ Bool) (p : GhostPairs1) :
     EmpiricalError ℝ Bool h (fun i => (p.2 i, zeroConcept (p.2 i)))
@@ -204,8 +200,8 @@ private lemma gap_ge_half_iff (h : Concept ℝ Bool) (p : GhostPairs1) :
   unfold zeroOneLoss zeroConcept
   cases h (p.2 0) <;> cases h (p.1 0) <;> norm_num
 
-/-- **Obstruction propagates to the base (BPT3 core).**  If the depth-`n` cascade fires
-`true` on `x`, then `x` lies in the base witness range `Set.range M.g` — *at every
+/-- **Obstruction propagates to the base.**  If the depth-`n` cascade fires
+`true` on `x`, then `x` lies in the base witness range `Set.range M.g`, *at every
 depth*.  The induction threads the firing down through all `n` routing layers: each
 top-layer `FiniteScoreRouterCode.route` only selects a sub-tree, never changes the
 input, so a leaf `true` is a base `patchEval` `true`, which by
@@ -230,11 +226,11 @@ private lemma cascadeEval_true_mem_range (M : BaseUpMoECascadeCode β width) :
 
 /-- **Realizability survives the lift (⊇ direction, uses `layerNonempty`).**  Every base
 singleton concept `singletonConcept a` with `a ∈ Set.range M.g` is realised by the
-depth-`n` cascade — *at every depth*.  The successor step builds a **uniform** parameter:
+depth-`n` cascade, *at every depth*.  The successor step builds a **uniform** parameter:
 fix one nondegenerate layer setting `(M.layerNonempty n).some` at the new top node and
 route every outcome into the *same* depth-`n` sub-parameter, so the cascade ignores the
-top route and collapses to the depth-`n` realiser (definitional `congrFun`).  This is
-exactly where the `layerNonempty` field is load-bearing: without an inhabitant of
+top route and collapses to the depth-`n` realiser (definitional `congrFun`).  The
+`layerNonempty` field is load-bearing here: without an inhabitant of
 `(M.layer n).Ρ`, `CascadeParam M (n+1)` could be empty and this witness would not
 exist. -/
 private lemma singletonConcept_mem_cascadeClass (M : BaseUpMoECascadeCode β width) :
@@ -261,14 +257,14 @@ private lemma singletonConcept_mem_cascadeClass (M : BaseUpMoECascadeCode β wid
       funext x
       exact congrFun hparams_n x
 
-/-- **The depth-`L` bad-event collapse (`h_non_borel`-free).**  At sample size `1` the
+/-- **The depth-`L` bad-event collapse.**  At sample size `1` the
 cascade bad event coincides with FLT's singleton bad event over `Set.range M.g`, *at
-every depth* `L` — even though the realizable *classes* diverge.  The gap predicate
+every depth* `L`, even though the realizable *classes* diverge.  The gap predicate
 (`gap_ge_half_iff`) forces any witness `h` to fire positively on `p.2 0`; firing pins
 `p.2 0 ∈ Set.range M.g` (`cascadeEval_true_mem_range`, the ⊆ direction) and, conversely,
 that membership lets the uniform singleton realise the gap
-(`singletonConcept_mem_cascadeClass`, the ⊇ direction).  No appeal to non-Borelness of
-`Set.range M.g` is made — that enters only at the downstream non-invariance leaf. -/
+(`singletonConcept_mem_cascadeClass`, the ⊇ direction).  Non-Borelness of `Set.range M.g` is not invoked here; it enters only at the
+non-invariance leaf downstream. -/
 theorem cascadeBadEvent_eq_singletonBadEvent (M : BaseUpMoECascadeCode β width) (L : ℕ) :
     cascadeBadEvent M L = singletonBadEvent (Set.range M.g) := by
   ext p
@@ -306,7 +302,7 @@ theorem cascadeBadEvent_eq_singletonBadEvent (M : BaseUpMoECascadeCode β width)
         exact if_neg (fun heq => Bool.false_ne_true
           (hneg.symm.trans ((congrArg h heq).trans hpos)))
 
-/-- **The depth-`L` cascade reduction invariant (`P4_cascade`).**  There is a *continuous*
+/-- **The depth-`L` cascade reduction invariant.**  There is a *continuous*
 surjection `red_L : GhostPairs1 → ℝ × ℝ` reducing the depth-`L` cascade bad event to the
 planar witness `planarWitnessEvent (Set.range M.g)`.  The reducing map is the
 depth-independent ghost projection `samplePair1ToPlane`; depth enters only through the
@@ -322,7 +318,7 @@ of the one map:
 
 Neither map-property is decorative: continuity is exactly what the analytic leg consumes,
 surjectivity exactly what the non-Borel leg consumes.  Exposing `Continuous` (not the
-weaker `Measurable`) is what lets the *single* reduction object serve both legs — the
+weaker `Measurable`) is what lets the *single* reduction object serve both legs; the
 analytic leg cannot run off `Measurable` alone, as `AnalyticSet.preimage` needs
 continuity. -/
 theorem cascadeReductionInvariant (M : BaseUpMoECascadeCode β width) (L : ℕ) :
@@ -337,7 +333,7 @@ theorem cascadeReductionInvariant (M : BaseUpMoECascadeCode β width) (L : ℕ) 
   · rw [cascadeBadEvent_eq_singletonBadEvent]
     exact singleton_badEvent_eq_preimage_planar (Set.range M.g)
 
-/-- **Cascade non-invariance (the depth-`L` leaf).**  If the base score's range is
+/-- **Cascade non-invariance.**  If the base score's range is
 non-Borel, the depth-`L` cascade empirical-process bad event is analytic but **not** Borel,
 at *every* routing depth `L`.  Both halves are pulled back through the single continuous
 surjection `red_L` of `cascadeReductionInvariant`, each off a different property of that one
@@ -346,7 +342,7 @@ map: the analytic half off **continuity** (`AnalyticSet.preimage` lifting
 (`planarWitnessEvent_not_measurable` reflected by
 `Measurable.measurableSet_preimage_iff_of_surjective`).  Depth-uniformity is automatic (the
 reduction is depth-independent), yet by the base-up placement the obstruction is genuinely
-threaded through all `L` routing layers — this is not a projection onto an untouched
+threaded through all `L` routing layers; this is not a projection onto an untouched
 sub-event. -/
 theorem cascadeNonInvariance (M : BaseUpMoECascadeCode β width) (L : ℕ)
     (h_non_borel : ¬ MeasurableSet (Set.range M.g)) :
@@ -362,7 +358,7 @@ theorem cascadeNonInvariance (M : BaseUpMoECascadeCode β width) (L : ℕ)
 /-- A **genuine** base-up MoE cascade witness over a continuous parameterization `g` of an
 analytic set.  The non-Borel-witness quadratic-cost router sits at the base, and *every*
 routing layer is that **same** quadratic-cost router (a `FiniteScoreRouterCode ℝ 2`, so
-`width = 2`) — not a degenerate constant layer.  The obstruction therefore threads through every per-input routing decision at every
+`width = 2`), not a degenerate constant layer.  The obstruction therefore threads through every per-input routing decision at every
 depth.  `layerNonempty` is discharged by `[Nonempty β]`, which a consumer supplies from
 `Set.range g` being nonempty (a non-Borel range is nonempty).  This is the witness that
 makes the depth-graded wild side of `TLT.Boundary.attention_router_measurability_dichotomy`

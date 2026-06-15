@@ -15,25 +15,25 @@ those four numbers as a single `TransformerConfig` and states the capacity bound
 **out of the configuration space**: for every architecture shape `cfg`, the depth-`cfg.numLayers`,
 `cfg.headCount`-head, `cfg.embedDim`-dimensional, `cfg.hiddenDim`-hidden encoder admits a certified
 generalization budget (`config_capacity_law`). The four Nats flow through the parameter-perturbation
-envelope (`lparamLipBound` of the depth-replicated block stack — the capacity grows with depth and
+envelope (`lparamLipBound` of the depth-replicated block stack; the capacity grows with depth and
 head count) into the Dudley capacity term; this is the capacity leg of the transformer design law.
 
 `TransformerDesignLaw` then assembles the design law at a config from its legs:
 
-* **capacity** — the config-indexed certified generalization budget (`config_capacity_law`);
-* **measurability** — the executed forward is measurable, the certificate's own precondition
+* **capacity**: the config-indexed certified generalization budget (`config_capacity_law`);
+* **measurability**: the executed forward is measurable, the certificate's own precondition
   (`MeasurabilityPrecondition`); and
-* **expressivity** — an explicit *open* hypothesis `Expr`. The config-indexed expressivity lower
-  bound is the third leg of the design law and is **not** proved here; it enters the law as a stated
-  obligation, so the assembled `TransformerDesignLaw` is honest about discharging two of three legs.
+* **expressivity**: an explicit open hypothesis `Expr`. The config-indexed expressivity lower
+  bound is the third leg of the design law and is not proved here; it enters the law as a stated
+  obligation, so the assembled `TransformerDesignLaw` discharges two of three legs.
 
 ## Main results
 
-- `CertifiedGeneralization` — the config-indexed certified-generalization predicate (the executed true
+- `CertifiedGeneralization`: the config-indexed certified-generalization predicate (the executed true
   risk is within the empirical risk plus a capacity budget and rounding, off a small sample event).
-- `config_capacity_law` — every `TransformerConfig` admits a certified generalization budget: the
+- `config_capacity_law`: every `TransformerConfig` admits a certified generalization budget, the
   capacity leg as a map out of configuration space.
-- `TransformerDesignLaw` — the design law at a config, assembled from capacity ⊕ measurability ⊕ the
+- `TransformerDesignLaw`: the design law at a config, assembled from capacity ⊕ measurability ⊕ the
   (open) expressivity leg.
 -/
 
@@ -41,14 +41,6 @@ head count) into the Dudley capacity term; this is the capacity leg of the trans
 ## References
 - [57] FLT empirical-process / McDiarmid symmetrization; [Dudley 1967] entropy integral; the
   capacity tower (classical/vendored). [27] transformer architecture shape.
-- Provenance: Innovation (organizational) — indexing the certified capacity bound by the
-  backend-independent `TransformerConfig`, and assembling the design law from its legs with the
-  expressivity floor as an explicit open obligation.
-- TLT contribution (Dhruv Gupta), `config_capacity_law` / `TransformerDesignLaw`: the certified
-  capacity bound as a map out of configuration space, and the design-law assembly that discharges the
-  capacity and measurability legs while stating the expressivity leg as open. Method: package the four
-  architecture Nats as `TransformerConfig` and forward the depth-graded encoder certificate; bundle the
-  legs with expressivity as a hypothesis.
 -/
 
 open MeasureTheory
@@ -76,7 +68,7 @@ variable {n : ℕ}
 `cfg`, the tied depth-`cfg.numLayers` true-multi-head encoder stack (`cfg.headCount` heads, embedding
 `cfg.embedDim`, hidden `cfg.hiddenDim`) admits a certified generalization budget: a capacity `budget`,
 a `rounding` correction, and a small probability `δ` with `CertifiedGeneralization`. The budget is the
-Dudley capacity of the depth-replicated block stack — it is recovered from the depth-graded encoder
+Dudley capacity of the depth-replicated block stack, recovered from the depth-graded encoder
 certificate, so it grows through the parameter-perturbation envelope with depth and head count. -/
 theorem config_capacity_law (cfg : TransformerConfig) {p m : ℕ} [NeZero n] [Nonempty (Fin p)]
     [MeasurableSpace (Fin n → Fin cfg.embedDim → ℝ)] [BorelSpace (Fin n → Fin cfg.embedDim → ℝ)]
@@ -141,11 +133,11 @@ theorem config_capacity_law (cfg : TransformerConfig) {p m : ℕ} [NeZero n] [No
 
 /-- **The transformer design law at a configuration.** Assembled from its legs at architecture shape
 `cfg`: the capacity leg (a certified generalization budget, `config_capacity_law`), the measurability
-leg (the executed forward is measurable — the certificate's precondition), and the expressivity leg
+leg (the executed forward is measurable, the certificate's precondition), and the expressivity leg
 `Expr`, supplied as an **open** hypothesis. The capacity and measurability legs are discharged from the
 library's certificates; the config-indexed expressivity lower bound is the third leg and is stated, not
-proved — so this record is honest that the full design law is two-of-three legs proved with expressivity
-the open obligation. -/
+proved; so this record discharges the capacity and measurability legs with the expressivity leg as the
+remaining open obligation. -/
 structure TransformerDesignLaw (cfg : TransformerConfig) (T : RealTransformer) (Expr : Prop) {p m : ℕ}
     [NeZero n] [Nonempty (Fin p)]
     [MeasurableSpace (Fin n → Fin cfg.embedDim → ℝ)] [BorelSpace (Fin n → Fin cfg.embedDim → ℝ)]
@@ -156,7 +148,7 @@ structure TransformerDesignLaw (cfg : TransformerConfig) (T : RealTransformer) (
   capacity : ∃ budget rounding δ, CertifiedGeneralization cfg P m Ls ℓ budget rounding δ
   /-- Measurability leg: the executed forward is measurable (the certificate's precondition). -/
   measurability : ForwardMapExecutedMeasurable T
-  /-- Expressivity leg: the config-indexed expressivity lower bound — OPEN, supplied as a hypothesis. -/
+  /-- Expressivity leg: the config-indexed expressivity lower bound, supplied as a hypothesis. -/
   expressivity : Expr
 
 end TLT

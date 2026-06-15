@@ -13,14 +13,14 @@ import TLT_Proofs.Bridge.Fp32.FFNBiasForwardError
 `Bridge/Fp32/FFNBiasForwardError` proves the pure-ℝ forward error of the rectangular hidden-dim FFN
 with biases (`ffnExecBias` vs `ffnCoord`). This file upgrades it to the **literal** TorchLean kernel:
 the executed forward is `Spec.FeedForward.forward` at backend `IEEE32Exec`, read back over `ℝ` through
-`toReal` — the exact tensor op the hardware runs.
+`toReal`, the exact tensor op the hardware runs.
 
 `Spec.FeedForward.forward` is `addSpec (matMulSpec (reluSpec (addSpec (matMulSpec x W1) b̂1)) W2) b̂2`
 (with `b̂ = broadcastTo` the bias). At `IEEE32Exec`, each `matMulSpec` fold reproduces the model's
 rounded dot product `rdot` exactly (`toReal_get2_matMulSpec_ie`); each `reluSpec` entry is the exact
 `maximum · posZero` (`reluExec_exact`, no rounding); each bias `addSpec` rounds within
 `eps₃₂` (`toReal_add_abs_error_of_isFinite`). The forward error is the three-stage telescope
-`block3_forward_error` (first affine → ReLU → second affine), whose only genuinely-new budget over the
+`block3_forward_error` (first affine → ReLU → second affine), whose only additional budget over the
 ℝ-model `ffnExecBias_forward_error` is the two bias-add roundings (`b1` amplified by the second
 matmul's `Λ`, `b2` direct).
 -/
@@ -93,7 +93,7 @@ lemma get2_broadcast_bias_ie {sq em : ℕ} (v : Tensor IEEE32Exec (.dim em .scal
 
 Read an `IEEE32Exec` matrix / bias vector over `ℝ` coordinatewise. The literal affine
 `addSpec (matMulSpec Xt Wt) (broadcast bt)` read over `ℝ` is within one `eps₃₂` bias rounding of the
-ℝ-model affine `affExec` — the matmul part is reproduced EXACTLY by the keystone
+ℝ-model affine `affExec`: the matmul part is reproduced exactly by the keystone
 `toReal_get2_matMulSpec_ie`, and only the bias add rounds. -/
 
 /-- Coordinatewise `ℝ`-read of an `IEEE32Exec` matrix. -/
@@ -207,7 +207,7 @@ def ffnHiddenT {d h s : ℕ} (ffn : Spec.FeedForward d h IEEE32Exec)
       (Shape.CanBroadcastTo.scalar_to_any .scalar))
         : Shape.CanBroadcastTo (.dim h .scalar) (.dim s (.dim h .scalar))) ffn.b1))
 
-/-- The literal feed-forward forward pass at `IEEE32Exec`, read back over `ℝ` coordinatewise — the
+/-- The literal feed-forward forward pass at `IEEE32Exec`, read back over `ℝ` coordinatewise: the
 exact tensor op the hardware runs, the executed map of the FFN block. -/
 def ffnExecLit {d h s : ℕ} (ffn : Spec.FeedForward d h IEEE32Exec)
     (Xt : Tensor IEEE32Exec (.dim s (.dim d .scalar))) : Fin s → Fin d → ℝ :=
@@ -216,9 +216,9 @@ def ffnExecLit {d h s : ℕ} (ffn : Spec.FeedForward d h IEEE32Exec)
 /-- **The literal feed-forward forward error (the FFN ROOT binding).** The executed
 `Spec.FeedForward.forward` at `IEEE32Exec`, read over `ℝ`, is within
 `(rdotBudget h (B2'·Λ) + ρ2) + Λ·(rdotBudget d (B·Λ) + ρ1)` of the ℝ-model `ffnCoord` on the
-`toReal`-read weights — exactly the pure-ℝ `ffnExecBias_forward_error` budget plus the two bias
-roundings (`ρ1` amplified by the second matmul's `Λ`, `ρ2` direct). The honest finiteness regime (each
-matmul coordinate, each bias add, the pre-activation) is surfaced as hypotheses, not fabricated. -/
+`toReal`-read weights, exactly the pure-ℝ `ffnExecBias_forward_error` budget plus the two bias
+roundings (`ρ1` amplified by the second matmul's `Λ`, `ρ2` direct). The finiteness regime (each
+matmul coordinate, each bias add, the pre-activation) appears as hypotheses. -/
 theorem ffnLiteral_forward_error {d h s : ℕ} (ffn : Spec.FeedForward d h IEEE32Exec)
     (Xt : Tensor IEEE32Exec (.dim s (.dim d .scalar)))
     {B B2' Λ ρ1 ρ2 : ℝ} (hB : 0 ≤ B) (hB2' : 0 ≤ B2') (hΛ : 0 ≤ Λ) (hρ1 : 0 ≤ ρ1) (hρ2 : 0 ≤ ρ2)

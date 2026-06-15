@@ -7,25 +7,25 @@ import TLT_Proofs.TemperedDesignLaw.TemperedFloatCone
 import TLT_Proofs.Bridge.Certificate.AttentionLiteralExecutedBinding
 
 /-!
-# The tempered attention envelope — monotonicity in the score bound (TD5)
+# The tempered attention envelope: monotonicity in the score bound (TD5)
 
 The literal fp32 attention forward error `attnLiteralForwardError_onCone` bounds the executed head by the
 closed form `rndLit … (δexpCone (2B'(1+u)) (2uB')) …`, where `B'` bounds the executed stabilized-logit
 magnitude. On the sharpness axis the temperature scales the logits, so `B'` carries the sharpness: a larger
-`B'` is a sharper (or larger-magnitude) score channel. This file establishes that the envelope is *monotone
-increasing* in `B'` — sharper scores give a larger numerical envelope, never a divergence — by lifting the
+`B'` is a sharper (or larger-magnitude) score channel. The envelope is *monotone increasing* in `B'`
+(sharper scores give a larger numerical envelope, never a divergence), which follows by lifting the
 monotonicity through each closed-form layer:
 
-* `δexpCone_mono` — the exp-cone error is monotone in both the range-reduction argument `T` and the upper
+* `δexpCone_mono`: the exp-cone error is monotone in both the range-reduction argument `T` and the upper
   bound `η` (the product `eᶭ·rrρ T` is increasing in each, on `T ≥ 0`).
-* `litTV_mono_δexp` — the softmax total-variation envelope is monotone in the exp atom `δ_exp` (its only
+* `litTV_mono_δexp`: the softmax total-variation envelope is monotone in the exp atom `δ_exp` (its only
   `δ_exp` term is `2N·δ_exp/Dlo`).
-* `rndLit_mono_δexp` — the literal rounding envelope is monotone in `δ_exp` (it enters through the two
+* `rndLit_mono_δexp`: the literal rounding envelope is monotone in `δ_exp` (it enters through the two
   `litTV` occurrences; the score-rounding and value-budget terms are `δ_exp`-independent).
-* `rndLit_temperedCone_mono` — composing the three, the cone envelope `rndLit … (δexpCone (2B'(1+u))
+* `rndLit_temperedCone_mono`: composing the three, the cone envelope `rndLit … (δexpCone (2B'(1+u))
   (2uB')) …` is monotone in the score bound `B'`.
 
-Everything is monotonicity of the *shipped* closed forms; no new envelope is introduced.
+All results concern monotonicity of the existing closed forms; no new envelope is introduced.
 -/
 
 open TLT.ExpError TLT.Fp32Attn TLT.Fp32AttnLit
@@ -107,7 +107,7 @@ lemma rndLit_mono_δexp {n d : ℕ} {B Λ scale Dlo E_lit δ₁ δ₂ : ℝ}
 bound `B'`: both the range-reduction argument `2B'(1+u)` and the cone upper bound `2uB'` rise with `B'`, so
 `δexpCone` rises (`δexpCone_mono`), and the envelope rises through it (`rndLit_mono_δexp`). The score bound
 `B'` carries the sharpness on the temperature axis, so this is the statement that a sharper score channel
-gives a larger — but never divergent — numerical envelope. -/
+gives a larger (and never divergent) numerical envelope. -/
 lemma rndLit_temperedCone_mono {n d : ℕ} {B Λ scale Dlo E_lit B'₁ B'₂ : ℝ}
     (hB : 0 ≤ B) (hΛ0 : 0 ≤ Λ) (hnu : ((n + 1 : ℕ) : ℝ) * u < 1) (hdu : (d : ℝ) * u < 1)
     (hDlo : 0 < Dlo) (hB'0 : 0 ≤ B'₁) (hB' : B'₁ ≤ B'₂) :
@@ -126,7 +126,7 @@ bounded by `B'`, with the opaque cone-regime premise of `attnLiteralForwardError
 ceiling the range-reduction argument `2B'(1+u)` stays under the cone ceiling `Tmax`, so the affine
 range-reduction envelope stays in the cone (`rrρ_le_of_le_Tmax`), the per-logit exp atom is discharged on
 the cone, and the executed head is within the closed form `rndLit … (δexpCone (2B'(1+u)) (2uB')) …` of the
-ideal head — with no analytic exp-accuracy premise. `Tmax` is the exact cone ceiling; the score bound `B'`
+ideal head, with no analytic exp-accuracy premise. `Tmax` is the exact cone ceiling; the score bound `B'`
 carries the sharpness on the temperature axis, so `B' ≤ Tmax / (2(1+u))` is the certified sharpness window. -/
 theorem litAttnForwardError_temperedCone {n d : ℕ} {h1 h2 : (n + 1) ≠ 0}
     (ctx : Spec.AttentionContext IEEE32Exec (n + 1) (n + 1) d h1 h2)

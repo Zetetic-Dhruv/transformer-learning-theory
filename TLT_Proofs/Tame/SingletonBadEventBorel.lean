@@ -10,16 +10,16 @@ import FLT_Proofs.Theorem.BorelAnalyticSeparation
 # Tame bad-event Borelness: the singleton bad event is Borel iff the set is
 
 The wild half (`singleton_badEvent_not_measurable`) shows the singleton-class bad event
-`singletonBadEvent A` is **non**-Borel when `A` is non-Borel.  This file proves the **tame
-converse**: when `A` is Borel, `singletonBadEvent A` is Borel — closing the sharp
-characterization `MeasurableSet (singletonBadEvent A) ↔ MeasurableSet A`.
+`singletonBadEvent A` is **non**-Borel when `A` is non-Borel. The tame converse holds as well:
+when `A` is Borel, `singletonBadEvent A` is Borel, closing the sharp characterization
+`MeasurableSet (singletonBadEvent A) ↔ MeasurableSet A`.
 
 Composed with the σ-compact range reflection
 (`measurableSet_range_of_continuous_of_sigmaCompactSpace`), this upgrades the tame side of the
-measurability dichotomy from a *score-range* statement to the genuine *bad-event* statement:
+measurability dichotomy from a *score-range* statement to the *bad-event* statement:
 **over a σ-compact parameter space the singleton-class empirical-process bad event is Borel**
-(`singletonBadEvent_measurable_of_sigmaCompact`).  The wild pathology therefore strictly
-requires a non-σ-compact parameter space — at the bad-event level, not merely the score range.
+(`singletonBadEvent_measurable_of_sigmaCompact`). The wild pathology therefore strictly
+requires a non-σ-compact parameter space, at the bad-event level and not merely the score range.
 
 ## Grounding: Krapp–Wirth (2024)
 
@@ -28,36 +28,33 @@ appendix by L. Wirth), arXiv:2410.10243.  Krapp and Wirth isolate the measurabil
 assumption tacit in every proof of the Fundamental Theorem of Statistical Learning: the
 uniform-convergence map `U : Zᵐ → [0,1]`, `z ↦ sup_{h ∈ H} |er_D(h) − êr_z(h)|`, must be
 measurable, so that the empirical-process bad event `U⁻¹([0,ε]) ∈ Σ_Zᵐ` (their Def. 2.4).
-They stress this is **not** automatic — `U` can fail to be measurable (their Example A.13) —
+They stress this is **not** automatic (`U` can fail to be measurable; see their Example A.13)
 and call a class *well-behaved* exactly when it holds (§A.2).
 
-Our `singletonBadEvent A` is such a bad event (at `m = 1`).  The wild
+Our `singletonBadEvent A` is such a bad event (at `m = 1`). The wild
 `singleton_badEvent_not_measurable` is a concrete instance of their Example A.13 (the
-requirement fails); the tame theorems above are the converse guarantee.  Their sufficient
-conditions for well-behavedness — countability (Rmk A.4), *universal separability* via a
-countable pointwise-dense `H₀ ⊆ H` (Def. A.5 / Lemma A.6, after Dudley), and *permissibility*
-(Pollard) — all fail for `singletonClassOn` over a non-Borel range, which is *why* its bad
-event escapes measurability; over a Borel range it is recovered.  We sharpen their
-qualitative "well-behaved" into the exact equivalence
+requirement fails); the tame theorems here are the converse guarantee. Their sufficient
+conditions for well-behavedness (countability, Rmk A.4; *universal separability* via a
+countable pointwise-dense `H₀ ⊆ H`, Def. A.5 / Lemma A.6, after Dudley; and *permissibility*,
+Pollard) all fail for `singletonClassOn` over a non-Borel range, which is why its bad
+event escapes measurability; over a Borel range it is recovered. The qualitative "well-behaved"
+sharpens to the exact equivalence
 `MeasurableSet (singletonBadEvent A) ↔ MeasurableSet A` (`singletonBadEvent_measurableSet_iff`).
 
 The general argmax / `FiniteCellScoreRouter` ("AK") direction grounds in their §A.3 (*Cells*):
 in an o-minimal structure every definable set is a finite union of cells, and **every cell is
-Borel** (their Lemma A.9).  The proof is an induction on dimension — points `{r}` and intervals
+Borel** (their Lemma A.9). The proof is an induction on dimension: points `{r}` and intervals
 `(a,b)` are Borel; for definable continuous `f, g` the graph `Γ(f) = T_f⁻¹{0}` and the band
-`(f,g)_X = T_g⁻¹(−∞,0) ∩ T_h⁻¹(0,∞)` are Borel, where `T_f(x,r) = f(x) − r`.  A finite-head
-argmax router partitions inputs into finitely many such cells, so its routing — and hence its
-bad event — is Borel; this is the proof template for `FiniteCellScoreRouter` tame Borelness
+`(f,g)_X = T_g⁻¹(−∞,0) ∩ T_h⁻¹(0,∞)` are Borel, where `T_f(x,r) = f(x) − r`. A finite-head
+argmax router partitions inputs into finitely many such cells, so its routing and hence its
+bad event are Borel; this is the proof template for `FiniteCellScoreRouter` tame Borelness
 (their Thm 4.7 covers ReLU/sigmoid networks over o-minimal expansions of ℝ).
 -/
 
 /-!
 ## References
 - [7] Def. 2.4 / §A.2 well-behaved bad-event measurability; [12] the singleton/initial-segment
-  class tamed here; standard product-σ-algebra measurability.
-- Provenance: Innovation — the sharp `Borel bad event ⟺ Borel target` biconditional sharpening
-  [7]; otherwise Classical-instantiation.
-- TLT contribution (Dhruv Gupta), `singletonBadEvent_measurableSet_iff`: the sharp biconditional 'Borel bad event ⟺ Borel target', sharpening Krapp–Wirth's qualitative well-behavedness into an iff. Method: forward by a product-σ-algebra computation; reverse by contrapositive through the imported wild witness.
+  class; standard product-σ-algebra measurability.
 -/
 
 namespace TLT.Tame
@@ -69,17 +66,17 @@ private lemma planarWitnessEvent_eq_inter (A : Set ℝ) :
     planarWitnessEvent A = (Prod.snd ⁻¹' A) ∩ {q : ℝ × ℝ | q.1 ≠ q.2} := by
   ext q; simp [planarWitnessEvent, and_comm]
 
-/-- **Tame planar witness.**  If `A` is measurable, so is `planarWitnessEvent A` — the exact
-positive-direction counterpart of `planarWitnessEvent_not_measurable`. -/
+/-- **Tame planar witness.** If `A` is measurable, so is `planarWitnessEvent A`. Converse of
+`planarWitnessEvent_not_measurable`. -/
 theorem planarWitnessEvent_measurable (A : Set ℝ) (hA : MeasurableSet A) :
     MeasurableSet (planarWitnessEvent A) := by
   rw [planarWitnessEvent_eq_inter]
   exact (measurable_snd hA).inter
     ((isClosed_eq continuous_fst continuous_snd).measurableSet.compl)
 
-/-- **Tame singleton bad event.**  If `A` is measurable, the singleton-class bad event is
-Borel — the preimage of the (now Borel) planar witness under the measurable
-`samplePair1ToPlane`.  Converse of `singleton_badEvent_not_measurable`. -/
+/-- **Tame singleton bad event.** If `A` is measurable, the singleton-class bad event is
+Borel: the preimage of the (now Borel) planar witness under the measurable
+`samplePair1ToPlane`. Converse of `singleton_badEvent_not_measurable`. -/
 theorem singletonBadEvent_measurable (A : Set ℝ) (hA : MeasurableSet A) :
     MeasurableSet (singletonBadEvent A) := by
   rw [singleton_badEvent_eq_preimage_planar A]

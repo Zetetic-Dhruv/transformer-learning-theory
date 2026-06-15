@@ -19,19 +19,17 @@ places that value in the image of the dyadic inclusion `dyadicToReal : Dyadic �
 
 This is the inclusion that lets the dyadic-ball capacity bound dominate the executed model: the
 float32 weight vector of any executed network embeds into the dyadic weight ball, so the supremum
-over the dyadic ball — which equals the real ball's capacity by base-change invariance — covers it.
+over the dyadic ball (which equals the real ball's capacity by base-change invariance) covers it.
 
 ## Main results
 
-- `ieee32_toReal_mem_range_dyadicToReal` — a finite float32 value lies in the range of the dyadic
+- `ieee32_toReal_mem_range_dyadicToReal`: a finite float32 value lies in the range of the dyadic
   inclusion into `ℝ`.
 -/
 
 /-!
 ## References
 - [44][45][51] IEEE-754 finite value = integer × 2^e ∈ ℤ[1/2].
-- Provenance: Classical-instantiation ("finite float = dyadic rational"; the IEEE32Exec decode is
-  engineering glue).
 -/
 
 open TorchLean.Floats TorchLean.Floats.IEEE754

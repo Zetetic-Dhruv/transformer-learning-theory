@@ -11,23 +11,22 @@ import TLT_Proofs.TemperedDesignLaw.Stability
 The symbol map `y ↦ val y (route y)` is discontinuous at decision boundaries, so it carries no Lipschitz
 constant and is not a `RegionExecLayer`. It is composed with a metric-free exact telescope instead.
 
-Scope and honesty. The single non-trivial piece here is `regionMap_exact_telescope`, and even that is the
-degenerate (zero-gap) case of the metric telescope `regionEnvelope_telescope`: a `propext`-only equality
-induction with no error transport. The two `route*` facts are short corollaries of `TD7`
-(`leastArgmax_stable_of_half_margin`) and of that telescope — proofs of three lines each. Crucially,
-`trajInRegions` (the executed trajectory remains in the half-margin regions) is taken as a **hypothesis**:
-discharging it is the genuinely hard u-edge content (it needs the per-layer forward-error coupling that
-keeps the executed state close enough to the ideal for the margin to survive), and that is **not** done
-here. So this file states the per-layer route stability lifted to depth *conditionally on* the margin
-trajectory; it does not establish the trajectory condition.
+The central result is `regionMap_exact_telescope`, the degenerate (zero-gap) case of the metric
+telescope `regionEnvelope_telescope`: a `propext`-only equality induction with no error transport. The
+two `route*` facts are corollaries of `TD7` (`leastArgmax_stable_of_half_margin`) and that telescope.
+The condition `trajInRegions` (the executed trajectory remains in the half-margin regions) is taken as
+a hypothesis throughout: it requires the per-layer forward-error coupling that keeps the executed
+state close enough to the ideal for the margin to survive, which is developed in
+`DecisionForwardSlack`. The per-layer route stability is therefore stated conditionally on the margin
+trajectory here.
 
-* `RegionMapLayer` — a depth layer with an ideal map, an executed map, and a region (no metric).
-* `regionMap_exact_telescope` — if every executed map equals its ideal on its region and the executed
-  trajectory stays in the regions, the compositions coincide exactly.
-* `routeRegionLayer` / `routeRegionLayer_exact_on_region` — the symbol layer, and the `TD7` corollary that
-  the routes agree on the half-margin region.
-* `routeCascade_replicate_exact` — the conditional depth-`L` statement: given the margin trajectory, the
-  executed symbol cascade equals the ideal symbol cascade exactly.
+* `RegionMapLayer`: a depth layer with an ideal map, an executed map, and a region (no metric).
+* `regionMap_exact_telescope`: if every executed map agrees with its ideal on its region and the
+  executed trajectory stays in the regions, the compositions coincide exactly.
+* `routeRegionLayer` / `routeRegionLayer_exact_on_region`: the symbol layer, and the `TD7` corollary
+  that the routes agree on the half-margin region.
+* `routeCascade_replicate_exact`: the conditional depth-`L` statement; given the margin trajectory,
+  the executed symbol cascade equals the ideal symbol cascade exactly.
 -/
 
 open scoped BigOperators

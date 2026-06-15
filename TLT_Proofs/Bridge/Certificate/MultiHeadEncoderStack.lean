@@ -9,15 +9,14 @@ import TLT_Proofs.Bridge.Certificate.TransformerStackCertificate
 /-!
 # The full true-multi-head transformer encoder stack
 
-`MultiHeadAttnCertificate` gave the certified bound for a depth-`L` stack of *pure* true-multi-head
+`MultiHeadAttnCertificate` gave the certified bound for a depth-`L` stack of pure true-multi-head
 attention blocks. The full transformer encoder layer is the multi-head attention block followed by the
-post-norm feed-forward residual block. This file assembles the two block types — both already
-`ParamLayerLocal`s — into one stack, exactly as `TransformerStackCertificate` does for single-head
-attention, removing the "no interleaved feed-forward" residual:
+post-norm feed-forward residual block. Both block types are already `ParamLayerLocal`s, so they compose
+into one stack by the same mechanism as `TransformerStackCertificate` for single-head attention:
 
-* `transformerEncoderStackMH_weight_lip` — a depth-`L` stack of `[multiHeadBlock, ffnBlock]` layers is
-  `lparamLipBound`-Lipschitz in the weights on the activation ball;
-* `transformerEncoderStackMH_certified_generalization` — its certified generalization bound.
+* `transformerEncoderStackMH_weight_lip`: a depth-`L` stack of `[multiHeadBlock, ffnBlock]` layers is
+  `lparamLipBound`-Lipschitz in the weights on the activation ball.
+* `transformerEncoderStackMH_certified_generalization`: its certified generalization bound.
 
 Both are stated in the weight-tied (universal-transformer) regime over `List.replicate`; the untied
 standard-transformer variant is the same machinery over `List.ofFn` of `L` distinct blocks reading
@@ -28,8 +27,6 @@ disjoint parameter coordinates (`transformerEncoderStackMH_untied_*` below).
 ## References
 - [31] per-head bounded-domain boundary (true multi-head WQ/WK/WVO); [32][33] norm-based attention
   capacity / seq-length-free linear-H; [41] weight-tied; [16][54][26] Dudley/covering; LayerNorm.
-- Provenance: Innovation (executed instantiation) — the full true-multi-head encoder stack
-  certified bound; per-block Lipschitz composition matched.
 -/
 
 open MeasureTheory

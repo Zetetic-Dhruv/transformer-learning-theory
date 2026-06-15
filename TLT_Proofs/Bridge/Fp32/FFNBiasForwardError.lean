@@ -2,11 +2,11 @@
 # Rectangular executed matmul + the bias-cancellation affine forward error
 
 The pure-ℝ foundation of the FFN→`Spec.FeedForward` bridge. `VexecRect` is the rectangular twin of `Vexec`
-(output dim `p ≠` contraction dim `n`) — a re-parametrization, since `rdot`/`rdotBudget`/`matMulCoord` are
-all dimension-generic in the contraction. `affExec` adds a bias; the elegant collapse is that **the bias is
-an exact additive offset in ℝ, so it cancels in the executed-vs-ideal difference** — the affine forward
-error is *exactly* the matmul forward error, no bias term. (The bias's fp32-add rounding lives only in the
-later `toReal` bridge, via the shipped `toReal_add_abs_error_of_isFinite`.)
+(output dim `p ≠` contraction dim `n`): a re-parametrization, since `rdot`/`rdotBudget`/`matMulCoord` are
+all dimension-generic in the contraction. `affExec` adds a bias; the bias is an exact additive offset in ℝ,
+so it cancels in the executed-vs-ideal difference. The affine forward error is *exactly* the matmul forward
+error, with no bias term. (The bias's fp32-add rounding lives only in the later `toReal` bridge, via
+`toReal_add_abs_error_of_isFinite`.)
 -/
 import TLT_Proofs.Bridge.Fp32.FFNForwardError
 
@@ -28,7 +28,7 @@ def VexecRect {m n p : ℕ} (W : Fin n → Fin p → ℝ) (X : Fin m → Fin n �
 def VexecRectNormal {m n p : ℕ} (W : Fin n → Fin p → ℝ) (X : Fin m → Fin n → ℝ) : Prop :=
   ∀ i j, RdotNormal (X i) (fun k => W k j)
 
-/-- **Per-entry rectangular matmul rounding error** — mirrors `Vexec_entry_error`, contraction over
+/-- **Per-entry rectangular matmul rounding error.** Mirrors `Vexec_entry_error`, contraction over
 `Fin n` for any output `Fin p`, reusing the dimension-generic `rdot_error_le_of_sum_bound`. -/
 lemma VexecRect_entry_error {m n p : ℕ} (W : Fin n → Fin p → ℝ) (X : Fin m → Fin n → ℝ)
     {B Λ : ℝ} (hB : 0 ≤ B) (_hΛ0 : 0 ≤ Λ) (hX : ∀ i k, |X i k| ≤ B)
@@ -71,7 +71,7 @@ def affIdeal {m n p : ℕ} (W : Fin n → Fin p → ℝ) (b : Fin p → ℝ) (X 
 
 /-- **The bias-cancellation affine forward error.** The bias is an exact additive offset in ℝ, so it
 cancels in the difference: `affExec − affIdeal = VexecRect − matMulCoord`. The affine error is therefore
-*exactly* the matmul error — the bias costs nothing in the ℝ-model. -/
+*exactly* the matmul error; the bias costs nothing in the ℝ-model. -/
 lemma affExec_forward_error {m n p : ℕ} (W : Fin n → Fin p → ℝ) (b : Fin p → ℝ) (X : Fin m → Fin n → ℝ)
     {B Λ : ℝ} (hB : 0 ≤ B) (hΛ0 : 0 ≤ Λ) (hX : ∀ i k, |X i k| ≤ B)
     (hW : ∀ j, ∑ k, |W k j| ≤ Λ) (hnorm : VexecRectNormal W X) (hnu : (n : ℝ) * u < 1) :
@@ -86,7 +86,7 @@ lemma affExec_forward_error {m n p : ℕ} (W : Fin n → Fin p → ℝ) (b : Fin
 /-- **The rectangular ideal matmul is `Λ`-Lipschitz in its input (sup norm).** The rectangular twin of
 `matMulCoord_lipschitz`: output dim `q` need not equal the contraction dim `p`. With the contracted columns
 of `W` bounded `∑ₖ|Wₖⱼ| ≤ Λ`, the map `X ↦ matMulCoord W X` satisfies
-`‖matMulCoord W a − matMulCoord W b‖ ≤ Λ · ‖a − b‖` — each output entry is an `ℓ¹(W)`-weighted combination
+`‖matMulCoord W a − matMulCoord W b‖ ≤ Λ · ‖a − b‖`; each output entry is an `ℓ¹(W)`-weighted combination
 of input gaps. The proof never uses squareness (contraction over `Fin p`, output `Fin q`). -/
 lemma matMulCoordRect_lipschitz {s p q : ℕ} (W : Fin p → Fin q → ℝ) {Λ : ℝ} (hΛ0 : 0 ≤ Λ)
     (hW : ∀ j, (∑ k, |W k j|) ≤ Λ) (a b : Fin s → Fin p → ℝ) :
@@ -107,7 +107,7 @@ lemma matMulCoordRect_lipschitz {s p q : ℕ} (W : Fin p → Fin q → ℝ) {Λ 
     _ ≤ ‖a - b‖ * Λ := mul_le_mul_of_nonneg_left (hW j) (norm_nonneg _)
     _ = Λ * ‖a - b‖ := by ring
 
-/-- **The executed FFN block with biases and a hidden dimension** — `affExec W2 b2 ∘ reluCoord ∘
+/-- **The executed FFN block with biases and a hidden dimension:** `affExec W2 b2 ∘ reluCoord ∘
 affExec W1 b1`, the ℝ-model of `Spec.FeedForward.forward` read over ℝ (the bias roundings deferred to the
 `toReal` bridge). -/
 def ffnExecBias {n d h : ℕ} (W1 : Fin d → Fin h → ℝ) (b1 : Fin h → ℝ) (W2 : Fin h → Fin d → ℝ)

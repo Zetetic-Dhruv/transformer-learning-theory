@@ -11,16 +11,15 @@ import Mathlib.Topology.MetricSpace.Bounded
 
 A stochastic process `X` indexed by a pseudo-metric space is **sub-Gaussian** with parameter `σ` when
 its increments have a sub-Gaussian moment generating function controlled by the index distance:
-`E[exp(l·(X s − X t))] ≤ exp(l²σ²·d(s,t)²/2)`. This is the canonical hypothesis of the chaining
-argument: it makes the increment `X s − X t` sub-Gaussian with proxy variance `σ²·d(s,t)²`, so that
-over a finite net the expected maximum is controlled by the metric diameter.
+`E[exp(l·(X s − X t))] ≤ exp(l²σ²·d(s,t)²/2)`. Each increment `X s − X t` is then sub-Gaussian
+with proxy variance `σ²·d(s,t)²`.
 
 ## Main results
 
-* `IsSubGaussianProcess` — the increment sub-Gaussian condition.
-* `subGaussianProcessFiniteMax` — for a centered process and a finite index set `T` of diameter
-  `≤ D`, `E[max_{t∈T} X t] ≤ σ · diam(T) · √(2 log |T|)`, the per-net estimate of a chaining bound,
-  obtained from `subGaussianFiniteMax` with proxy `σ' = σ · diam(T)`.
+* `IsSubGaussianProcess`: the increment sub-Gaussian condition.
+* `subGaussianProcessFiniteMax`: for a centered process and a finite index set `T` of diameter
+  `≤ D`, `E[max_{t∈T} X t] ≤ σ · diam(T) · √(2 log |T|)`, obtained from `subGaussianFiniteMax`
+  with proxy `σ' = σ · diam(T)`.
 
 ## References
 
@@ -44,10 +43,8 @@ def IsSubGaussianProcess (μ : Measure Ω) (X : A → Ω → ℝ) (σ : ℝ) : P
 
 /-- **Per-net maximal estimate for a centered sub-Gaussian process.** If `X` is sub-Gaussian with
 parameter `σ`, is centered at a point `t₀ ∈ T` (so `X t₀ ≡ 0`), and `T` is a finite index set of at
-least two points, then `E[max_{t∈T} X t] ≤ σ · diam(T) · √(2 log |T|)`.
-
-This is the bound applied at one scale of a chaining decomposition: the increments `X t = X t − X t₀`
-are sub-Gaussian with proxy variance `(σ·diam T)²`, so the maximal inequality `subGaussianFiniteMax`
+least two points, then `E[max_{t∈T} X t] ≤ σ · diam(T) · √(2 log |T|)`. The increments
+`X t = X t − X t₀` are sub-Gaussian with proxy variance `(σ·diam T)²`, so `subGaussianFiniteMax`
 applies with `σ' = σ · diam(T)`. -/
 theorem subGaussianProcessFiniteMax {μ : Measure Ω} [IsProbabilityMeasure μ]
     {X : A → Ω → ℝ} {σ : ℝ} (hσ : 0 < σ) (hX : IsSubGaussianProcess μ X σ)
