@@ -149,12 +149,24 @@ structure HardTameMathLeg (X Route : Type*) where
   routeStableCheck : X → Bool
   /-- Soundness of the runtime checker. -/
   routeStableCheck_sound : ∀ x, routeStableCheck x = true → executedSymbol x = hardSymbol x
-  /-- Symbol class realized by the hard-tame cascade. -/
+  /-- Symbol class realized by the hard-tame cascade (the base grade of the expressivity lattice). -/
   symbolClass : Set (X → Route)
-  /-- Expressivity grade indexed by depth and width/expert count. -/
+  /-- Expressivity grade indexed by depth `L` and width/expert count `K`: a genuine `(L,K)`
+  realizability lattice (cf. `ExpressivityLattice.expressivityGrade`), NOT a constant collapse. -/
   expressivityGrade : ℕ → ℕ → Set (X → Route)
-  /-- The expressivity statement; this is where NS2/NS3/NS4/TD13 must land. -/
-  expressivity_graded : ∀ L K, expressivityGrade L K = symbolClass
+  /-- **Corrected expressivity statement** (NS2/NS3/NS4/TD13).  The shipped field
+  `expressivity_graded : ∀ L K, expressivityGrade L K = symbolClass` was a *degenerate collapse*
+  (constant in `L,K` — the wrong shape for a capacity ladder; flagged by the closure audit and the
+  noological synthesis).  The honest replacement is the genuine **monotone-ladder** shape: the diagonal
+  depth ladder is monotone (deeper cascades realize at least as many routes), each width slice is
+  monotone (more experts realize at least as many routes), and the base grade `(0,0)` is the symbol
+  class.  Inhabited by `ExpressivityLattice.expressivityGrade_monotone_depth` /
+  `expressivityGrade_monotone_width` / `expressivityGrade_zero_depth`.  The *strict* separation (proper
+  inclusion = genuine expressivity growth) is the open expressivity-lower-bound frontier, not asserted
+  here. -/
+  expressivity_monotone_depth : Monotone (fun L => expressivityGrade L L)
+  expressivity_monotone_width : ∀ L, Monotone (fun K => expressivityGrade L K)
+  expressivity_base : expressivityGrade 0 0 = symbolClass
   /-- Statistical quantity for the hard-tame symbolic class. -/
   symbolGap : ℝ
   /-- Hard-tame symbolic statistical certificate. -/
