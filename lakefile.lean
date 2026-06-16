@@ -117,6 +117,8 @@ lean_lib TLT_Proofs where
     `TLT_Proofs.TemperedDesignLaw.MuxWidth,
     `TLT_Proofs.TemperedDesignLaw.MuxCertificate,
     `TLT_Proofs.TemperedDesignLaw.ArgmaxPowerDiagram,
+    `TLT_Proofs.TemperedDesignLaw.QuadraticExpressivity,
+    `TLT_Proofs.TemperedDesignLaw.QuadraticTameness,
     `TLT_Proofs.TemperedDesignLaw.CertificateAssembly,
     `TLT_Proofs.TemperedDesignLaw.SymbolRouteFactoredLoss,
     `TLT_Proofs.TemperedDesignLaw.CertificateReal,
