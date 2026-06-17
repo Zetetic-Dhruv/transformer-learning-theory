@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 250" role="img" aria-label="Rising bars for depth 0 through 3, each strictly taller than the last, with the strict-subset symbol between them; expressivity grows with depth.">
+  <rect x="1" y="1" width="758" height="248" rx="12" fill="#FFFFFF" stroke="#E0DED7"/>
+  <line x1="92" y1="216" x2="690" y2="216" stroke="#C9C7C0" stroke-width="1"/>
+  <rect x="120" y="172" width="92" height="44" rx="4" fill="#EAF0EC" stroke="#2F6F4F" stroke-width="1"/>
+  <rect x="262" y="132" width="92" height="84" rx="4" fill="#DCE9E1" stroke="#2F6F4F" stroke-width="1"/>
+  <rect x="404" y="92" width="92" height="124" rx="4" fill="#CFE2D6" stroke="#2F6F4F" stroke-width="1"/>
+  <rect x="546" y="52" width="92" height="164" rx="4" fill="#C2DBCB" stroke="#2F6F4F" stroke-width="1"/>
+  <text x="166" y="236" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13" fill="#3A3A3A">depth 0</text>
+  <text x="308" y="236" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13" fill="#3A3A3A">depth 1</text>
+  <text x="450" y="236" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13" fill="#3A3A3A">depth 2</text>
+  <text x="592" y="236" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13" fill="#3A3A3A">depth 3</text>
+  <text x="237" y="160" text-anchor="middle" font-family="Charter,Georgia,serif" font-size="16" fill="#6E6E6E">&#8842;</text>
+  <text x="379" y="120" text-anchor="middle" font-family="Charter,Georgia,serif" font-size="16" fill="#6E6E6E">&#8842;</text>
+  <text x="521" y="80" text-anchor="middle" font-family="Charter,Georgia,serif" font-size="16" fill="#6E6E6E">&#8842;</text>
+  <text x="64" y="134" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="12" fill="#6E6E6E" transform="rotate(-90 64 134)">routes realizable</text>
+</svg>

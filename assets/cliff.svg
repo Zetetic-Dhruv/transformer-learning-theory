@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320" role="img" aria-label="The measurability cliff: a tall soft-attention plateau labelled Borel and certifiable drops at the softmax to argmax boundary to a lower hard-attention shelf labelled non-Borel and still learnable.">
+  <rect x="1" y="1" width="758" height="318" rx="12" fill="#FFFFFF" stroke="#E0DED7"/>
+  <line x1="60" y1="262" x2="700" y2="262" stroke="#C9C7C0" stroke-width="1"/>
+  <rect x="80" y="92" width="290" height="170" rx="7" fill="#E7F0EB" stroke="#2F6F4F" stroke-width="1.2"/>
+  <text x="104" y="128" font-family="Charter,Georgia,serif" font-size="17" fill="#234f39">soft attention</text>
+  <text x="104" y="150" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13.5" fill="#2F6F4F">Borel, certifiable</text>
+  <rect x="370" y="182" width="300" height="80" rx="7" fill="#F6ECDD" stroke="#B26B1E" stroke-width="1.2"/>
+  <text x="394" y="212" font-family="Charter,Georgia,serif" font-size="17" fill="#8a5417">hard attention (argmax)</text>
+  <text x="394" y="234" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13.5" fill="#B26B1E">non-Borel, still learnable</text>
+  <polyline points="80,92 370,92 370,182 670,182" fill="none" stroke="#2F6F4F" stroke-width="2.5"/>
+  <line x1="370" y1="74" x2="370" y2="92" stroke="#9a9a8a" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="370" y="66" text-anchor="middle" font-family="Charter,Georgia,serif" font-style="italic" font-size="15" fill="#6E6E6E">the cliff</text>
+  <text x="225" y="286" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#6E6E6E">soft, finite temperature</text>
+  <text x="520" y="286" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#6E6E6E">hard, sharpest routing</text>
+  <text x="375" y="306" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-style="italic" font-size="12.5" fill="#8a8a82">the softmax-to-argmax boundary, uniform in depth</text>
+</svg>

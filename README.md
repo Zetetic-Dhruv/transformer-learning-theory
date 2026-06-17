@@ -1,5 +1,11 @@
 # Transformer Learning Theory
 
+<p align="center">
+  <img src="assets/cliff.svg" alt="The measurability cliff: as attention sharpens from soft to hard, its bad event drops from Borel to non-Borel at a precise boundary, while the hard side stays learnable." width="760">
+</p>
+
+<p align="center"><em>Temperature is the toggle: as attention sharpens from soft to hard, its bad event drops from Borel to non-Borel at a precise line, while the hard side stays learnable.</em></p>
+
 A Lean 4 formalization of a **certified, computable generalization bound for a transformer attention model that holds for the IEEE binary32 program it actually runs**, together with a proof that the certified model is TorchLean's literal `scaledDotProductAttention`. The same network is read two ways: as exact real arithmetic (for the theorems) and as bit‑exact float32 (for execution), with machine‑checked bridges between them. The bound extends from the single attention head to a **depth‑`L` transformer stack** (the capacity constant grows with depth), and the certified attention is bound to the **literal `MultiHeadAttention.forward`** that TorchLean's `TransformerEncoderLayer` runs.
 
 [![Documentation](https://img.shields.io/badge/docs-API%20reference-0b4f8b)](https://zetetic-dhruv.github.io/transformer-learning-theory/) [![Lean](https://img.shields.io/badge/Lean-v4.29.0-blue)](https://github.com/leanprover/lean4/releases/tag/v4.29.0) ![sorry 0](https://img.shields.io/badge/sorry-0-brightgreen) [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
@@ -17,6 +23,10 @@ R_true^exec  ≤  R̂_emp^exec  +  2·(12√2·B/√m)  +  ε  +  2·L·envBound
 Every term is computable from the actual weights: `B` is the affine Dudley entropy integral (with the optimal `12√2` chaining constant), `envBound` is the float32 rounding envelope, and the input cap `K = {‖x‖ ≤ B}` is the hypothesis that self‑attention's lack of a global Lipschitz constant (Kim et al. 2021) forces. The bound is stated about the executed operation: the ideal map is proven equal, in coordinates, to TorchLean's literal `Spec.scaledDotProductAttention`, and the executed op enters through its rounding envelope. For the single attention head this is sharpened to the **literal kernel itself**. `attnHead_literal_certified_generalization` certifies TorchLean's `IEEE32Exec scaledDotProductAttention` read over ℝ, run on its finite fp32 input grid, with the rounding correction **derived**: the softmax, score, and value‑mix roundings composed down to a single named atom (the binary32 `exp` bound), with no input‑quantization slack.
 
 `attnHead_executed_certified_generalization` · `attnHead_literal_certified_generalization` · `attnHead_certified_generalization` · `matCoords_scaledDotProductAttention`
+
+<p align="center">
+  <img src="assets/float32.svg" alt="One network read two ways: exact reals for the theorems, IEEE float32 for the program that runs, proven equal in coordinates." width="720">
+</p>
 
 All results reduce to only `propext`, `Classical.choice`, `Quot.sound`: no `sorry`, no added axioms. (The strictness/non‑Borel results below additionally take the existence of an analytic non‑Borel subset of ℝ as an explicit hypothesis, a standard descriptive‑set‑theory fact, supplied as an argument.)
 
@@ -176,6 +186,10 @@ The certified capacity bound, indexed by the backend‑independent architecture 
 
 A second design‑law strand (`TLT_Proofs/TemperedDesignLaw/`). A transformer router reads a discrete symbol, the `leastArgmax` route, from continuous attention scores, and is certified by **two complementary generalization certificates that bound the same gap**: a smooth (Dudley) certificate that is tighter at low routing sharpness `β`, and a hard (arrangement‑VC Sauer–Shelah) certificate that is tighter at high `β`, with an explicit crossover sharpness `βStar`. The capstone `temperedDesignLawCertificate` is an inhabited record assembled from the legs below, a value rather than a theorem about a record's shape, and `temperedDesignLawCertificate_real` carries the **real** Sauer generalization statistics of the literal attention router.
 
+<p align="center">
+  <img src="assets/crossover.svg" alt="Two certificates bound the same routed-symbol gap: a smooth Dudley curve tighter when routing is soft, a hard Sauer curve tighter when sharp, crossing at betaStar." width="720">
+</p>
+
 | Result | Module | Statement |
 |---|---|---|
 | `symbolClass_growth_prod` · `symbolClass_growth_uniform` | `TemperedDesignLaw/ArrangementVC` | the symbol channel's combinatorial capacity: the route comparison classes' growth function is bounded by the arrangement‑VC Sauer–Shelah product over the `k²` ordered score‑pairs, under a per‑pair finite‑dimensional linearity hypothesis |
@@ -192,6 +206,10 @@ A second design‑law strand (`TLT_Proofs/TemperedDesignLaw/`). A transformer ro
 ### The expressivity hierarchy: depth and width strictly buy expressivity
 
 The expressivity floor the architecture design law leaves open, **proved for the constrained argmax‑routed mux‑cascade model** (`TLT_Proofs/TemperedDesignLaw/Mux*`). The unconstrained route lattice is first shown **degenerate**: a bare argmax router already realizes every measurable route function, so its grade is constant and any "separation" there is non‑measurable artifact rather than expressivity. Under the two‑part constraint, affine scores together with `n`‑way mux‑gated piecewise‑affine region maps, depth and width each **strictly** enlarge the realizable route class, at every level.
+
+<p align="center">
+  <img src="assets/staircase.svg" alt="Depth strictly buys expressivity: each added layer enlarges the realizable routes, a proved strict separation at every rung; width does the same." width="720">
+</p>
 
 | Result | Module | Statement |
 |---|---|---|
