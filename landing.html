@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transformer Learning Theory</title>
+<style>
+  :root{
+    --ink:#141414; --soft:#3A3A3A; --muted:#6E6E6E; --hair:#E0DED7; --paper:#FFFFFF; --wash:#FAFAF7;
+    --teal:#2F6F4F; --teal-tint:#E7F0EB; --indigo:#27406B; --indigo-tint:#E6EAF2; --amber:#B26B1E; --amber-tint:#F6ECDD;
+    --serif:Charter,'Iowan Old Style','Source Serif Pro',Palatino,Georgia,serif;
+    --sans:'Helvetica Neue',Arial,system-ui,sans-serif;
+    --mono:Menlo,'SF Mono',Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px;margin:0 auto;padding:0 28px}
+  header{padding:34px 0 0}
+  .repo{font-family:var(--sans);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .chips{font-family:var(--sans);font-size:12px;color:var(--soft);margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+  .chip{background:var(--wash);border:1px solid var(--hair);border-radius:999px;padding:3px 11px}
+  section{padding:30px 0;border-top:1px solid var(--hair)}
+  section.hero{border-top:0;padding-top:22px}
+  h1{font-family:var(--serif);font-weight:700;font-size:33px;line-height:1.18;letter-spacing:-.01em;margin:18px 0 14px}
+  h2{font-family:var(--serif);font-weight:700;font-size:23px;line-height:1.25;margin:0 0 12px}
+  .kicker{font-family:var(--sans);font-size:13px;letter-spacing:.02em;color:var(--muted);margin:0}
+  .lead{font-size:18px;color:var(--soft);margin:0 0 6px}
+  p{font-size:16.5px;margin:0 0 12px}
+  .fig{margin:18px 0 6px}
+  .fig svg{width:100%;height:auto;display:block}
+  .cap{font-family:var(--sans);font-size:13.5px;color:var(--muted);line-height:1.5;margin:8px 0 0}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0 0}
+  .stat{background:var(--wash);border:1px solid var(--hair);border-radius:8px;padding:14px 16px}
+  .stat .n{font-family:var(--serif);font-weight:700;font-size:25px}
+  .stat .l{font-family:var(--sans);font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.4}
+  .doors{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0 0}
+  .doors a{font-family:var(--sans);font-size:14px;text-decoration:none;color:var(--indigo);border:1px solid var(--hair);border-radius:8px;padding:9px 15px;background:var(--paper)}
+  .doors a:hover{background:var(--wash)}
+  .frontier{background:var(--wash);border:1px solid var(--hair);border-radius:10px;padding:14px 18px 4px;margin:14px 0 0}
+  .frontier li{font-size:15.5px;margin:0 0 9px}
+  .frontier .h{font-family:var(--sans);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);margin:0 0 8px}
+  code{font-family:var(--mono);font-size:13.5px;background:var(--wash);padding:1px 5px;border-radius:4px}
+  footer{padding:26px 0 50px;border-top:1px solid var(--hair);font-family:var(--sans);font-size:13px;color:var(--muted)}
+  em{font-style:italic}
+  .slot{font-family:var(--sans);font-size:13px;color:var(--muted);font-style:italic;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="repo">Transformer Learning Theory</div>
+  <div class="chips">
+    <span class="chip">Lean 4, machine-checked</span>
+    <span class="chip">0 uses of sorry</span>
+    <span class="chip">reduces to 3 standard axioms</span>
+    <span class="chip">Apache 2.0</span>
+  </div>
+</header>
+
+<section class="hero">
+  <p class="kicker">Checked to the float32 bits</p>
+  <h1>Attention has an exact line where its guarantees change character. We found it.</h1>
+  <p class="lead">Sharpen attention's temperature from soft toward hard and, at one precise point, its routing crosses from provably certifiable to not, while the far side stays learnable. The bound that proves it holds for the IEEE float32 program a transformer actually runs, not an idealized model of it.</p>
+  <div class="fig">
+    <svg viewBox="0 0 760 320" role="img" aria-label="The measurability cliff: a tall soft-attention plateau labelled Borel and certifiable drops at the softmax to argmax boundary to a lower hard-attention shelf labelled non-Borel and still learnable.">
+      <line x1="60" y1="262" x2="700" y2="262" stroke="#C9C7C0" stroke-width="1"/>
+      <rect x="80" y="92" width="290" height="170" rx="7" fill="#E7F0EB" stroke="#2F6F4F" stroke-width="1.2"/>
+      <text x="104" y="128" font-family="Charter,Georgia,serif" font-size="17" fill="#234f39">soft attention</text>
+      <text x="104" y="150" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13.5" fill="#2F6F4F">Borel, certifiable</text>
+      <rect x="370" y="182" width="300" height="80" rx="7" fill="#F6ECDD" stroke="#B26B1E" stroke-width="1.2"/>
+      <text x="394" y="212" font-family="Charter,Georgia,serif" font-size="17" fill="#8a5417">hard attention (argmax)</text>
+      <text x="394" y="234" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13.5" fill="#B26B1E">non-Borel, still learnable</text>
+      <polyline points="80,92 370,92 370,182 670,182" fill="none" stroke="#2F6F4F" stroke-width="2.5"/>
+      <line x1="370" y1="74" x2="370" y2="92" stroke="#9a8" stroke-width="1" stroke-dasharray="3 3"/>
+      <text x="370" y="66" text-anchor="middle" font-family="Charter,Georgia,serif" font-style="italic" font-size="15" fill="#6E6E6E">the cliff</text>
+      <text x="225" y="286" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#6E6E6E">soft, finite temperature</text>
+      <text x="520" y="286" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#6E6E6E">hard, sharpest routing</text>
+      <text x="375" y="306" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-style="italic" font-size="12.5" fill="#8a8a82">the softmax-to-argmax boundary, uniform in depth</text>
+    </svg>
+  </div>
+  <p class="cap">Temperature is the toggle. The drop is a proved separation, not an artifact: the routing stays measurable, and the hard side stays learnable across the line.</p>
+  <div class="stats">
+    <div class="stat"><div class="n">0</div><div class="l">uses of sorry in the proof</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">standard axioms, nothing added</div></div>
+    <div class="stat"><div class="n">float32</div><div class="l">the program it is proved about</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>The proof is about the program that runs.</h2>
+  <p>Almost every guarantee about a neural network is a guarantee about an idealized version of it: real numbers, exact arithmetic, infinite precision. The network that runs is none of those. It rounds at every step, in float32. This bound is stated about the executed operation, every term computable from the actual weights, and the certified model is proven equal, coordinate by coordinate, to the literal attention operation the code calls. It extends through depth to a full transformer stack, with attention, feed-forward, and layer normalization each bound to the literal operation it runs.</p>
+  <p>For a single attention head the rounding correction is derived all the way down to one floating-point atom. Through the full depth stack it is still supplied per layer. That last step is the remaining float32 node, and it is named, not hidden.</p>
+  <div class="fig">
+    <svg viewBox="0 0 760 230" role="img" aria-label="One network read two ways: exact real arithmetic for the theorems on the left, IEEE float32 for the program on the right, proven equal in coordinates.">
+      <rect x="70" y="56" width="250" height="104" rx="9" fill="#E6EAF2" stroke="#27406B" stroke-width="1.2"/>
+      <text x="195" y="98" text-anchor="middle" font-family="Charter,Georgia,serif" font-size="19" fill="#27406B">exact reals</text>
+      <text x="195" y="124" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13.5" fill="#6E6E6E">the theorems</text>
+      <rect x="440" y="56" width="250" height="104" rx="9" fill="#F6ECDD" stroke="#B26B1E" stroke-width="1.2"/>
+      <text x="565" y="98" text-anchor="middle" font-family="Charter,Georgia,serif" font-size="19" fill="#8a5417">IEEE float32</text>
+      <text x="565" y="124" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13.5" fill="#6E6E6E">the program that runs</text>
+      <line x1="324" y1="108" x2="436" y2="108" stroke="#3A3A3A" stroke-width="1.4"/>
+      <polygon points="324,108 334,103 334,113" fill="#3A3A3A"/>
+      <polygon points="436,108 426,103 426,113" fill="#3A3A3A"/>
+      <text x="380" y="96" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#3A3A3A">proven equal</text>
+      <text x="380" y="128" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#3A3A3A">in coordinates</text>
+      <text x="380" y="196" text-anchor="middle" font-family="Charter,Georgia,serif" font-style="italic" font-size="15" fill="#3A3A3A">the certified model is the literal scaledDotProductAttention the code calls</text>
+    </svg>
+  </div>
+</section>
+
+<section>
+  <h2>Two certificates, the same gap, a crossover.</h2>
+  <p>A transformer router reads a discrete symbol from continuous attention scores. Its generalization gap is bounded two ways at once: a smooth certificate that is tighter when routing is soft, and a hard combinatorial certificate that is tighter when routing is sharp. They meet at a named crossover sharpness. Take the better of the two at every sharpness and the gap is controlled across the whole range.</p>
+  <div class="fig">
+    <svg viewBox="0 0 760 280" role="img" aria-label="Two generalization-bound curves against routing sharpness: a smooth Dudley curve low at low sharpness and a hard Sauer curve low at high sharpness, crossing at beta-star.">
+      <line x1="92" y1="60" x2="92" y2="232" stroke="#C9C7C0" stroke-width="1"/>
+      <line x1="92" y1="232" x2="690" y2="232" stroke="#C9C7C0" stroke-width="1"/>
+      <path d="M112,210 C 280,200 470,118 668,96" fill="none" stroke="#27406B" stroke-width="2.4"/>
+      <path d="M112,96 C 300,118 490,200 668,210" fill="none" stroke="#B26B1E" stroke-width="2.4"/>
+      <line x1="388" y1="150" x2="388" y2="232" stroke="#9a8" stroke-width="1" stroke-dasharray="3 3"/>
+      <circle cx="388" cy="150" r="3.5" fill="#141414"/>
+      <text x="388" y="142" text-anchor="middle" font-family="Charter,Georgia,serif" font-style="italic" font-size="14" fill="#3A3A3A">&#946;Star</text>
+      <text x="150" y="200" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13" fill="#27406B">smooth, tighter when soft</text>
+      <text x="455" y="205" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13" fill="#B26B1E">hard, tighter when sharp</text>
+      <text x="64" y="150" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="12" fill="#6E6E6E" transform="rotate(-90 64 150)">bound on the gap</text>
+      <text x="390" y="258" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#6E6E6E">routing sharpness &#946;, increasing to the right</text>
+    </svg>
+  </div>
+  <p class="cap">Smooth wins when routing is soft, hard wins when it is sharp, and βStar is where they cross. Both bound the same routed-symbol gap.</p>
+</section>
+
+<section>
+  <h2>Deeper and wider each strictly buy expressivity.</h2>
+  <p>For the constrained routed model, adding one layer of depth strictly enlarges the routes the network can express, at every level, and so does adding one unit of width. These are proved strict separations: real routes that the shallower or narrower model provably cannot express, not gaps left open.</p>
+  <p>Under full self-attention, where the scores are quadratic, the picture splits. The cells become non-convex, yet the model stays learnable, because polynomial scores are finite-dimensional and so the class still has finite VC. The general-depth self-attention separation is the named open step.</p>
+  <div class="fig">
+    <svg viewBox="0 0 760 250" role="img" aria-label="Rising bars for depth 0 through 3, each strictly taller than the last, with the strict-subset symbol between them; expressivity grows with depth.">
+      <line x1="92" y1="216" x2="690" y2="216" stroke="#C9C7C0" stroke-width="1"/>
+      <rect x="120" y="172" width="92" height="44" rx="4" fill="#EAF0EC" stroke="#2F6F4F" stroke-width="1"/>
+      <rect x="262" y="132" width="92" height="84" rx="4" fill="#DCE9E1" stroke="#2F6F4F" stroke-width="1"/>
+      <rect x="404" y="92" width="92" height="124" rx="4" fill="#CFE2D6" stroke="#2F6F4F" stroke-width="1"/>
+      <rect x="546" y="52" width="92" height="164" rx="4" fill="#C2DBCB" stroke="#2F6F4F" stroke-width="1"/>
+      <text x="166" y="236" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13" fill="#3A3A3A">depth 0</text>
+      <text x="308" y="236" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13" fill="#3A3A3A">depth 1</text>
+      <text x="450" y="236" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13" fill="#3A3A3A">depth 2</text>
+      <text x="592" y="236" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13" fill="#3A3A3A">depth 3</text>
+      <text x="237" y="160" text-anchor="middle" font-family="Charter,Georgia,serif" font-size="16" fill="#6E6E6E">&#8842;</text>
+      <text x="379" y="120" text-anchor="middle" font-family="Charter,Georgia,serif" font-size="16" fill="#6E6E6E">&#8842;</text>
+      <text x="521" y="80" text-anchor="middle" font-family="Charter,Georgia,serif" font-size="16" fill="#6E6E6E">&#8842;</text>
+      <text x="64" y="134" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-size="12" fill="#6E6E6E" transform="rotate(-90 64 134)">routes realizable</text>
+    </svg>
+  </div>
+  <p class="cap">Each added layer strictly enlarges the realizable routes; width does the same (arity n strictly inside arity n+1). Under self-attention the cells go non-convex but stay learnable, and the general-depth case is the open step.</p>
+</section>
+
+<section>
+  <h2>Machine-checked, with nothing hidden.</h2>
+  <p>Every result is verified in the Lean kernel with no use of <code>sorry</code>, and reduces to three standard logical axioms with nothing added. Where a step is still conditional, it is stated as a hypothesis rather than folded into a hidden budget. The frontier is drawn on the same page as the results.</p>
+  <div class="frontier">
+    <p class="h">Stated as open, on the same page</p>
+    <ul>
+      <li>The single attention head's float32 rounding is derived to one atom; the depth stack still supplies its per-layer rounding.</li>
+      <li>Non-vacuity at depth is conditional on certified non-expansiveness; outside that regime the linear-in-depth bound does not apply.</li>
+      <li>The general-depth self-attention expressivity separation is open: the depth bound and the base rung are proved, an iterated-tent witness is the remaining step.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>Read it.</h2>
+  <p>The README is the full audit: every theorem, its module, its exact statement, its scope. Built by Dhruv Gupta, on his formal-learning-theory kernel, with TorchLean's executable neural-network semantics and the optimal-constant chaining of Zhang, Lee, and Liu, each used under license.</p>
+  <div class="doors">
+    <a href="https://github.com/Zetetic-Dhruv/transformer-learning-theory">Read the README</a>
+    <a href="https://zetetic-dhruv.github.io/transformer-learning-theory/">Browse the proofs</a>
+    <a href="https://github.com/Zetetic-Dhruv/transformer-learning-theory#citation">Cite</a>
+  </div>
+  <p class="slot">[First-person line reserved for Dhruv.]</p>
+</section>
+
+<footer>
+  Copyright 2026 Dhruv Gupta. Licensed under Apache 2.0. The README at the repository root remains the source of truth; this page points into it.
+</footer>
+
+</div>
+</body>
+</html>
