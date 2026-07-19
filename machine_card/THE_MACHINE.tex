@@ -76,4 +76,52 @@
 \vspace{3pt}
 {\scriptsize\color{grey} Kernel-checked in Lean 4 over Mathlib; every theorem's axiom footprint is the standard triple or less; the causal and exchange instances above are computed end-to-end by the checker's decision procedure. Selection, prices, and budgets are equalities. The weight stratum, distributional refinements, and the exact price law of experiments are stated obligations of the next construction, not properties claimed here.}
 
+\newpage
+\begin{center}
+{\LARGE\bfseries The Second Storey}\quad{\large metaprogram retrieval, and the limits of finiteness}
+\end{center}
+\vspace{1pt}
+{\color{ink}\hrule height 0.8pt}
+\vspace{4pt}
+\textbf{The argument.} A retrieved model can be accepted as the \emph{anchor} of a next store, whose candidates are modifiers: codes that apply to the anchor and run. The anchored decode is a decode, so a store of modifiers is a store, and retrieval one storey up is the same machine. The query ``here is my model, retrieve the modifier meeting my new conditions without touching the structure I accepted'' is ordinary retrieval at the second storey; the loop of retrieve, accept, retrieve closes into a cascade.
+\vspace{4pt}
+\begin{center}
+\includegraphics[width=0.99\textwidth]{machine_cascade.pdf}
+\end{center}
+\vspace{-1pt}
+{\color{ink}\hrule height 0.8pt}
+\vspace{2pt}
+\footnotesize
+\begin{multicols}{2}
+\begin{enumerate}[label=\textbf{M\arabic*.},leftmargin=2.1em,itemsep=0.7pt,parsep=0pt]
+\item \textbf{Laws at every storey.} Every anchored store, for every anchor and every family of modifiers, carries the complete characterization, the full geometry, and the whole query calculus of pages one and three. The analysis of the machine is storey independent: one theorem covers all levels at once.
+\item \textbf{Flat where it computes, stacked where it certifies.} Composing anchorings is, definitionally, one anchoring at the composed application: the cascade is a single store at the level of computation. What stacks is the certificate chain: each acceptance freezes an anchor, and every downstream certificate is conditional on the accepts below it.
+\item \textbf{The chained certificate carries the freeze.} A base retrieval and an anchored retrieval certify jointly: the anchor fits its evidence, the modifier fits its evidence at that anchor, and each is its own stage's least survivor. The greedy selection is part of the certificate, not an unstated convention.
+\item \textbf{Grandfathering, with an exact drift budget.} An accepted anchor survives new evidence exactly while its index survives, and while it does, everything built on it stands unchanged. The anchor itself is revised at most once per distinct model held: the model-grain revision law, read at the base store.
+\item \textbf{Correctness is evidence.} A modifier meets a specified behavior on given inputs exactly when it fits the words assembled from that specification. Checking a candidate surgery against its specification is a run of the machine on specification words, and the resulting certificate says so: agreement with the specification, never truth about the world.
+\item \textbf{Where finiteness ends.} At a countably infinite store, identification on realizable streams survives (the ordering of the indices replaces the finite count), and the per-word laws survive with it. What dies is exactly the uniform part: no store-size bound on revisions exists, unconditional settling fails off realizability, and selection is no longer computable, only specifiable. Finiteness is the price of the uniform, exact laws; it was never the price of identification.
+\end{enumerate}
+\end{multicols}
+\vspace{-2pt}
+{\color{ink}\hrule height 0.8pt}
+\vspace{2pt}
+{\scriptsize\color{grey} Modifier stores obey the machine's own guard: candidates are codes as data (unrestricted modifier families collapse the storeys in one step). Retrieval over level-sorted modifiers returns the least-level fit; anchoring adds nothing to the selection price, and execution pays the two-level product. Adjacent frameworks (adapter fine-tuning, library learning, partial evaluation, knowledge compilation, specification monads) share the shape; none certifies its retrieval or prices it exactly.}
+
+\newpage
+\begin{center}
+{\LARGE\bfseries The Witness, by Construction}\quad{\large one causal question through every storey}
+\end{center}
+\vspace{1pt}
+{\color{ink}\hrule height 0.8pt}
+\vspace{4pt}
+Every table cell and every survivor-set transition in the figure below is evaluated inside the proof checker. The figure does not illustrate the argument: it exhibits it. Reading the tables and checking each elimination by hand reproduces the proofs. Three rival mechanisms are indistinguishable under observation; one correctly chosen intervention answers the pressing question while two suspects still stand; the second intervention identifies the mechanism; the accepted mechanism anchors a store of surgeries from which the requested modifier is retrieved on specification words, with a joint, conditional certificate; and two mechanisms agreeing under every separate intervention are told apart only by the twin question that binds one hidden seed across two regimes.
+\vspace{5pt}
+\begin{center}
+\includegraphics[width=0.99\textwidth]{machine_witness.pdf}
+\end{center}
+\vspace{2pt}
+{\color{ink}\hrule height 0.8pt}
+\vspace{2pt}
+{\scriptsize\color{grey} The three storeys of the figure are the three rungs of causal reasoning, executed by the one machine of page one: passive observation (dark until intervention), intervention (answered before identified, at exact word prices, or free from memory), and counterfactual (separated only by the twin word). The mechanisms are deterministic with fixed defaults; distributional refinement and the general price law of experiments are obligations of the next construction. Structural rewrite rules over an accepted graph are a named obligation, not used here.}
+
 \end{document}

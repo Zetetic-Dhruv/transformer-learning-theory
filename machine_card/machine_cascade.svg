@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="1660" height="600" viewBox="0 0 1660 600">
+<defs>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="a0">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#22223b" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="a1">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#0f766e" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="a2">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#1d4ed8" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="a3">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#b45309" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="a4">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#b91c1c" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="a5">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#8a8fa3" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="a6">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#15803d" />
+</marker>
+</defs>
+<rect x="0" y="0" width="1660" height="600" fill="white" />
+<use xlink:href="#a0" />
+<use xlink:href="#a1" />
+<use xlink:href="#a2" />
+<use xlink:href="#a3" />
+<use xlink:href="#a4" />
+<use xlink:href="#a5" />
+<use xlink:href="#a6" />
+<rect x="40" y="120" width="360" height="170" rx="9" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.6" />
+<text x="220" y="145" font-size="16" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">STOREY 0 · the model store</text>
+<text x="220" y="165" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">decode D · candidates are models</text>
+<rect x="62" y="180" width="100" height="34" rx="7" fill="white" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="112" y="201" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">model c1</text>
+<rect x="174" y="180" width="100" height="34" rx="7" fill="white" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="224" y="201" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">model c2</text>
+<rect x="286" y="180" width="100" height="34" rx="7" fill="white" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="336" y="201" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">model c3</text>
+<rect x="62" y="232" width="100" height="26" rx="13" fill="#eaf6ee" stroke="#15803d" stroke-width="1.2" />
+<text x="112" y="249" font-size="9.5" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="normal">characterization</text>
+<rect x="174" y="232" width="100" height="26" rx="13" fill="#eaf6ee" stroke="#15803d" stroke-width="1.2" />
+<text x="224" y="249" font-size="9.5" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="normal">geometry</text>
+<rect x="286" y="232" width="100" height="26" rx="13" fill="#eaf6ee" stroke="#15803d" stroke-width="1.2" />
+<text x="336" y="249" font-size="9.5" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="normal">query calculus</text>
+<text x="220" y="278" font-size="10" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">the same three law cards, stamped at this storey</text>
+<rect x="650" y="120" width="360" height="170" rx="9" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.6" />
+<text x="830" y="145" font-size="16" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">STOREY 1 · metaprograms over c0</text>
+<text x="830" y="165" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">decode = apply to c0, then run</text>
+<rect x="672" y="180" width="100" height="34" rx="7" fill="white" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="722" y="201" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">modifier e0</text>
+<rect x="784" y="180" width="100" height="34" rx="7" fill="white" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="834" y="201" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">modifier e1</text>
+<rect x="896" y="180" width="100" height="34" rx="7" fill="white" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="946" y="201" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">modifier e2</text>
+<rect x="672" y="232" width="100" height="26" rx="13" fill="#eaf6ee" stroke="#15803d" stroke-width="1.2" />
+<text x="722" y="249" font-size="9.5" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="normal">characterization</text>
+<rect x="784" y="232" width="100" height="26" rx="13" fill="#eaf6ee" stroke="#15803d" stroke-width="1.2" />
+<text x="834" y="249" font-size="9.5" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="normal">geometry</text>
+<rect x="896" y="232" width="100" height="26" rx="13" fill="#eaf6ee" stroke="#15803d" stroke-width="1.2" />
+<text x="946" y="249" font-size="9.5" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="normal">query calculus</text>
+<text x="830" y="278" font-size="10" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">the same three law cards, stamped at this storey</text>
+<rect x="1260" y="120" width="360" height="170" rx="9" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.6" />
+<text x="1440" y="145" font-size="16" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">STOREY 2 · and so on</text>
+<text x="1440" y="165" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">decode = apply to e, then run</text>
+<rect x="1282" y="180" width="100" height="34" rx="7" fill="white" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="1332" y="201" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">modifier f0</text>
+<rect x="1394" y="180" width="100" height="34" rx="7" fill="white" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="1444" y="201" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">modifier f1</text>
+<rect x="1506" y="180" width="100" height="34" rx="7" fill="white" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="1556" y="201" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">…</text>
+<rect x="1282" y="232" width="100" height="26" rx="13" fill="#eaf6ee" stroke="#15803d" stroke-width="1.2" />
+<text x="1332" y="249" font-size="9.5" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="normal">characterization</text>
+<rect x="1394" y="232" width="100" height="26" rx="13" fill="#eaf6ee" stroke="#15803d" stroke-width="1.2" />
+<text x="1444" y="249" font-size="9.5" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="normal">geometry</text>
+<rect x="1506" y="232" width="100" height="26" rx="13" fill="#eaf6ee" stroke="#15803d" stroke-width="1.2" />
+<text x="1556" y="249" font-size="9.5" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="normal">query calculus</text>
+<text x="1440" y="278" font-size="10" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">the same three law cards, stamped at this storey</text>
+<path d="M402,205 L648,205" stroke="#22223b" stroke-width="2.6" fill="none" marker-end="url(#a0)" />
+<rect x="470" y="186" width="116" height="38" rx="19" fill="white" stroke="#22223b" stroke-width="1.6" />
+<text x="528" y="205" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">ACCEPT c0</text>
+<text x="528" y="218" font-size="9.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">a capacity write</text>
+<path d="M1012,205 L1258,205" stroke="#22223b" stroke-width="2.6" fill="none" marker-end="url(#a0)" />
+<rect x="1080" y="186" width="116" height="38" rx="19" fill="white" stroke="#22223b" stroke-width="1.6" />
+<text x="1138" y="205" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">ACCEPT e</text>
+<text x="1138" y="218" font-size="9.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">a capacity write</text>
+<rect x="40" y="340" width="1580" height="64" rx="10" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.6" />
+<text x="830" y="368" font-size="13" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">FLAT WHERE IT COMPUTES:  a storey over a storey is one storey at the composed application  ·  anchored(anchored(D, f), g) = anchored(D, f ∘ g)  ·  one machine, definitionally</text>
+<text x="830" y="388" font-size="11" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">the loop of retrieve, accept, retrieve is algebraically a single store</text>
+<path d="M220,292 L220,340" stroke="#8a8fa3" stroke-width="1.6" fill="none" stroke-dasharray="5,4" marker-end="url(#a5)" />
+<path d="M830,292 L830,340" stroke="#8a8fa3" stroke-width="1.6" fill="none" stroke-dasharray="5,4" marker-end="url(#a5)" />
+<path d="M1440,292 L1440,340" stroke="#8a8fa3" stroke-width="1.6" fill="none" stroke-dasharray="5,4" marker-end="url(#a5)" />
+<rect x="40" y="434" width="1580" height="120" rx="10" fill="white" stroke="#b45309" stroke-width="1.6" />
+<text x="830" y="458" font-size="13.5" font-family="Helvetica" fill="#b45309" text-anchor="middle" font-weight="bold">STACKED WHERE IT CERTIFIES:  the certificate chain</text>
+<rect x="120" y="472" width="420" height="62" rx="8" fill="#fdf3e7" stroke="#b45309" stroke-width="1.2" />
+<text x="330" y="494" font-size="12.5" font-family="Helvetica" fill="#b45309" text-anchor="middle" font-weight="bold">certificate 0</text>
+<text x="330" y="514" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">model c0 fits the evidence; c0 is the least survivor</text>
+<path d="M544,503 L606,503" stroke="#b45309" stroke-width="2.2" fill="none" marker-end="url(#a3)" />
+<rect x="610" y="472" width="420" height="62" rx="8" fill="#fdf3e7" stroke="#b45309" stroke-width="1.2" />
+<text x="820" y="494" font-size="12.5" font-family="Helvetica" fill="#b45309" text-anchor="middle" font-weight="bold">certificate 1 | c0</text>
+<text x="820" y="514" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">modifier e fits the spec words at c0; e least survivor</text>
+<path d="M1034,503 L1096,503" stroke="#b45309" stroke-width="2.2" fill="none" marker-end="url(#a3)" />
+<rect x="1100" y="472" width="420" height="62" rx="8" fill="#fdf3e7" stroke="#b45309" stroke-width="1.2" />
+<text x="1310" y="494" font-size="12.5" font-family="Helvetica" fill="#b45309" text-anchor="middle" font-weight="bold">certificate 2 | c0, e</text>
+<text x="1310" y="514" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">and so on, each conditional on every accept below</text>
+<text x="830" y="578" font-size="11" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">grandfathering: an accepted anchor survives new evidence exactly while its index survives, and everything above it stands  ·  drift budget: at most one anchor revision per distinct model held</text>
+<text x="830" y="594" font-size="10" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">guard: modifier stores must be codes as data; unrestricted modifier families saturate in one step</text>
+</svg>

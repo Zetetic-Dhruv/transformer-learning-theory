@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="1660" height="780" viewBox="0 0 1660 780">
+<defs>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="a0">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#22223b" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="a1">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#0f766e" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="a2">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#1d4ed8" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="a3">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#b45309" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="a4">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#b91c1c" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="a5">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#8a8fa3" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="a6">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#15803d" />
+</marker>
+</defs>
+<rect x="0" y="0" width="1660" height="780" fill="white" />
+<use xlink:href="#a0" />
+<use xlink:href="#a1" />
+<use xlink:href="#a2" />
+<use xlink:href="#a3" />
+<use xlink:href="#a4" />
+<use xlink:href="#a5" />
+<use xlink:href="#a6" />
+<rect x="20" y="12" width="540" height="28" rx="14" fill="#1d4ed8" opacity="0.14" />
+<text x="290.0" y="31" font-size="15" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">STOREY 0 · retrieve the mechanism</text>
+<rect x="580" y="12" width="500" height="28" rx="14" fill="#b45309" opacity="0.14" />
+<text x="830.0" y="31" font-size="15" font-family="Helvetica" fill="#b45309" text-anchor="middle" font-weight="bold">ACCEPT · retrieve the surgery</text>
+<rect x="1100" y="12" width="540" height="28" rx="14" fill="#b91c1c" opacity="0.14" />
+<text x="1370.0" y="31" font-size="15" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="bold">THE THIRD RUNG · the twin word</text>
+<text x="290" y="66" font-size="11" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">decode table (kernel values)</text>
+<text x="40" y="84" font-size="13" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal"></text>
+<text x="175.0" y="78" font-size="10.5" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">read X</text>
+<text x="265.0" y="78" font-size="10.5" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">read Y</text>
+<text x="355.0" y="78" font-size="10.5" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">doX1·Y</text>
+<text x="445.0" y="78" font-size="10.5" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">doY1·X</text>
+<text x="85.0" y="103.0" font-size="11" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">M1: X→Y</text>
+<rect x="130" y="84" width="90" height="30" rx="3" fill="white" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="175.0" y="103.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">0</text>
+<rect x="220" y="84" width="90" height="30" rx="3" fill="white" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="265.0" y="103.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">0</text>
+<rect x="310" y="84" width="90" height="30" rx="3" fill="#fdecec" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="355.0" y="103.0" font-size="10.5" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">1</text>
+<rect x="400" y="84" width="90" height="30" rx="3" fill="white" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="445.0" y="103.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">0</text>
+<text x="85.0" y="133.0" font-size="11" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">M2: Y→X</text>
+<rect x="130" y="114" width="90" height="30" rx="3" fill="white" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="175.0" y="133.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">0</text>
+<rect x="220" y="114" width="90" height="30" rx="3" fill="white" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="265.0" y="133.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">0</text>
+<rect x="310" y="114" width="90" height="30" rx="3" fill="white" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="355.0" y="133.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">0</text>
+<rect x="400" y="114" width="90" height="30" rx="3" fill="#fdecec" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="445.0" y="133.0" font-size="10.5" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">1</text>
+<text x="85.0" y="163.0" font-size="11" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">M3: common</text>
+<rect x="130" y="144" width="90" height="30" rx="3" fill="white" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="175.0" y="163.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">0</text>
+<rect x="220" y="144" width="90" height="30" rx="3" fill="white" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="265.0" y="163.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">0</text>
+<rect x="310" y="144" width="90" height="30" rx="3" fill="white" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="355.0" y="163.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">0</text>
+<rect x="400" y="144" width="90" height="30" rx="3" fill="white" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="445.0" y="163.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">0</text>
+<rect x="40" y="200" width="300" height="46" rx="7" fill="white" stroke="#8a8fa3" stroke-width="1.3" />
+<text x="190" y="219" font-size="11" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">words (readX,0),(readY,0)</text>
+<text x="190" y="236" font-size="9.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">all rows read 0 on both</text>
+<rect x="360" y="204" width="180" height="38" rx="7" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="450" y="227" font-size="12.5" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">{M1, M2, M3}</text>
+<path d="M190,246 L190,262" stroke="#22223b" stroke-width="1.8" fill="none" marker-end="url(#a0)" />
+<rect x="40" y="262" width="300" height="46" rx="7" fill="white" stroke="#b91c1c" stroke-width="1.3" />
+<text x="190" y="281" font-size="11" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">+ word (doX1·Y, 0)</text>
+<text x="190" y="298" font-size="9.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">kills M1: its cell reads 1 ≠ 0</text>
+<rect x="360" y="266" width="180" height="38" rx="7" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="450" y="289" font-size="12.5" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">{M2, M3}</text>
+<path d="M190,308 L190,324" stroke="#22223b" stroke-width="1.8" fill="none" marker-end="url(#a0)" />
+<rect x="40" y="324" width="500" height="40" rx="7" fill="#eaf6ee" stroke="#15803d" stroke-width="1.3" />
+<text x="290" y="348" font-size="11.5" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="bold">query answered: survivors agree on doX1·Y = 0   (price 1, two survivors)</text>
+<path d="M190,364 L190,386" stroke="#22223b" stroke-width="1.8" fill="none" marker-end="url(#a0)" />
+<rect x="40" y="386" width="300" height="46" rx="7" fill="white" stroke="#b91c1c" stroke-width="1.3" />
+<text x="190" y="405" font-size="11" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">+ word (doY1·X, 0)</text>
+<text x="190" y="422" font-size="9.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">kills M2: its cell reads 1 ≠ 0</text>
+<rect x="360" y="390" width="180" height="38" rx="7" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="450" y="413" font-size="12.5" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">{M3}</text>
+<path d="M190,432 L190,448" stroke="#22223b" stroke-width="1.8" fill="none" marker-end="url(#a0)" />
+<rect x="40" y="448" width="500" height="40" rx="7" fill="#eaf6ee" stroke="#15803d" stroke-width="1.3" />
+<text x="290" y="472" font-size="11.5" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="bold">identified: M3   (price 2)</text>
+<path d="M544,480 L592,300" stroke="#b45309" stroke-width="2.6" fill="none" marker-end="url(#a3)" />
+<rect x="596" y="258" width="200" height="40" rx="20" fill="white" stroke="#22223b" stroke-width="1.6" />
+<text x="696" y="276" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">anchor := M3</text>
+<text x="696" y="291" font-size="9.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">(accepted; a capacity write)</text>
+<text x="830" y="330" font-size="11" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">surgery store at M3 (kernel values)</text>
+<text x="600" y="348" font-size="13" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal"></text>
+<text x="765.0" y="342" font-size="10.5" font-family="Helvetica" fill="#b45309" text-anchor="middle" font-weight="bold">read X</text>
+<text x="875.0" y="342" font-size="10.5" font-family="Helvetica" fill="#b45309" text-anchor="middle" font-weight="bold">read Y</text>
+<text x="655.0" y="367.0" font-size="11" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">e0 = do X:=1</text>
+<rect x="710" y="348" width="110" height="30" rx="3" fill="white" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="765.0" y="367.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">1</text>
+<rect x="820" y="348" width="110" height="30" rx="3" fill="white" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="875.0" y="367.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">0</text>
+<text x="655.0" y="397.0" font-size="11" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">e1 = do Y:=1</text>
+<rect x="710" y="378" width="110" height="30" rx="3" fill="#fdecec" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="765.0" y="397.0" font-size="10.5" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">0</text>
+<rect x="820" y="378" width="110" height="30" rx="3" fill="white" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="875.0" y="397.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">1</text>
+<rect x="600" y="420" width="460" height="44" rx="7" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.6" />
+<text x="830" y="438" font-size="11" font-family="Helvetica" fill="#0f766e" text-anchor="middle" font-weight="normal">specification (the tagged semantics of do X:=1):  X reads 1,  Y reads 0</text>
+<text x="830" y="455" font-size="10.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">coherence words fed as evidence:  (readX, 1), (readY, 0)</text>
+<rect x="600" y="480" width="460" height="46" rx="7" fill="white" stroke="#b91c1c" stroke-width="1.3" />
+<text x="830" y="499" font-size="11" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">(readX, 1) kills e1: its cell reads 0 ≠ 1</text>
+<text x="830" y="516" font-size="11" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">survivors {e0}  →  retrieved: e0 = the do X:=1 surgery</text>
+<rect x="600" y="542" width="460" height="60" rx="8" fill="#fdf3e7" stroke="#b45309" stroke-width="1.6" />
+<text x="830" y="562" font-size="12" font-family="Helvetica" fill="#b45309" text-anchor="middle" font-weight="bold">THE CHAINED CERTIFICATE</text>
+<text x="830" y="580" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">M3 fits the evidence  ∧  e0 fits the spec words at M3</text>
+<text x="830" y="595" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">and each is its stage’s least survivor: the freeze is certified</text>
+<text x="1370" y="66" font-size="11" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">response sets over the shared seed u (kernel values)</text>
+<text x="1110" y="84" font-size="13" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal"></text>
+<text x="1290.0" y="78" font-size="10.5" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="bold">[do X:=0]</text>
+<text x="1410.0" y="78" font-size="10.5" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="bold">[do X:=1]</text>
+<text x="1530.0" y="78" font-size="10.5" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="bold">twin [0,1]</text>
+<text x="1170.0" y="103.0" font-size="11" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">coupled</text>
+<rect x="1230" y="84" width="120" height="30" rx="3" fill="#eaf6ee" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="1290.0" y="103.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">{0},{1}</text>
+<rect x="1350" y="84" width="120" height="30" rx="3" fill="#eaf6ee" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="1410.0" y="103.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">{0},{1}</text>
+<rect x="1470" y="84" width="120" height="30" rx="3" fill="white" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="1530.0" y="103.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">{00},{11}</text>
+<text x="1170.0" y="133.0" font-size="11" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">anti</text>
+<rect x="1230" y="114" width="120" height="30" rx="3" fill="#eaf6ee" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="1290.0" y="133.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">{0},{1}</text>
+<rect x="1350" y="114" width="120" height="30" rx="3" fill="#eaf6ee" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="1410.0" y="133.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">{1},{0}</text>
+<rect x="1470" y="114" width="120" height="30" rx="3" fill="white" stroke="#8a8fa3" stroke-width="0.9" />
+<text x="1530.0" y="133.0" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">{01},{10}</text>
+<text x="1370" y="162" font-size="10.5" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="normal">single-regime columns: EQUAL as sets — dark</text>
+<text x="1370" y="178" font-size="10.5" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">twin column: DIFFERENT — the separator</text>
+<rect x="1110" y="200" width="500" height="88" rx="8" fill="white" stroke="#8a8fa3" stroke-width="1.6" />
+<text x="1360" y="222" font-size="11" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">every single-regime word keeps both mechanisms alive:</text>
+<text x="1360" y="239" font-size="11" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">dark at the entire per-regime interventional presentation</text>
+<text x="1360" y="258" font-size="9.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">(the banked dark-pair laws apply to this pair verbatim:</text>
+<text x="1360" y="272" font-size="9.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">co-survival on every sample, blindness at the limit)</text>
+<rect x="1110" y="304" width="500" height="76" rx="8" fill="#fdecec" stroke="#b91c1c" stroke-width="1.6" />
+<text x="1360" y="326" font-size="11.5" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="bold">buy the TWIN word: ([doX0, doX1], {00, 11})</text>
+<text x="1360" y="344" font-size="10" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">one seed bound across two regimes: the counterfactual question</text>
+<text x="1360" y="362" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">anti is killed; survivors {coupled}: the third rung, separated</text>
+<rect x="1110" y="396" width="500" height="70" rx="8" fill="#eaf6ee" stroke="#15803d" stroke-width="1.6" />
+<text x="1360" y="418" font-size="11" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="normal">answered after the twin, unanswered before it:</text>
+<text x="1360" y="436" font-size="10" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">the cross-regime read is constant on {coupled} and was not</text>
+<text x="1360" y="453" font-size="10" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">constant on {coupled, anti}: answered before identified, rung three</text>
+<text x="1360" y="500" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">L1  ⊊  L2  ⊊  L3,  executed:</text>
+<text x="1360" y="520" font-size="10.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">observation cannot separate what intervention can;</text>
+<text x="1360" y="536" font-size="10.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">per-regime intervention cannot separate what one twin word can</text>
+<path d="M20,700 L1640,700" stroke="#22223b" stroke-width="1.2" />
+<text x="830" y="726" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">Every table cell and every survivor-set transition above is evaluated inside the proof checker; the figure exhibits the proof.</text>
+<text x="830" y="748" font-size="10" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">scm_cycle_base · scm_cycle_anchored · scm_cycle_certified · scmL3_interventional_dark · scmL3_twin_separates · scmL3_twin_answers</text>
+<text x="830" y="764" font-size="9.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">(the first three and the collapse are axiom-free or propositional-extensionality only)</text>
+</svg>
