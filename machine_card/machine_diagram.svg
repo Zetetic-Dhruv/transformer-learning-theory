@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="1660" height="700" viewBox="0 0 1660 700">
+<defs>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah0">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#22223b" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah1">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#0f766e" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah2">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#1d4ed8" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah3">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#b45309" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah4">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#b91c1c" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah5">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#8a8fa3" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah6">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#15803d" />
+</marker>
+</defs>
+<rect x="0" y="0" width="1660" height="700" fill="white" />
+<use xlink:href="#ah0" />
+<use xlink:href="#ah1" />
+<use xlink:href="#ah2" />
+<use xlink:href="#ah3" />
+<use xlink:href="#ah4" />
+<use xlink:href="#ah5" />
+<use xlink:href="#ah6" />
+<rect x="18" y="14" width="360" height="30" rx="15" fill="#0f766e" opacity="0.14" />
+<text x="198.0" y="35" font-size="17" font-family="Helvetica" fill="#0f766e" text-anchor="middle" font-weight="bold">INPUT  ·  assembly of words</text>
+<rect x="400" y="14" width="700" height="30" rx="15" fill="#1d4ed8" opacity="0.14" />
+<text x="750.0" y="35" font-size="17" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">PROCESSING  ·  the version space</text>
+<rect x="1122" y="14" width="520" height="30" rx="15" fill="#b45309" opacity="0.14" />
+<text x="1382.0" y="35" font-size="17" font-family="Helvetica" fill="#b45309" text-anchor="middle" font-weight="bold">OUTPUT  ·  certificate and reads</text>
+<rect x="30" y="70" width="330" height="84" rx="9" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.6" />
+<text x="195" y="92" font-size="15" font-family="Helvetica" fill="#0f766e" text-anchor="middle" font-weight="bold">live context  s</text>
+<rect x="52" y="104" width="88" height="36" rx="7" fill="white" stroke="#0f766e" stroke-width="1.2" />
+<text x="96" y="124" font-size="13.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">(x₁,y₁)</text>
+<rect x="74" y="96" width="44" height="15" rx="7" fill="#0f766e" stroke="#0f766e" stroke-width="1.6" />
+<text x="96" y="107.5" font-size="10" font-family="Helvetica" fill="white" text-anchor="middle" font-weight="normal">obs</text>
+<rect x="154" y="104" width="88" height="36" rx="7" fill="white" stroke="#0f766e" stroke-width="1.2" />
+<text x="198" y="124" font-size="13.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">(x₂,y₂)</text>
+<rect x="176" y="96" width="44" height="15" rx="7" fill="#0f766e" stroke="#0f766e" stroke-width="1.6" />
+<text x="198" y="107.5" font-size="10" font-family="Helvetica" fill="white" text-anchor="middle" font-weight="normal">do</text>
+<rect x="256" y="104" width="88" height="36" rx="7" fill="white" stroke="#0f766e" stroke-width="1.2" />
+<text x="300" y="124" font-size="13.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">(x₃,y₃)</text>
+<rect x="278" y="96" width="44" height="15" rx="7" fill="#0f766e" stroke="#0f766e" stroke-width="1.6" />
+<text x="300" y="107.5" font-size="10" font-family="Helvetica" fill="white" text-anchor="middle" font-weight="normal">+/-</text>
+<text x="195" y="168" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">tags are alphabet content: observational, interventional, negated</text>
+<rect x="30" y="196" width="330" height="92" rx="9" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.6" />
+<text x="195" y="218" font-size="14.5" font-family="Helvetica" fill="#0f766e" text-anchor="middle" font-weight="bold">capacity memory   mem : key → stored trace</text>
+<rect x="52" y="230" width="130" height="40" rx="7" fill="white" stroke="#0f766e" stroke-width="1.2" />
+<text x="117" y="253" font-size="13" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">ℓ ↦ [(x,y),…]</text>
+<rect x="200" y="230" width="138" height="40" rx="7" fill="white" stroke="#0f766e" stroke-width="1.2" />
+<text x="269" y="245" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">a label is a</text>
+<text x="269" y="260" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">pre-purchased experiment</text>
+<rect x="150" y="316" width="120" height="44" rx="22" fill="white" stroke="#22223b" stroke-width="1.6" />
+<text x="210" y="334" font-size="14" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">assemble</text>
+<text x="210" y="351" font-size="12.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">s ++ mem ℓ</text>
+<path d="M195,154 L205,316" stroke="#0f766e" stroke-width="2.2" fill="none" marker-end="url(#ah1)" />
+<path d="M195,288 L205,316" stroke="#0f766e" stroke-width="2.2" fill="none" marker-end="url(#ah1)" />
+<path d="M270,338 L400,338" stroke="#22223b" stroke-width="2.6" fill="none" marker-end="url(#ah0)" />
+<text x="210" y="386" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">the interface never grows: a list of words in</text>
+<rect x="420" y="64" width="300" height="46" rx="8" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.6" />
+<text x="570" y="84" font-size="13.5" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="normal">threaded automaton (sequential state)</text>
+<text x="570" y="100" font-size="11" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">reads order</text>
+<rect x="760" y="64" width="300" height="46" rx="8" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.6" />
+<text x="910" y="84" font-size="13.5" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="normal">order-free pool (commutative merge)</text>
+<text x="910" y="100" font-size="11" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">order-blind</text>
+<text x="740" y="92" font-size="22" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">=</text>
+<text x="740" y="130" font-size="12" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="normal">one function, two machines</text>
+<rect x="436" y="172" width="68" height="200" rx="12" fill="white" stroke="#1d4ed8" stroke-width="1.8" />
+<text x="470" y="162" font-size="13.5" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">V₀</text>
+<circle cx="470" cy="200" r="8.5" fill="#1d4ed8" />
+<circle cx="470" cy="238" r="8.5" fill="#1d4ed8" />
+<circle cx="470" cy="276" r="8.5" fill="#1d4ed8" />
+<circle cx="470" cy="314" r="8.5" fill="#1d4ed8" />
+<circle cx="470" cy="352" r="8.5" fill="#1d4ed8" />
+<rect x="586" y="172" width="68" height="200" rx="12" fill="white" stroke="#1d4ed8" stroke-width="1.8" />
+<text x="620" y="162" font-size="13.5" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">V₁</text>
+<circle cx="620" cy="200" r="8.5" fill="#1d4ed8" />
+<circle cx="620" cy="238" r="8.5" fill="white" stroke="#8a8fa3" stroke-width="1.6" />
+<path d="M615,233 L625,243" stroke="#b91c1c" stroke-width="1.8" />
+<circle cx="620" cy="276" r="8.5" fill="#1d4ed8" />
+<circle cx="620" cy="314" r="8.5" fill="#1d4ed8" />
+<circle cx="620" cy="352" r="8.5" fill="#1d4ed8" />
+<rect x="736" y="172" width="68" height="200" rx="12" fill="white" stroke="#1d4ed8" stroke-width="1.8" />
+<text x="770" y="162" font-size="13.5" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">V₂</text>
+<circle cx="770" cy="200" r="8.5" fill="#1d4ed8" />
+<circle cx="770" cy="238" r="8.5" fill="white" stroke="#8a8fa3" stroke-width="1.6" />
+<path d="M765,233 L775,243" stroke="#b91c1c" stroke-width="1.8" />
+<circle cx="770" cy="276" r="8.5" fill="#1d4ed8" />
+<circle cx="770" cy="314" r="8.5" fill="white" stroke="#8a8fa3" stroke-width="1.6" />
+<path d="M765,309 L775,319" stroke="#b91c1c" stroke-width="1.8" />
+<circle cx="770" cy="352" r="8.5" fill="#1d4ed8" />
+<rect x="886" y="172" width="68" height="200" rx="12" fill="white" stroke="#1d4ed8" stroke-width="1.8" />
+<text x="920" y="162" font-size="13.5" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">V₃</text>
+<circle cx="920" cy="200" r="8.5" fill="white" stroke="#8a8fa3" stroke-width="1.6" />
+<path d="M915,195 L925,205" stroke="#b91c1c" stroke-width="1.8" />
+<circle cx="920" cy="238" r="8.5" fill="white" stroke="#8a8fa3" stroke-width="1.6" />
+<path d="M915,233 L925,243" stroke="#b91c1c" stroke-width="1.8" />
+<circle cx="920" cy="276" r="8.5" fill="#1d4ed8" />
+<circle cx="920" cy="314" r="8.5" fill="white" stroke="#8a8fa3" stroke-width="1.6" />
+<path d="M915,309 L925,319" stroke="#b91c1c" stroke-width="1.8" />
+<circle cx="920" cy="352" r="8.5" fill="#1d4ed8" />
+<path d="M510,266 L578,266" stroke="#22223b" stroke-width="2.4" fill="none" marker-end="url(#ah0)" />
+<text x="545.0" y="256" font-size="13" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">w₁</text>
+<text x="545.0" y="284" font-size="10" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">keep-filter</text>
+<path d="M660,266 L728,266" stroke="#22223b" stroke-width="2.4" fill="none" marker-end="url(#ah0)" />
+<text x="695.0" y="256" font-size="13" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">w₂</text>
+<text x="695.0" y="284" font-size="10" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">keep-filter</text>
+<path d="M810,266 L878,266" stroke="#22223b" stroke-width="2.4" fill="none" marker-end="url(#ah0)" />
+<text x="845.0" y="256" font-size="13" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">w₃</text>
+<text x="845.0" y="284" font-size="10" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">keep-filter</text>
+<text x="695" y="406" font-size="12.5" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="normal">candidates only leave, never return:  V₀ ⊇ V₁ ⊇ V₂ ⊇ V₃</text>
+<path d="M470,112 L470,158" stroke="#8a8fa3" stroke-width="1.6" fill="none" stroke-dasharray="5,4" marker-end="url(#ah5)" />
+<path d="M620,112 L620,158" stroke="#8a8fa3" stroke-width="1.6" fill="none" stroke-dasharray="5,4" marker-end="url(#ah5)" />
+<path d="M770,112 L770,158" stroke="#8a8fa3" stroke-width="1.6" fill="none" stroke-dasharray="5,4" marker-end="url(#ah5)" />
+<path d="M920,112 L920,158" stroke="#8a8fa3" stroke-width="1.6" fill="none" stroke-dasharray="5,4" marker-end="url(#ah5)" />
+<text x="740" y="152" font-size="12" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">every internal state decodes, certified, to the survivor set (white box)</text>
+<rect x="420" y="458" width="640" height="58" rx="9" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.6" />
+<text x="740" y="481" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">SUPPORT: which candidates survive     |     WEIGHTS: scores and margins</text>
+<text x="740" y="501" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">the hard channel reads support only; tempering and training move weights only</text>
+<path d="M695,428 L695,458" stroke="#8a8fa3" stroke-width="1.6" fill="none" stroke-dasharray="4,4" marker-end="url(#ah5)" />
+<path d="M400,338 L436,300" stroke="#22223b" stroke-width="2.6" fill="none" marker-end="url(#ah0)" />
+<rect x="1140" y="70" width="210" height="120" rx="9" fill="#fdf3e7" stroke="#b45309" stroke-width="1.6" />
+<text x="1245" y="92" font-size="15" font-family="Helvetica" fill="#b45309" text-anchor="middle" font-weight="bold">certificate</text>
+<text x="1245" y="112" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">V(s) itself is output:</text>
+<circle cx="1215" cy="132" r="0" fill="none" />
+<circle cx="1215" cy="156" r="0" fill="none" />
+<circle cx="1220" cy="140" r="8" fill="#1d4ed8" />
+<circle cx="1250" cy="140" r="8" fill="#1d4ed8" />
+<circle cx="1280" cy="140" r="8" fill="white" stroke="#8a8fa3" stroke-width="1.5" />
+<text x="1245" y="172" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">checkable by anyone</text>
+<path d="M960,266 L1140,140" stroke="#b45309" stroke-width="2.4" fill="none" marker-end="url(#ah3)" />
+<rect x="1400" y="70" width="230" height="120" rx="9" fill="#fdf3e7" stroke="#b45309" stroke-width="1.6" />
+<text x="1515" y="92" font-size="15" font-family="Helvetica" fill="#b45309" text-anchor="middle" font-weight="bold">selection head</text>
+<text x="1515" y="113" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">least surviving index</text>
+<text x="1515" y="133" font-size="13.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">some c   |   none</text>
+<text x="1515" y="155" font-size="11" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">Occam optimum; softmax top-1</text>
+<text x="1515" y="169" font-size="11" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">at every temperature</text>
+<path d="M1350,130 L1400,130" stroke="#b45309" stroke-width="2.2" fill="none" marker-end="url(#ah3)" />
+<rect x="1140" y="220" width="490" height="108" rx="10" fill="white" stroke="#b45309" stroke-width="1.6" />
+<text x="1385" y="242" font-size="13.5" font-family="Helvetica" fill="#b45309" text-anchor="middle" font-weight="bold">reads: functionals of the certificate</text>
+<rect x="1160" y="254" width="108" height="58" rx="7" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="1214" y="276" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">exists?</text>
+<text x="1214" y="293" font-size="10.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">flips ≤ once</text>
+<rect x="1282" y="254" width="108" height="58" rx="7" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="1336" y="276" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">count</text>
+<text x="1336" y="293" font-size="10.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">one drop per death</text>
+<rect x="1404" y="254" width="108" height="58" rx="7" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="1458" y="276" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">answer q</text>
+<text x="1458" y="293" font-size="10.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">answered iff</text>
+<text x="1458" y="305" font-size="10.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">survivors agree</text>
+<rect x="1526" y="254" width="92" height="58" rx="7" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="1572" y="276" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="bold">select</text>
+<text x="1572" y="293" font-size="10.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">≤ #models</text>
+<text x="1572" y="305" font-size="10.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">revisions</text>
+<rect x="1140" y="352" width="490" height="92" rx="10" fill="white" stroke="#15803d" stroke-width="1.6" />
+<text x="1385" y="374" font-size="13.5" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="bold">answered before identified</text>
+<circle cx="1210" cy="405" r="9" fill="#1d4ed8" />
+<text x="1210" y="430" font-size="11" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">M₂</text>
+<circle cx="1250" cy="405" r="9" fill="#1d4ed8" />
+<text x="1250" y="430" font-size="11" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">M₃</text>
+<text x="1420" y="402" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">↦  same answer  ⇒  query certified</text>
+<text x="1420" y="424" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">two survivors  ⇒  model still unknown</text>
+<rect x="1140" y="466" width="490" height="108" rx="10" fill="white" stroke="#b91c1c" stroke-width="1.6" />
+<text x="1385" y="488" font-size="13" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="bold">causal words: the smallest honest witness</text>
+<ellipse cx="1230" cy="528" rx="78" ry="30" fill="none" stroke="#8a8fa3" stroke-width="1.5" stroke-dasharray="5,4" />
+<circle cx="1180" cy="528" r="10" fill="white" stroke="#22223b" stroke-width="1.6" />
+<text x="1180" y="556" font-size="10" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">X→Y</text>
+<circle cx="1230" cy="528" r="10" fill="white" stroke="#22223b" stroke-width="1.6" />
+<text x="1230" y="556" font-size="10" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">Y→X</text>
+<circle cx="1280" cy="528" r="10" fill="white" stroke="#22223b" stroke-width="1.6" />
+<text x="1280" y="556" font-size="10" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">U</text>
+<text x="1230" y="505" font-size="10" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">dark under observation</text>
+<path d="M1318,528 L1372,528" stroke="#b91c1c" stroke-width="2.2" fill="none" marker-end="url(#ah4)" />
+<text x="1345" y="518" font-size="11" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">do X:=1</text>
+<text x="1500" y="515" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">query answered: 1 word</text>
+<text x="1500" y="534" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">model identified: 2 words</text>
+<text x="1500" y="553" font-size="12" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="bold">from memory: 0 words</text>
+<path d="M60,636 L1600,636" stroke="#22223b" stroke-width="2.4" fill="none" marker-end="url(#ah0)" />
+<text x="60" y="606" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="start" font-weight="bold">the run, in time</text>
+<path d="M180,627 L180,645" stroke="#22223b" stroke-width="2" />
+<text x="180" y="664" font-size="11" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">revision 1</text>
+<path d="M330,627 L330,645" stroke="#22223b" stroke-width="2" />
+<text x="330" y="664" font-size="11" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">revision 2</text>
+<path d="M480,627 L480,645" stroke="#22223b" stroke-width="2" />
+<text x="480" y="664" font-size="11" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">… ≤ #models total</text>
+<path d="M700,624 L700,648" stroke="#b91c1c" stroke-width="3" />
+<text x="700" y="664" font-size="11" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">falsified ⇒ forever</text>
+<text x="700" y="618" font-size="10" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">(one-way door)</text>
+<path d="M1000,624 L1000,648" stroke="#15803d" stroke-width="3" />
+<text x="1000" y="664" font-size="11" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="normal">settling time N: every dial freezes at once</text>
+<circle cx="1430" cy="636" r="7" fill="#22223b" />
+<text x="1430" y="664" font-size="11" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">limit decode</text>
+<text x="1430" y="618" font-size="10.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">fixed by no finite prefix; captured by one ⋃⋂ of finite events</text>
+</svg>

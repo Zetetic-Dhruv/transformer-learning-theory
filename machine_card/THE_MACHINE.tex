@@ -1,0 +1,79 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=1.25cm,top=0.9cm,bottom=0.85cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\definecolor{ink}{HTML}{22223B}
+\definecolor{teal}{HTML}{0F766E}
+\definecolor{blue}{HTML}{1D4ED8}
+\definecolor{amber}{HTML}{B45309}
+\definecolor{grey}{HTML}{6B7280}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries The Model Store}\quad{\large a certified retrieval machine}\\[2pt]
+{\small\color{grey} A constructed object. Every property below is a machine-checked theorem, exact rather than asymptotic; the stated instances execute inside the proof checker.}
+\end{center}
+
+\vspace{2pt}
+{\color{ink}\hrule height 0.8pt}
+\vspace{3pt}
+
+\textbf{The object.} A finite list of candidate models $c_1,\dots,c_k$, each a program $D\,c : X \to Y$, operated as a retrieval machine over observation words.
+
+\vspace{2pt}
+\small
+\begin{minipage}[t]{0.31\textwidth}
+\textbf{\color{teal}INPUT.} A context: a finite list of words $(x,y)$, assembled from live evidence and from memory (a label is a key whose stored trace is appended to the context). Tags on words carry observational, interventional, and negated readings. The interface is this one list type; it never grows.
+\end{minipage}\hfill
+\begin{minipage}[t]{0.33\textwidth}
+\textbf{\color{blue}PROCESSING.} Maintain the \emph{version space} $V(s)$: the candidates consistent with every word so far. One observation is one keep-filter; the space only shrinks. Computed by a sequential state machine or by an order-free commutative merge, which agree on every context. Every internal state decodes, with a checked certificate, to $V(s)$.
+\end{minipage}\hfill
+\begin{minipage}[t]{0.31\textwidth}
+\textbf{\color{amber}OUTPUT.} The least-indexed survivor (or \emph{none}), together with $V(s)$ itself as the certificate. All further answers are reads of the certificate: existence, counts, and per-model query functionals, each certified against every survivor.
+\end{minipage}
+
+\normalsize\vspace{2pt}
+\begin{center}
+\includegraphics[width=0.93\textwidth]{machine_diagram.pdf}
+\end{center}
+\vspace{-2pt}
+
+{\color{ink}\hrule height 0.8pt}
+\vspace{4pt}
+\begin{center}\textbf{PROVEN PROPERTIES}\end{center}
+\vspace{-7pt}
+\footnotesize
+\begin{multicols}{2}
+\begin{enumerate}[label=\textbf{P\arabic*.},leftmargin=2.1em,itemsep=0.7pt,parsep=0pt]
+\item \textbf{One function, two machines.} The threaded state machine and the order-free merge compute the same answer on every context, for every store, with no side condition.
+\item \textbf{White box.} Every reachable internal state decodes to the survivor set, and any two faithful decodings agree along the run: there is no hidden internal freedom.
+\item \textbf{Exact capacity price.} The smallest machine reproducing the store's answers has size exactly the number of reachable survivor configurations. Sequential state count and parallel width times precision are the same price in two currencies, exchanged by complementation.
+\item \textbf{Order is a resource.} Order-free processing recovers everything determined by the survivor set and provably cannot recover the order of eliminations; a sequential pass recovers it exactly.
+\item \textbf{Exact revision budget.} The answer changes at most once per distinct model held, and an adversarial data order spends the whole budget. Duplicate encodings of one model never cost a revision.
+\item \textbf{Universal revision inheritance.} The survivor set itself changes at most $k$ times, and every read of it inherits that budget. The existence read flips at most once: refutation is permanent, consistency forever provisional.
+\item \textbf{Temperature-free Occam selection.} The output is at once the least-indexed survivor, the optimum under every complexity-decreasing weighting, and the softmax top choice at every temperature. Hardening the soft regime moves only the weights, never the answer.
+\item \textbf{Dark knowledge located.} The weight stratum (scores, margins) is not a function of the survivor trajectory: two runs with identical survivor sets at every step can carry different weights. Everything the soft channel exposes beyond the answer lives in the losers.
+\item \textbf{Simultaneous settling.} On any unbounded stream the survivor set is eventually constant, and every readable dial freezes at one common time.
+\item \textbf{Identification at the limit.} If some candidate fits the whole stream, the limit answer is a candidate consistent with every prefix, reached within the revision budget. A target outside the list is approximated by the simplest consistent candidate, never identified: the machine's one boundary.
+\item \textbf{The limit, exactly bracketed.} No finite context determines the limit answer, yet the limit event is fully captured by one countable union of countable intersections of finite-context events.
+\item \textbf{Answered before identified.} A query is answered the moment all survivors agree on its value, with a certificate, possibly long before the model is pinned; answering can be strictly cheaper than identifying.
+\item \textbf{Labels are pre-purchased experiments.} A label's whole effect is the intersection law of its stored trace. It cannot separate candidates its stored words cannot kill, and a query can cost zero live words when the right experiment is already in memory.
+\item \textbf{Evidence of every polarity is alphabet content.} Demands to fail on a word, and words read under intervention, enter by recoding the alphabet; every property above transfers to the recoded store unchanged. On the smallest causal store, mechanisms indistinguishable under observation are separated by one interventional word: the query is answered at price one, the model identified at price two, and the same query costs zero from memory.
+\end{enumerate}
+\end{multicols}
+
+\vspace{-2pt}
+{\color{ink}\hrule height 0.8pt}
+\vspace{3pt}
+{\scriptsize\color{grey} Kernel-checked in Lean 4 over Mathlib; every theorem's axiom footprint is the standard triple or less; the causal and exchange instances above are computed end-to-end by the checker's decision procedure. Selection, prices, and budgets are equalities. The weight stratum, distributional refinements, and the exact price law of experiments are stated obligations of the next construction, not properties claimed here.}
+
+\end{document}
