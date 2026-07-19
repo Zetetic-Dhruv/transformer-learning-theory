@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="1660" height="620" viewBox="0 0 1660 620">
+<defs>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah0">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#22223b" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah1">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#0f766e" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah2">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#1d4ed8" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah3">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#b45309" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah4">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#b91c1c" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah5">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#8a8fa3" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah6">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#15803d" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah7">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#6d28d9" />
+</marker>
+</defs>
+<rect x="0" y="0" width="1660" height="620" fill="white" />
+<use xlink:href="#ah0" />
+<use xlink:href="#ah1" />
+<use xlink:href="#ah2" />
+<use xlink:href="#ah3" />
+<use xlink:href="#ah4" />
+<use xlink:href="#ah5" />
+<use xlink:href="#ah6" />
+<use xlink:href="#ah7" />
+<rect x="18" y="14" width="790" height="28" rx="14" fill="#1d4ed8" opacity="0.14" />
+<text x="413.0" y="33.5" font-size="16" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">EVERY CHANGE IS PAID BY A DROP</text>
+<rect x="70" y="90" width="74" height="36" rx="7" fill="white" stroke="#8a8fa3" stroke-width="1.5" />
+<text x="107" y="113" font-size="13.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c₁</text>
+<rect x="158" y="90" width="74" height="36" rx="7" fill="white" stroke="#8a8fa3" stroke-width="1.5" />
+<text x="195" y="113" font-size="13.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c₁</text>
+<rect x="246" y="90" width="74" height="36" rx="7" fill="#fdecec" stroke="#b91c1c" stroke-width="1.5" />
+<text x="283" y="113" font-size="13.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c₃</text>
+<text x="283" y="82" font-size="11" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="bold">flip</text>
+<rect x="334" y="90" width="74" height="36" rx="7" fill="white" stroke="#8a8fa3" stroke-width="1.5" />
+<text x="371" y="113" font-size="13.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c₃</text>
+<rect x="422" y="90" width="74" height="36" rx="7" fill="white" stroke="#8a8fa3" stroke-width="1.5" />
+<text x="459" y="113" font-size="13.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c₃</text>
+<rect x="510" y="90" width="74" height="36" rx="7" fill="#fdecec" stroke="#b91c1c" stroke-width="1.5" />
+<text x="547" y="113" font-size="13.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c₄</text>
+<text x="547" y="82" font-size="11" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="bold">flip</text>
+<rect x="598" y="90" width="74" height="36" rx="7" fill="white" stroke="#8a8fa3" stroke-width="1.5" />
+<text x="635" y="113" font-size="13.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c₄</text>
+<rect x="686" y="90" width="74" height="36" rx="7" fill="white" stroke="#8a8fa3" stroke-width="1.5" />
+<text x="723" y="113" font-size="13.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c₄</text>
+<text x="72" y="64" font-size="12" font-family="Helvetica" fill="#8a8fa3" text-anchor="start" font-weight="normal">the answer along one run</text>
+<rect x="70" y="220" width="74" height="70" rx="4" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="107" y="308" font-size="12" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="normal">5</text>
+<rect x="158" y="220" width="74" height="70" rx="4" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="195" y="308" font-size="12" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="normal">5</text>
+<rect x="246" y="248" width="74" height="42" rx="4" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="283" y="308" font-size="12" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="normal">3</text>
+<rect x="334" y="248" width="74" height="42" rx="4" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="371" y="308" font-size="12" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="normal">3</text>
+<rect x="422" y="248" width="74" height="42" rx="4" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="459" y="308" font-size="12" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="normal">3</text>
+<rect x="510" y="276" width="74" height="14" rx="4" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="547" y="308" font-size="12" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="normal">1</text>
+<rect x="598" y="276" width="74" height="14" rx="4" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="635" y="308" font-size="12" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="normal">1</text>
+<rect x="686" y="276" width="74" height="14" rx="4" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.2" />
+<text x="723" y="308" font-size="12" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="normal">1</text>
+<text x="72" y="210" font-size="12" font-family="Helvetica" fill="#8a8fa3" text-anchor="start" font-weight="normal">the potential: survivors φ (never rises; drops at every flip)</text>
+<rect x="250" y="336" width="420" height="40" rx="9" fill="#eaf6ee" stroke="#15803d" stroke-width="1.6" />
+<text x="460" y="361" font-size="14.5" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="bold">2 flips  +  1 remaining  ≤  5 at the start</text>
+<text x="413" y="408" font-size="12.3" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">to bound revisions of ANY dial, exhibit one non-rising quantity that drops when the dial moves;</text>
+<text x="413" y="426" font-size="12.3" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">the count plus what remains never exceeds what you started with.  All revision laws are this line.</text>
+<rect x="850" y="14" width="790" height="28" rx="14" fill="#b45309" opacity="0.14" />
+<text x="1245.0" y="33.5" font-size="16" font-family="Helvetica" fill="#b45309" text-anchor="middle" font-weight="bold">COUNT THROUGH THE IMAGE, NOT THE DOMAIN</text>
+<rect x="930" y="80" width="76" height="32" rx="7" fill="white" stroke="#8a8fa3" stroke-width="1.3" />
+<text x="968" y="101" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">code 1</text>
+<rect x="1022" y="80" width="76" height="32" rx="7" fill="white" stroke="#8a8fa3" stroke-width="1.3" />
+<text x="1060" y="101" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">code 2</text>
+<rect x="1114" y="80" width="76" height="32" rx="7" fill="white" stroke="#8a8fa3" stroke-width="1.3" />
+<text x="1152" y="101" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">code 3</text>
+<rect x="1206" y="80" width="76" height="32" rx="7" fill="white" stroke="#8a8fa3" stroke-width="1.3" />
+<text x="1244" y="101" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">code 4</text>
+<rect x="1298" y="80" width="76" height="32" rx="7" fill="white" stroke="#8a8fa3" stroke-width="1.3" />
+<text x="1336" y="101" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">code 5</text>
+<rect x="1390" y="80" width="76" height="32" rx="7" fill="white" stroke="#8a8fa3" stroke-width="1.3" />
+<text x="1428" y="101" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">code 6</text>
+<path d="M968,116 L990,172" stroke="#8a8fa3" stroke-width="1.4" fill="none" marker-end="url(#ah5)" />
+<path d="M1060,116 L990,172" stroke="#8a8fa3" stroke-width="1.4" fill="none" marker-end="url(#ah5)" />
+<path d="M1152,116 L1230,172" stroke="#8a8fa3" stroke-width="1.4" fill="none" marker-end="url(#ah5)" />
+<path d="M1244,116 L1230,172" stroke="#8a8fa3" stroke-width="1.4" fill="none" marker-end="url(#ah5)" />
+<path d="M1336,116 L1230,172" stroke="#8a8fa3" stroke-width="1.4" fill="none" marker-end="url(#ah5)" />
+<path d="M1428,116 L1470,172" stroke="#8a8fa3" stroke-width="1.4" fill="none" marker-end="url(#ah5)" />
+<rect x="930" y="176" width="120" height="36" rx="8" fill="#fdf3e7" stroke="#b45309" stroke-width="1.6" />
+<text x="990" y="199" font-size="13" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">model A</text>
+<rect x="1170" y="176" width="120" height="36" rx="8" fill="#fdf3e7" stroke="#b45309" stroke-width="1.6" />
+<text x="1230" y="199" font-size="13" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">model B</text>
+<rect x="1410" y="176" width="120" height="36" rx="8" fill="#fdf3e7" stroke="#b45309" stroke-width="1.6" />
+<text x="1470" y="199" font-size="13" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">model C</text>
+<text x="1245" y="250" font-size="12.3" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">six encodings, three behaviors: revisions are priced by the three,</text>
+<text x="1245" y="268" font-size="12.3" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">never the six.  Making the map one-to-one turns the bound into an equality.</text>
+<text x="1245" y="292" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">a count that factors through a map is priced by the image; duplicates never cost.</text>
+<rect x="850" y="330" width="790" height="28" rx="14" fill="#0f766e" opacity="0.14" />
+<text x="1245.0" y="349.5" font-size="16" font-family="Helvetica" fill="#0f766e" text-anchor="middle" font-weight="bold">EVIDENCE CONCATENATES, SURVIVORS INTERSECT</text>
+<text x="1005" y="413" font-size="12.5" font-family="Helvetica" fill="#0f766e" text-anchor="end" font-weight="normal">after  s₁</text>
+<rect x="1020" y="392" width="54" height="30" rx="6" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.2" />
+<text x="1047" y="412" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c1</text>
+<rect x="1086" y="392" width="54" height="30" rx="6" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.2" />
+<text x="1113" y="412" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c2</text>
+<rect x="1152" y="392" width="54" height="30" rx="6" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.2" />
+<text x="1179" y="412" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c3</text>
+<rect x="1218" y="392" width="54" height="30" rx="6" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.2" />
+<text x="1245" y="412" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c4</text>
+<rect x="1284" y="392" width="54" height="30" rx="6" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="1311" y="412" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">c5</text>
+<rect x="1350" y="392" width="54" height="30" rx="6" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.2" />
+<text x="1377" y="412" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c6</text>
+<rect x="1416" y="392" width="54" height="30" rx="6" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.2" />
+<text x="1443" y="412" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c7</text>
+<rect x="1482" y="392" width="54" height="30" rx="6" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="1509" y="412" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">c8</text>
+<text x="1005" y="467" font-size="12.5" font-family="Helvetica" fill="#0f766e" text-anchor="end" font-weight="normal">after  s₁ s₂</text>
+<rect x="1020" y="446" width="54" height="30" rx="6" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="1047" y="466" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">c1</text>
+<rect x="1086" y="446" width="54" height="30" rx="6" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.2" />
+<text x="1113" y="466" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c2</text>
+<rect x="1152" y="446" width="54" height="30" rx="6" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.2" />
+<text x="1179" y="466" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c3</text>
+<rect x="1218" y="446" width="54" height="30" rx="6" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.2" />
+<text x="1245" y="466" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c4</text>
+<rect x="1284" y="446" width="54" height="30" rx="6" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="1311" y="466" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">c5</text>
+<rect x="1350" y="446" width="54" height="30" rx="6" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="1377" y="466" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">c6</text>
+<rect x="1416" y="446" width="54" height="30" rx="6" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.2" />
+<text x="1443" y="466" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c7</text>
+<rect x="1482" y="446" width="54" height="30" rx="6" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="1509" y="466" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">c8</text>
+<text x="1005" y="521" font-size="12.5" font-family="Helvetica" fill="#0f766e" text-anchor="end" font-weight="normal">after  s₁ s₂ s₃</text>
+<rect x="1020" y="500" width="54" height="30" rx="6" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="1047" y="520" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">c1</text>
+<rect x="1086" y="500" width="54" height="30" rx="6" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.2" />
+<text x="1113" y="520" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c2</text>
+<rect x="1152" y="500" width="54" height="30" rx="6" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="1179" y="520" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">c3</text>
+<rect x="1218" y="500" width="54" height="30" rx="6" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.2" />
+<text x="1245" y="520" font-size="11.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">c4</text>
+<rect x="1284" y="500" width="54" height="30" rx="6" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="1311" y="520" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">c5</text>
+<rect x="1350" y="500" width="54" height="30" rx="6" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="1377" y="520" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">c6</text>
+<rect x="1416" y="500" width="54" height="30" rx="6" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="1443" y="520" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">c7</text>
+<rect x="1482" y="500" width="54" height="30" rx="6" fill="#e7e9f0" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="1509" y="520" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">c8</text>
+<text x="1245" y="590" font-size="12.0" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">append evidence = intersect survivor sets: order-free, only shrinking, and an empty set never refills.</text>
+<rect x="18" y="446" width="790" height="28" rx="14" fill="#15803d" opacity="0.14" />
+<text x="413.0" y="465.5" font-size="16" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="bold">THE LEAST WITNESS SETTLES, EVEN OVER INFINITELY MANY</text>
+<path d="M70,556 L780,556" stroke="#22223b" stroke-width="1.8" fill="none" marker-end="url(#ah0)" />
+<rect x="76" y="522" width="68" height="34" rx="8" fill="white" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="110" y="544" font-size="13" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">0</text>
+<text x="110" y="574" font-size="11" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">dies at t=2</text>
+<rect x="188" y="522" width="68" height="34" rx="8" fill="white" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="222" y="544" font-size="13" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">1</text>
+<text x="222" y="574" font-size="11" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">dies at t=5</text>
+<rect x="300" y="522" width="68" height="34" rx="8" fill="#eaf6ee" stroke="#15803d" stroke-width="1.6" />
+<text x="334" y="544" font-size="13" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="bold">2</text>
+<text x="334" y="574" font-size="11" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="bold">fits forever</text>
+<rect x="412" y="522" width="68" height="34" rx="8" fill="white" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="446" y="544" font-size="13" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">3</text>
+<text x="446" y="574" font-size="11" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">never asked</text>
+<rect x="524" y="522" width="68" height="34" rx="8" fill="white" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="558" y="544" font-size="13" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">4</text>
+<text x="558" y="574" font-size="11" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">never asked</text>
+<rect x="636" y="522" width="68" height="34" rx="8" fill="white" stroke="#8a8fa3" stroke-width="1.2" />
+<text x="670" y="544" font-size="13" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">5</text>
+<text x="670" y="574" font-size="11" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">never asked</text>
+<text x="790" y="546" font-size="16" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">…</text>
+<text x="413" y="596" font-size="12.0" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">each candidate below the least fitting one dies at a finite time; past the last death the least fit is</text>
+<text x="413" y="613" font-size="12.0" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">selected forever.  No size bound needed: the ordering does the work of finiteness.</text>
+</svg>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="1660" height="860" viewBox="0 0 1660 860">
+<defs>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah0">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#22223b" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah1">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#0f766e" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah2">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#1d4ed8" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah3">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#b45309" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah4">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#b91c1c" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah5">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#8a8fa3" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah6">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#15803d" />
+</marker>
+<marker markerWidth="10.1" markerHeight="10" viewBox="-0.1 -5 10.1 10" orient="auto" id="ah7">
+<path d="M-0.1,-4 L9,0 L-0.1,4 Z" fill="#6d28d9" />
+</marker>
+</defs>
+<rect x="0" y="0" width="1660" height="860" fill="white" />
+<use xlink:href="#ah0" />
+<use xlink:href="#ah1" />
+<use xlink:href="#ah2" />
+<use xlink:href="#ah3" />
+<use xlink:href="#ah4" />
+<use xlink:href="#ah5" />
+<use xlink:href="#ah6" />
+<use xlink:href="#ah7" />
+<rect x="18" y="14" width="780" height="28" rx="14" fill="#0f766e" opacity="0.14" />
+<text x="408.0" y="33.5" font-size="16" font-family="Helvetica" fill="#0f766e" text-anchor="middle" font-weight="bold">A PROGRAM IS A TREE  ·  drawn from the construction</text>
+<rect x="322" y="66" width="156" height="48" rx="8" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.6" />
+<text x="400" y="85" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">gate: is x ≥ 3 ?</text>
+<text x="400" y="104" font-size="11.5" font-family="Helvetica" fill="#0f766e" text-anchor="middle" font-weight="bold">post-map  flip</text>
+<rect x="127" y="181" width="156" height="48" rx="8" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.6" />
+<text x="205" y="200" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">gate: is x ≥ 5 ?</text>
+<text x="205" y="219" font-size="11.5" font-family="Helvetica" fill="#0f766e" text-anchor="middle" font-weight="bold">post-map  id</text>
+<rect x="517" y="181" width="156" height="48" rx="8" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.6" />
+<text x="595" y="200" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">gate: is x ≥ 1 ?</text>
+<text x="595" y="219" font-size="11.5" font-family="Helvetica" fill="#0f766e" text-anchor="middle" font-weight="bold">post-map  flip</text>
+<rect x="74" y="303" width="92" height="34" rx="8" fill="white" stroke="#8a8fa3" stroke-width="1.3" />
+<text x="120" y="324" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">cell u₀</text>
+<rect x="244" y="303" width="92" height="34" rx="8" fill="white" stroke="#8a8fa3" stroke-width="1.3" />
+<text x="290" y="324" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">cell u₁</text>
+<rect x="464" y="303" width="92" height="34" rx="8" fill="white" stroke="#8a8fa3" stroke-width="1.3" />
+<text x="510" y="324" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">cell u₂</text>
+<rect x="634" y="303" width="92" height="34" rx="8" fill="white" stroke="#8a8fa3" stroke-width="1.3" />
+<text x="680" y="324" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">cell u₁</text>
+<path d="M360,116 L240,180" stroke="#22223b" stroke-width="1.8" fill="none" marker-end="url(#ah0)" />
+<text x="285" y="142" font-size="11" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">no</text>
+<path d="M440,116 L560,180" stroke="#22223b" stroke-width="1.8" fill="none" marker-end="url(#ah0)" />
+<text x="515" y="142" font-size="11" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">yes</text>
+<path d="M175,231 L130,300" stroke="#22223b" stroke-width="1.6" fill="none" marker-end="url(#ah0)" />
+<text x="140" y="262" font-size="10.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">no</text>
+<path d="M235,231 L282,300" stroke="#22223b" stroke-width="1.6" fill="none" marker-end="url(#ah0)" />
+<text x="272" y="262" font-size="10.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">yes</text>
+<path d="M565,231 L520,300" stroke="#22223b" stroke-width="1.6" fill="none" marker-end="url(#ah0)" />
+<text x="530" y="262" font-size="10.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">no</text>
+<path d="M625,231 L672,300" stroke="#22223b" stroke-width="1.6" fill="none" marker-end="url(#ah0)" />
+<text x="662" y="262" font-size="10.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">yes</text>
+<text x="400" y="372" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">one candidate = one finite tree: a gate picks a child by a threshold on the input,</text>
+<text x="400" y="390" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">the chosen child answers, the node’s post-map finishes.  The compute family is</text>
+<text x="400" y="408" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">constitutive: an elementary cell at every base, a finite post-map at every node.</text>
+<text x="400" y="430" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">free selection is forbidden by the machine’s own theorem: with unrestricted</text>
+<text x="400" y="446" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">selectors, one step reaches every function, so candidates must be trees (data).</text>
+<rect x="830" y="14" width="810" height="28" rx="14" fill="#1d4ed8" opacity="0.14" />
+<text x="1235.0" y="33.5" font-size="16" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">THE TOWER  ·  strict at every rung, priced at every rung</text>
+<text x="1235" y="66" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">capacity ≤ 2^(depth+1), proved at every rung</text>
+<rect x="925.0" y="80" width="620" height="272" rx="12" fill="#dae4fb" stroke="#1d4ed8" stroke-width="1.4" />
+<text x="967.0" y="100" font-size="12" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">depth 3</text>
+<rect x="995.0" y="134" width="480" height="218" rx="12" fill="#e4ecfd" stroke="#1d4ed8" stroke-width="1.4" />
+<text x="1037.0" y="154" font-size="12" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">depth 2</text>
+<rect x="1065.0" y="202" width="340" height="150" rx="12" fill="#eef3fe" stroke="#1d4ed8" stroke-width="1.4" />
+<text x="1107.0" y="222" font-size="12" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">depth 1</text>
+<rect x="1135.0" y="270" width="200" height="82" rx="12" fill="#f7f9ff" stroke="#1d4ed8" stroke-width="1.4" />
+<text x="1177.0" y="290" font-size="12" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">depth 0</text>
+<text x="1370.0" y="260" font-size="15" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">★</text>
+<text x="1416.0" y="259" font-size="10.5" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">escapes</text>
+<text x="1440.0" y="192" font-size="15" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">★</text>
+<text x="1486.0" y="191" font-size="10.5" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">escapes</text>
+<text x="1510.0" y="124" font-size="15" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">★</text>
+<text x="1556.0" y="123" font-size="10.5" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">escapes</text>
+<text x="1235" y="398" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">every rung strictly larger, on the counting world and on the real-vector world;</text>
+<text x="1235" y="416" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">the union over all depths never exhausts the function space.  Retrieval over</text>
+<text x="1235" y="434" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">depth-sorted candidates returns a least-depth fit: built-in simplicity bias.</text>
+<text x="1235" y="458" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">the machine of page one runs verbatim over this forest: same retrieval, same laws.</text>
+<rect x="18" y="470" width="780" height="28" rx="14" fill="#b45309" opacity="0.14" />
+<text x="408.0" y="489.5" font-size="16" font-family="Helvetica" fill="#b45309" text-anchor="middle" font-weight="bold">MODIFY BY GRAFTING  ·  the first rung climbs, in one picture</text>
+<text x="130" y="528" font-size="12.5" font-family="Helvetica" fill="#b45309" text-anchor="middle" font-weight="bold">modifier: one hole</text>
+<rect x="70.0" y="550" width="120" height="40" rx="7" fill="#fdf3e7" stroke="#b45309" stroke-width="1.4" />
+<text x="130" y="567" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">gate: always right</text>
+<text x="130" y="582" font-size="10.5" font-family="Helvetica" fill="#b45309" text-anchor="middle" font-weight="bold">post-map flip</text>
+<rect x="16" y="643" width="92" height="34" rx="8" fill="white" stroke="#8a8fa3" stroke-width="1.3" />
+<text x="62" y="664" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">cell u₁</text>
+<circle cx="198" cy="660" r="26" fill="white" stroke="#b45309" stroke-width="1.8" stroke-dasharray="5,4" />
+<text x="198" y="664" font-size="11" font-family="Helvetica" fill="#b45309" text-anchor="middle" font-weight="bold">hole</text>
+<path d="M100,592 L70,638" stroke="#22223b" stroke-width="1.5" fill="none" marker-end="url(#ah0)" />
+<path d="M160,592 L192,634" stroke="#22223b" stroke-width="1.5" fill="none" marker-end="url(#ah0)" />
+<text x="300" y="630" font-size="30" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">+</text>
+<text x="385" y="528" font-size="12.5" font-family="Helvetica" fill="#0f766e" text-anchor="middle" font-weight="bold">accepted anchor</text>
+<rect x="339" y="613" width="92" height="34" rx="8" fill="white" stroke="#8a8fa3" stroke-width="1.3" />
+<text x="385" y="634" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">cell u₀</text>
+<text x="480" y="630" font-size="30" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">⇒</text>
+<text x="640" y="528" font-size="12.5" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="bold">grafted program</text>
+<rect x="580.0" y="550" width="120" height="40" rx="7" fill="#eaf6ee" stroke="#15803d" stroke-width="1.4" />
+<text x="640" y="567" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">gate: always right</text>
+<text x="640" y="582" font-size="10.5" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="bold">post-map flip</text>
+<rect x="526" y="643" width="92" height="34" rx="8" fill="white" stroke="#8a8fa3" stroke-width="1.3" />
+<text x="572" y="664" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">cell u₁</text>
+<rect x="654" y="643" width="92" height="34" rx="8" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.6" />
+<text x="700" y="664" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">cell u₀</text>
+<path d="M610,592 L580,638" stroke="#22223b" stroke-width="1.5" fill="none" marker-end="url(#ah0)" />
+<path d="M670,592 L696,634" stroke="#22223b" stroke-width="1.5" fill="none" marker-end="url(#ah0)" />
+<text x="400" y="726" font-size="12.3" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">grafting is part of the grammar: a plugged modifier IS a tree, so modified programs</text>
+<text x="400" y="744" font-size="12.3" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">inherit every law.  Here the gate always routes to the graft and the post-map flips it:</text>
+<text x="400" y="762" font-size="12.3" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">the grafted program disagrees with its anchor on every input.  One modifier, one rung.</text>
+<text x="400" y="786" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">retrieval over modifiers = grafting: the accepted anchor enters every candidate by the hole.</text>
+<rect x="830" y="470" width="810" height="28" rx="14" fill="#6d28d9" opacity="0.14" />
+<text x="1235.0" y="489.5" font-size="16" font-family="Helvetica" fill="#6d28d9" text-anchor="middle" font-weight="bold">FREE IS FLAT, BOUND CLIMBS  ·  the dichotomy</text>
+<path d="M900,760 L1380,760" stroke="#22223b" stroke-width="1.8" fill="none" marker-end="url(#ah0)" />
+<path d="M900,760 L900,550" stroke="#22223b" stroke-width="1.8" fill="none" marker-end="url(#ah0)" />
+<text x="1140.0" y="786" font-size="12" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">modifier depth</text>
+<text x="886" y="540" font-size="12" font-family="Helvetica" fill="#8a8fa3" text-anchor="start" font-weight="normal">reachable programs</text>
+<path d="M900,708 L1360,708" stroke="#b91c1c" stroke-width="2.6" fill="none" stroke-dasharray="7,5" />
+<text x="1136" y="698" font-size="11.5" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">free modifiers: flat at the object class (any depth collapses to one step)</text>
+<path d="M900,740 L1010,740" stroke="#15803d" stroke-width="2.6" fill="none" />
+<path d="M1010,740 L1010,702" stroke="#15803d" stroke-width="2.6" fill="none" />
+<path d="M1010,702 L1120,702" stroke="#15803d" stroke-width="2.6" fill="none" />
+<path d="M1120,702 L1120,664" stroke="#15803d" stroke-width="2.6" fill="none" />
+<path d="M1120,664 L1230,664" stroke="#15803d" stroke-width="2.6" fill="none" />
+<path d="M1230,664 L1230,626" stroke="#15803d" stroke-width="2.6" fill="none" />
+<path d="M1230,626 L1340,626" stroke="#15803d" stroke-width="2.6" fill="none" />
+<path d="M1340,626 L1340,588" stroke="#15803d" stroke-width="2.6" fill="none" />
+<text x="1150" y="570" font-size="12" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="bold">grammar-bound modifiers climb the tower</text>
+<text x="1235" y="806" font-size="11.8" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">embedding within two rungs; strict climb proved at stride three;</text>
+<text x="1235" y="824" font-size="11.8" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">in the limit the graft loses nothing: the bound ladder fills the whole tower.</text>
+<text x="1235" y="846" font-size="11.3" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">certificates chain at every storey (page two); the per-storey capacity product prices execution.</text>
+</svg>
