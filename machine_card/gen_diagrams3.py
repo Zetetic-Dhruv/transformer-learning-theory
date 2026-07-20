@@ -162,7 +162,7 @@ d.append(dw.Rectangle(0, 0, 1660, 620, fill='white'))
 line, box, txt, zone = mk_helpers(d)
 
 # ---------- (A) flip counter ----------
-zone(18, 14, 790, 'EVERY CHANGE IS PAID BY A DROP', BLUE)
+zone(18, 14, 790, 'REVISION ACCOUNTING BY POTENTIALS', BLUE)
 # value trace
 vals = ['c₁', 'c₁', 'c₃', 'c₃', 'c₃', 'c₄', 'c₄', 'c₄']
 phis = [5, 5, 3, 3, 3, 1, 1, 1]
@@ -187,7 +187,7 @@ txt('to bound revisions of ANY dial, exhibit one non-rising quantity that drops 
 txt('the count plus what remains never exceeds what you started with.  All revision laws are this line.', 413, 426, 12.3, INK)
 
 # ---------- (B) counting through the image ----------
-zone(850, 14, 790, 'COUNT THROUGH THE IMAGE, NOT THE DOMAIN', AMBER)
+zone(850, 14, 790, 'COUNTING AT THE GRANULARITY OF BEHAVIOR', AMBER)
 cx0 = 930
 for i in range(6):
     box(cx0 + (i % 6)*92, 80, 76, 32, 'white', GREY, rx=7, sw=1.3)
@@ -204,7 +204,7 @@ txt('never the six.  Making the map one-to-one turns the bound into an equality.
 txt('a count that factors through a map is priced by the image; duplicates never cost.', 1245, 292, 11.5, GREY)
 
 # ---------- (C) survivor floor ----------
-zone(850, 330, 790, 'EVIDENCE CONCATENATES, SURVIVORS INTERSECT', TEAL)
+zone(850, 330, 790, 'THE CONSISTENT SET AS CANONICAL STATE', TEAL)
 sy0 = 392
 sets = [('after  s₁', [1,1,1,1,0,1,1,0]), ('after  s₁ s₂', [0,1,1,1,0,0,1,0]), ('after  s₁ s₂ s₃', [0,1,0,1,0,0,0,0])]
 for r, (lbl, bits) in enumerate(sets):
@@ -215,7 +215,7 @@ for r, (lbl, bits) in enumerate(sets):
 txt('append evidence = intersect survivor sets: order-free, only shrinking, and an empty set never refills.', 1245, 590, 12.0, INK)
 
 # ---------- (D) settling by well-ordering ----------
-zone(18, 452 - 6, 790, 'THE LEAST WITNESS SETTLES, EVEN OVER INFINITELY MANY', GREEN)
+zone(18, 452 - 6, 790, 'ENUMERATION OVER A WELL-ORDER', GREEN)
 wy = 512
 line(70, wy + 44, 780, wy + 44, INK, 1.8)
 for i in range(6):
@@ -244,7 +244,7 @@ d.append(dw.Rectangle(0, 0, 1660, 620, fill='white'))
 line, box, txt, zone = mk_helpers(d)
 
 # ---------- (A) darkness cured only by enlargement ----------
-zone(18, 14, 790, 'DARKNESS, AND ITS ONLY CURE', RED)
+zone(18, 14, 790, 'INDISTINGUISHABILITY UNDER A QUERY CLASS', RED)
 hy = 78
 tests = ['read 1', 'read 2', 'read 3', 'read 4']
 for j, t in enumerate(tests):
@@ -264,7 +264,7 @@ txt('darkness is destroyed exactly by enlarging the family; no amount of repetit
 txt('on the causal store of page three, the family is observation and the enlarging read is an intervention.', 413, 260, 11.5, GREY)
 
 # ---------- (B) the limit escapes every finite view ----------
-zone(850, 14, 790, 'WHAT NO FINITE VIEW DECIDES, A PATTERN OF VIEWS CAPTURES', BLUE)
+zone(850, 14, 790, 'TWO-SIDED LOCATION OF LIMIT EVENTS', BLUE)
 ey = 92
 for i in range(6):
     box(920 + i*112, ey, 96, 40, BLUEBG, BLUE, rx=8, sw=1.2)
@@ -278,7 +278,7 @@ txt('no single finite view decides it; a countable union of countable intersecti
 txt('of finite views captures it exactly.  Hardness and definability, located together.', 1245, 286, 12.3, INK)
 
 # ---------- (C) flat where it computes, stacked where it certifies ----------
-zone(18, 330, 1622, 'FLAT WHERE IT COMPUTES, STACKED WHERE IT CERTIFIES', GREEN)
+zone(18, 330, 1622, 'THE COLLAPSE TEST FOR LAYERED SYSTEMS', GREEN)
 cy = 420
 # computation lane
 txt('computation', 96, cy - 26, 12.5, GREY)

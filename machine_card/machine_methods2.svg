@@ -37,7 +37,7 @@
 <use xlink:href="#ah6" />
 <use xlink:href="#ah7" />
 <rect x="18" y="14" width="790" height="28" rx="14" fill="#b91c1c" opacity="0.14" />
-<text x="413.0" y="33.5" font-size="16" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="bold">DARKNESS, AND ITS ONLY CURE</text>
+<text x="413.0" y="33.5" font-size="16" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="bold">INDISTINGUISHABILITY UNDER A QUERY CLASS</text>
 <text x="250" y="70" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">read 1</text>
 <text x="360" y="70" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">read 2</text>
 <text x="470" y="70" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">read 3</text>
@@ -71,7 +71,7 @@
 <text x="413" y="236" font-size="12.3" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">darkness is destroyed exactly by enlarging the family; no amount of repetition inside it helps.</text>
 <text x="413" y="260" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">on the causal store of page three, the family is observation and the enlarging read is an intervention.</text>
 <rect x="850" y="14" width="790" height="28" rx="14" fill="#1d4ed8" opacity="0.14" />
-<text x="1245.0" y="33.5" font-size="16" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">WHAT NO FINITE VIEW DECIDES, A PATTERN OF VIEWS CAPTURES</text>
+<text x="1245.0" y="33.5" font-size="16" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">TWO-SIDED LOCATION OF LIMIT EVENTS</text>
 <rect x="920" y="92" width="96" height="40" rx="8" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.2" />
 <text x="968" y="117" font-size="10.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">first 1 words</text>
 <rect x="1032" y="92" width="96" height="40" rx="8" fill="#eaf0fd" stroke="#1d4ed8" stroke-width="1.2" />
@@ -96,7 +96,7 @@
 <text x="1245" y="268" font-size="12.3" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">no single finite view decides it; a countable union of countable intersections</text>
 <text x="1245" y="286" font-size="12.3" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">of finite views captures it exactly.  Hardness and definability, located together.</text>
 <rect x="18" y="330" width="1622" height="28" rx="14" fill="#15803d" opacity="0.14" />
-<text x="829.0" y="349.5" font-size="16" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="bold">FLAT WHERE IT COMPUTES, STACKED WHERE IT CERTIFIES</text>
+<text x="829.0" y="349.5" font-size="16" font-family="Helvetica" fill="#15803d" text-anchor="middle" font-weight="bold">THE COLLAPSE TEST FOR LAYERED SYSTEMS</text>
 <text x="96" y="394" font-size="12.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">computation</text>
 <rect x="60" y="402" width="170" height="40" rx="9" fill="#e9f5f3" stroke="#0f766e" stroke-width="1.6" />
 <text x="145" y="427" font-size="12.5" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">anchor c₀</text>
