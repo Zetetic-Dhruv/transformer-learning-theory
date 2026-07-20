@@ -59,7 +59,7 @@ for x, lbl in [(400, 'ACCEPT c0'), (1010, 'ACCEPT e')]:
 
 # flat plane
 box(40, 340, 1580, 64, LGREY, GREY, rx=10)
-txt('FLAT WHERE IT COMPUTES:  a storey over a storey is one storey at the composed application  ·  anchored(anchored(D, f), g) = anchored(D, f ∘ g)  ·  one machine, definitionally',
+txt('COLLAPSE AT COMPUTATION:  a storey over a storey is one storey at the composed application  ·  anchored(anchored(D, f), g) = anchored(D, f ∘ g)  ·  one machine, definitionally',
     830, 368, 13, INK)
 txt('the loop of retrieve, accept, retrieve is algebraically a single store', 830, 388, 11, GREY)
 for x in [220, 830, 1440]:
@@ -67,7 +67,7 @@ for x in [220, 830, 1440]:
 
 # certificate chain
 box(40, 434, 1580, 120, 'white', AMBER, rx=10)
-txt('STACKED WHERE IT CERTIFIES:  the certificate chain', 830, 458, 13.5, AMBER, weight='bold')
+txt('STACKING AT CERTIFICATION:  the certificate chain', 830, 458, 13.5, AMBER, weight='bold')
 cx = 120
 for lbl, cond in [('certificate 0', 'model c0 fits the evidence; c0 is the least survivor'),
                   ('certificate 1 | c0', 'modifier e fits the spec words at c0; e least survivor'),
