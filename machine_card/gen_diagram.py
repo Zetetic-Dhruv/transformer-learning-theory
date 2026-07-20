@@ -104,7 +104,7 @@ for col in range(3):
     line(fx[col]+40, fy+66, fx[col+1]-42, fy+66, INK, 2.4)
     txt(f'w{chr(0x2081+col)}', (fx[col]+fx[col+1])/2, fy+56, 13, INK)
     txt('keep-filter', (fx[col]+fx[col+1])/2, fy+84, 10, GREY)
-txt('candidates only leave, never return:  V₀ ⊇ V₁ ⊇ V₂ ⊇ V₃', 695, fy+206, 12.5, BLUE)
+txt('the survivor set only shrinks:  V₀ ⊇ V₁ ⊇ V₂ ⊇ V₃', 695, fy+206, 12.5, BLUE)
 
 # white-box decodes from rails to funnel
 for col in range(4):
@@ -172,7 +172,7 @@ d.append(dw.Ellipse(1230, 528, 78, 30, fill='none', stroke=GREY, stroke_width=1.
 for mx, ml in [(1180, 'X→Y'), (1230, 'Y→X'), (1280, 'U')]:
     d.append(dw.Circle(mx, 528, 10, fill='white', stroke=INK, stroke_width=1.6))
     txt(ml, mx, 556, 10, INK)
-txt('dark under observation', 1230, 505, 10, GREY)
+txt('indistinguishable under observation', 1230, 505, 10, GREY)
 line(1318, 528, 1372, 528, RED, 2.2)
 txt('do X:=1', 1345, 518, 11, RED)
 txt('query answered: 1 word', 1500, 515, 12, INK)

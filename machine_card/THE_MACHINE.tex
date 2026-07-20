@@ -20,7 +20,7 @@
 
 \begin{center}
 {\LARGE\bfseries The Model Store}\quad{\large a certified retrieval machine}\\[2pt]
-{\small\color{grey} A constructed object. Every property below is a machine-checked theorem, exact rather than asymptotic; the stated instances execute inside the proof checker.}
+{\small\color{grey} A constructed object. Every property below is a machine-checked theorem with exact constants; the stated instances execute inside the proof checker.}
 \end{center}
 
 \vspace{2pt}
@@ -59,11 +59,11 @@
 \item \textbf{Exact capacity price.} The smallest machine reproducing the store's answers has size exactly the number of reachable survivor configurations. Sequential state count and parallel width times precision are the same price in two currencies, exchanged by complementation.
 \item \textbf{Order is a resource.} Order-free processing recovers everything determined by the survivor set and provably cannot recover the order of eliminations; a sequential pass recovers it exactly.
 \item \textbf{Exact revision budget.} The answer changes at most once per distinct model held, and an adversarial data order spends the whole budget. Duplicate encodings of one model never cost a revision.
-\item \textbf{Universal revision inheritance.} The survivor set itself changes at most $k$ times, and every read of it inherits that budget. The existence read flips at most once: refutation is permanent, consistency forever provisional.
-\item \textbf{Temperature-free Occam selection.} The output is at once the least-indexed survivor, the optimum under every complexity-decreasing weighting, and the softmax top choice at every temperature. Hardening the soft regime moves only the weights, never the answer.
-\item \textbf{Dark knowledge located.} The weight stratum (scores, margins) is not a function of the survivor trajectory: two runs with identical survivor sets at every step can carry different weights. Everything the soft channel exposes beyond the answer lives in the losers.
+\item \textbf{Universal revision inheritance.} The survivor set itself changes at most $k$ times, and every read of it inherits that budget. The existence read flips at most once: a refutation is permanent, while consistency can always be overturned by later evidence.
+\item \textbf{Temperature-free Occam selection.} The output is at once the least-indexed survivor, the optimum under every complexity-decreasing weighting, and the softmax top choice at every temperature. Hardening the soft regime moves the weights while the answer stays fixed.
+\item \textbf{Scores are independent state.} The weight stratum (scores, margins) is not fixed by the survivor trajectory: two runs with identical survivor sets at every step can carry different scores. This is the soft channel's dark knowledge, all it exposes beyond the answer, and it is a function of the candidates that lost.
 \item \textbf{Simultaneous settling.} On any unbounded stream the survivor set is eventually constant, and every readable dial freezes at one common time.
-\item \textbf{Identification at the limit.} If some candidate fits the whole stream, the limit answer is a candidate consistent with every prefix, reached within the revision budget. A target outside the list is approximated by the simplest consistent candidate, never identified: the machine's one boundary.
+\item \textbf{Identification at the limit.} If some candidate fits the whole stream, the limit answer is a candidate consistent with every prefix, reached within the revision budget. A target outside the list is approximated by the simplest consistent candidate; identification requires the target to be in the list, which is the machine's only boundary.
 \item \textbf{The limit, exactly bracketed.} No finite context determines the limit answer, yet the limit event is fully captured by one countable union of countable intersections of finite-context events.
 \item \textbf{Answered before identified.} A query is answered the moment all survivors agree on its value, with a certificate, possibly long before the model is pinned; answering can be strictly cheaper than identifying.
 \item \textbf{Labels are pre-purchased experiments.} A label's whole effect is the intersection law of its stored trace. It cannot separate candidates its stored words cannot kill, and a query can cost zero live words when the right experiment is already in memory.
@@ -74,7 +74,7 @@
 \vspace{-2pt}
 {\color{ink}\hrule height 0.8pt}
 \vspace{3pt}
-{\scriptsize\color{grey} Kernel-checked in Lean 4 over Mathlib; every theorem's axiom footprint is the standard triple or less; the causal and exchange instances above are computed end-to-end by the checker's decision procedure. Selection, prices, and budgets are equalities. The weight stratum, distributional refinements, and the exact price law of experiments are stated obligations of the next construction, not properties claimed here.}
+{\scriptsize\color{grey} Kernel-checked in Lean 4 over Mathlib; every theorem's axiom footprint is the standard triple or less; the causal and exchange instances above are computed end-to-end by the checker's decision procedure. Selection, prices, and budgets are equalities. The weight stratum, distributional refinements, and the exact price law of experiments are obligations of the next construction.}
 
 \newpage
 \begin{center}
@@ -96,10 +96,10 @@
 \begin{enumerate}[label=\textbf{M\arabic*.},leftmargin=2.1em,itemsep=0.7pt,parsep=0pt]
 \item \textbf{Laws at every storey.} Every anchored store, for every anchor and every family of modifiers, carries the complete characterization, the full geometry, and the whole query calculus of pages one and three. The analysis of the machine is storey independent: one theorem covers all levels at once.
 \item \textbf{Collapse at computation, stacking at certification.} Composing anchorings is, definitionally, one anchoring at the composed application: the cascade is a single store at the level of computation. What stacks is the certificate chain: each acceptance freezes an anchor, and every downstream certificate is conditional on the accepts below it. This is the collapse test of page six, applied to the cascade.
-\item \textbf{The chained certificate carries the freeze, at every depth.} A cascade of any length is certified at every storey: each stage's modifier fits its evidence at its anchor and is that stage's least survivor, each certificate conditional on the accepts below it. Running one cascade after another is running their concatenation; the two-stage certificate is the single-storey reading. The greedy selection is part of the certificate, not an unstated convention.
+\item \textbf{The chained certificate carries the freeze, at every depth.} A cascade of any length is certified at every storey: each stage's modifier fits its evidence at its anchor and is that stage's least survivor, each certificate conditional on the accepts below it. Running one cascade after another is running their concatenation; the two-stage certificate is the single-storey reading. The greedy selection is itself part of the certificate.
 \item \textbf{Grandfathering, with an exact drift budget.} An accepted anchor survives new evidence exactly while its index survives, and while it does, everything built on it stands unchanged. The anchor itself is revised at most once per distinct model held: the model-grain revision law, read at the base store.
-\item \textbf{Correctness is evidence.} A modifier meets a specified behavior on given inputs exactly when it fits the words assembled from that specification. Checking a candidate surgery against its specification is a run of the machine on specification words, and the resulting certificate says so: agreement with the specification, never truth about the world.
-\item \textbf{Where finiteness ends.} At a countably infinite store, identification on realizable streams survives (the ordering of the indices replaces the finite count), and the per-word laws survive with it. What dies is exactly the uniform part: no store-size bound on revisions exists, unconditional settling fails off realizability, and selection is no longer computable, only specifiable. Finiteness is the price of the uniform, exact laws; it was never the price of identification.
+\item \textbf{Correctness is evidence.} A modifier meets a specified behavior on given inputs exactly when it fits the words assembled from that specification. Checking a candidate surgery against its specification is a run of the machine on specification words, and the resulting certificate says so: its content is agreement with the specification, and that alone.
+\item \textbf{Where finiteness ends.} At a countably infinite store, identification on realizable streams survives (the ordering of the indices replaces the finite count), and the per-word laws survive with it. What fails is exactly the uniform part: no store-size bound on revisions exists, unconditional settling fails off realizability, and selection becomes specifiable but not computable. Finiteness buys the uniform, exact laws; identification is bought by the ordering alone.
 \end{enumerate}
 \end{multicols}
 \vspace{-2pt}
@@ -114,7 +114,7 @@
 \vspace{1pt}
 {\color{ink}\hrule height 0.8pt}
 \vspace{4pt}
-Every table cell and every survivor-set transition in the figure below is evaluated inside the proof checker. The figure does not illustrate the argument: it exhibits it. Reading the tables and checking each elimination by hand reproduces the proofs. Three rival mechanisms are indistinguishable under observation; one correctly chosen intervention answers the pressing question while two suspects still stand; the second intervention identifies the mechanism; the accepted mechanism anchors a store of surgeries from which the requested modifier is retrieved on specification words, with a joint, conditional certificate; and two mechanisms agreeing under every separate intervention are told apart only by the twin question that binds one hidden seed across two regimes.
+Every table cell and every survivor-set transition in the figure below is evaluated inside the proof checker. The figure exhibits the argument: it is evaluated inside the checker, so reading the tables and checking each elimination by hand reproduces the proofs. Three rival mechanisms are indistinguishable under observation; one correctly chosen intervention answers the pressing question while two candidate mechanisms remain consistent; the second intervention identifies the mechanism; the accepted mechanism anchors a store of surgeries from which the requested modifier is retrieved on specification words, with a joint, conditional certificate; and two mechanisms agreeing under every separate intervention are told apart only by the twin question that binds one hidden seed across two regimes.
 \vspace{5pt}
 \begin{center}
 \includegraphics[width=0.99\textwidth]{machine_witness.pdf}
@@ -122,7 +122,7 @@ Every table cell and every survivor-set transition in the figure below is evalua
 \vspace{2pt}
 {\color{ink}\hrule height 0.8pt}
 \vspace{2pt}
-{\scriptsize\color{grey} The three storeys of the figure are the three rungs of causal reasoning, executed by the one machine of page one: passive observation (dark until intervention), intervention (answered before identified, at exact word prices, or free from memory), and counterfactual (separated only by the twin word). The mechanisms are deterministic with fixed defaults; distributional refinement and the general price law of experiments are obligations of the next construction. Structural rewrite rules over an accepted graph are a named obligation, not used here.}
+{\scriptsize\color{grey} The three storeys of the figure are the three rungs of causal reasoning, executed by the one machine of page one: passive observation (unresolved until intervention), intervention (answered before identified, at exact word prices, or free from memory), and counterfactual (separated only by the twin word). The mechanisms are deterministic with fixed defaults; distributional refinement and the general price law of experiments are obligations of the next construction. Structural rewrite rules over an accepted graph remain a named obligation for a later construction.}
 
 \newpage
 \begin{center}
@@ -131,7 +131,7 @@ Every table cell and every survivor-set transition in the figure below is evalua
 \vspace{1pt}
 {\color{ink}\hrule height 0.8pt}
 \vspace{4pt}
-\textbf{The realization.} The machine of page one is abstract: any candidate list, any decode. The witness is the concrete object it was discovered inside: a routed network read as a \emph{forest of program trees}. A candidate is a finite tree; a gate at each node chooses a child by a threshold on the input; an elementary compute cell sits at every base and a finite post-map at every node, so the network's compute family is welded into the grammar rather than bolted on. The machine's retrieval runs over this forest verbatim, and everything on this page is a theorem about the drawn objects.\footnote{Capacity grading is a Sauer--Shelah-type bound per rung; the strict hierarchy is proved on the counting world and on the real-vector world with affine threshold gates. The saturation theorem that forces tree-shaped candidates is a Cantor-style diagonal argument at the selection layer.}
+\textbf{The realization.} The machine of page one is abstract: any candidate list, any decode. The witness is the concrete object it was discovered inside: a routed network read as a \emph{forest of program trees}. A candidate is a finite tree; a gate at each node chooses a child by a threshold on the input; an elementary compute cell sits at every base and a finite post-map at every node, so the network's compute family is constitutive to the grammar. The machine's retrieval runs over this forest verbatim, and everything on this page is a theorem about the drawn objects.\footnote{Capacity grading is a Sauer--Shelah-type bound per rung; the strict hierarchy is proved on the counting world and on the real-vector world with affine threshold gates. The saturation theorem that forces tree-shaped candidates is a Cantor-style diagonal argument at the selection layer.}
 \vspace{4pt}
 \begin{center}
 \includegraphics[width=0.99\textwidth]{machine_forest.pdf}
@@ -142,10 +142,10 @@ Every table cell and every survivor-set transition in the figure below is evalua
 \footnotesize
 \begin{multicols}{2}
 \begin{enumerate}[label=\textbf{W\arabic*.},leftmargin=2.2em,itemsep=0.7pt,parsep=0pt]
-\item \textbf{Trees are forced, not chosen.} If selection over the compute family were a free function of the input, one selection step would already realize every function: no hierarchy could exist. Restricting selection to gates over tree-shaped candidates is what makes depth mean anything.
+\item \textbf{Restriction is forced.} If selection over the compute family were a free function of the input, one selection step would already realize every function, and no hierarchy could exist. Restricting selection to gates over tree-shaped candidates is what gives depth its meaning.
 \item \textbf{The tower is strict at every rung, twice.} Depth-$\ell{+}1$ trees realize strictly more than depth-$\ell$ trees, at every $\ell$, on both worlds; one reflection step over any rung escapes that rung; and the union over all depths still never exhausts the function space.
 \item \textbf{Capacity is graded by depth.} The depth-$\ell$ class shatters no set of size $2^{\ell+1}{+}1$: the price of a rung is known before it is bought, and retrieval over depth-sorted candidates returns a least-depth fit, so the machine's selection is a simplicity bias with a certified price tag.
-\item \textbf{Modifiers live in the same grammar.} A modifier is a tree with one hole; applying it to an accepted anchor is grafting; a grafted modifier is again a tree. Retrieval at an anchored store of modifiers \emph{is} grafting, and each modifier frame carries its own post-map and cells: the compute joint is present at every storey, not only the first.
+\item \textbf{Modifiers live in the same grammar.} A modifier is a tree with one hole; applying it to an accepted anchor is grafting; a grafted modifier is again a tree. Retrieval at an anchored store of modifiers \emph{is} grafting, and each modifier frame carries its own post-map and cells, so the compute joint is present at every storey.
 \item \textbf{The graft is cheap and loses nothing.} Everything at depth $\ell$ reappears among grafted modifiers within two rungs; the grafted ladder provably climbs (strictly within every three rungs, and already at its first rung); and in the limit the grafted ladder reaches exactly the whole tower.
 \item \textbf{The dichotomy.} Free modifier families are flat: any depth of anchoring reaches exactly the object class, because composed anchorings collapse to one. Grammar-bound modifiers climb the tower. Depth is a resource exactly when modifiers are data in the object's own syntax.
 \end{enumerate}
@@ -153,7 +153,7 @@ Every table cell and every survivor-set transition in the figure below is evalua
 \vfill
 {\color{ink}\hrule height 0.8pt}
 \vspace{2pt}
-{\scriptsize\color{grey} Stated, not claimed: whether the two-rung graft embedding and the three-rung strict climb are sharp (the drawn one-rung climb is proved at the first rung), and whether the threshold gates read literally as scored routers, which would let the per-storey price law of page two apply to the tower word for word. Every drawn tree, gate, and graft above is a term in the verified construction.}
+{\scriptsize\color{grey} Still open: whether the two-rung graft embedding and the three-rung strict climb are sharp (the drawn one-rung climb is proved at the first rung), and whether the threshold gates read literally as scored routers, which would let the per-storey price law of page two apply to the tower word for word. Every drawn tree, gate, and graft above is a term in the verified construction.}
 
 \newpage
 \begin{center}
@@ -162,13 +162,13 @@ Every table cell and every survivor-set transition in the figure below is evalua
 \vspace{1pt}
 {\color{ink}\hrule height 0.8pt}
 \vspace{4pt}
-The machine's laws are instances of a small number of free-standing ideas. Each is stated here as its own tool, usable on any system, with the machine as one worked instance; each is a verified general theorem, with its instances derived from it rather than proved again.
+The machine's laws are instances of a small number of free-standing ideas. Each is stated here as its own tool, usable on any system, with the machine as one worked instance; each is a verified general theorem whose machine instances follow as corollaries.
 \vspace{3pt}
 \small
 
 \textbf{Revision accounting by potentials.} How often can a running process change its output? Ad hoc answers reprove one induction each time. Pair the observed dial with a potential: a quantity that never increases and strictly decreases whenever the dial moves. Then the number of moves plus the remaining potential never exceeds the starting potential, so a revision bound is exactly an exhibited potential. In the machine the survivor count is one potential serving every dial at once, which is why the answer's budget, the mask's budget, and every read's budget are a single argument.\footnote{The count of output changes along a stream is mind-change complexity: E.\,M. Gold, \emph{Language identification in the limit}, 1967; J. Case and C. Smith, \emph{Comparison of identification criteria for machine inductive inference}, 1983.}
 
-\textbf{Counting at the granularity of behavior.} A count stated over a list of encodings scales with the list; but a list over-counts, since distinct entries can encode equal behaviors. Any count that factors through a map is bounded by the image of the map, never its domain, and the bound becomes an equality when the map is injective. Prices then attach to the set of distinct behaviors rather than to its presentation: for the machine, revisions are priced by distinct models, and the price is exact once duplicate encodings are quotiented away.
+\textbf{Counting at the granularity of behavior.} A count stated over a list of encodings scales with the list; but a list over-counts, since distinct entries can encode equal behaviors. Any count that factors through a map is bounded by the size of the image: the number of distinct values it takes, however many inputs share them. The bound becomes an equality when the map is injective. Prices then attach to the set of distinct behaviors, indexed by what each candidate does and blind to how it is encoded: for the machine, revisions are priced by distinct models, and the price is exact once duplicate encodings are quotiented away.
 
 \vspace{2pt}
 \begin{center}
@@ -196,7 +196,7 @@ The machine's laws are instances of a small number of free-standing ideas. Each 
 \small
 \textbf{Indistinguishability under a query class.} Fix the class of queries an analyst may put to a system. Two hypotheses that agree on every query in the class cannot be separated by any procedure restricted to it, however long it runs; call such a pair indistinguishable relative to the class. The indistinguishable pairs are a complete inventory of what the class can never determine, and each pair prices its own resolution: the smallest enlargement of the class by a query on which the pair disagrees. Under observational queries on the causal store the indistinguishable pairs are the Markov-equivalent mechanisms and the enlarging query is an intervention, whose word price the machine computes; inside the machine, weights are indistinguishable relative to survivor-set queries.\footnote{On causal graphs, observational indistinguishability is Markov equivalence: J. Pearl, \emph{Causality}, 2009.}
 
-\textbf{Two-sided location of limit events.} Whether a process has settled is decided by no finite amount of data; alone, that is a hardness remark with no upper bound. Locate the event instead: no finite prefix decides it, and it equals a countable union of countable intersections of prefix events. The two sides priced together are the result: a hardness floor (no finite view suffices) and a definability ceiling (this level of view does), which is what makes the limit verifiable in the tail yet never decidable at any finite stage.\footnote{For the connection between revision counts and this definability level: R. Freivalds and C. Smith, \emph{On the role of procrastination in machine learning}, 1993; M. de Brecht and A. Yamamoto, 2010.}
+\textbf{Two-sided location of limit events.} Whether a process has settled is decided by no finite amount of data; alone, that is a hardness remark with no upper bound. Locate the event instead: no finite prefix decides it, and it equals a countable union of countable intersections of prefix events. The two sides priced together are the result: a hardness floor (no finite view suffices) and a definability ceiling (this level of view does), which makes the limit verifiable in the tail while remaining undecidable at every finite stage.\footnote{For the connection between revision counts and this definability level: R. Freivalds and C. Smith, \emph{On the role of procrastination in machine learning}, 1993; M. de Brecht and A. Yamamoto, 2010.}
 
 \vspace{2pt}
 \begin{center}
@@ -212,9 +212,9 @@ The machine's laws are instances of a small number of free-standing ideas. Each 
 \vfill
 {\color{ink}\hrule height 0.8pt}
 \vspace{3pt}
-\textbf{The frontier.} Stated as obligations, in the object's own terms: the sharpness of the graft prices; the scored reading of the gates; the distributional layer over the deterministic mechanisms; and the exact price law of experiments. Each names structure to be built, none weakens a law above.
+\textbf{The frontier.} Stated as obligations, in the object's own terms: the sharpness of the graft prices; the scored reading of the gates; the distributional layer over the deterministic mechanisms; and the exact price law of experiments. Each names structure still to be built; every law above stands.
 
 \vspace{1pt}
-{\scriptsize\color{grey} Everything on these six pages is machine-checked in Lean 4 over Mathlib. Axiom footprint: the standard triple or less, several central laws axiom-free; no unfinished proofs, warnings promoted to errors. The executed instances (pages three, five, six) run inside the checker's decision procedure: the tables and worked panels are evaluated, not typeset claims.}
+{\scriptsize\color{grey} Everything on these six pages is machine-checked in Lean 4 over Mathlib. Axiom footprint: the standard triple or less, several central laws axiom-free; no unfinished proofs, warnings promoted to errors. The executed instances (pages three, five, six) run inside the checker's decision procedure: the tables and worked panels are evaluated there.}
 
 \end{document}

@@ -67,8 +67,8 @@
 <text x="580" y="170" font-size="12" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">same</text>
 <rect x="660" y="146" width="120" height="38" rx="7" fill="#f1ebfc" stroke="#6d28d9" stroke-width="1.6" />
 <text x="720" y="171" font-size="14" font-family="Helvetica" fill="#6d28d9" text-anchor="middle" font-weight="bold">1</text>
-<text x="413" y="218" font-size="12.3" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">two DIFFERENT objects, identical under every read in the family: dark.</text>
-<text x="413" y="236" font-size="12.3" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">darkness is destroyed exactly by enlarging the family; no amount of repetition inside it helps.</text>
+<text x="413" y="218" font-size="12.3" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">two DIFFERENT objects, identical under every read in the family: indistinguishable.</text>
+<text x="413" y="236" font-size="12.3" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">enlarging the family is what separates them; repeating the existing reads does nothing.</text>
 <text x="413" y="260" font-size="11.5" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">on the causal store of page three, the family is observation and the enlarging read is an intervention.</text>
 <rect x="850" y="14" width="790" height="28" rx="14" fill="#1d4ed8" opacity="0.14" />
 <text x="1245.0" y="33.5" font-size="16" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="bold">TWO-SIDED LOCATION OF LIMIT EVENTS</text>

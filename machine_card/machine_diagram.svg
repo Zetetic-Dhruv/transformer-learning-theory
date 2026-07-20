@@ -118,7 +118,7 @@
 <path d="M810,266 L878,266" stroke="#22223b" stroke-width="2.4" fill="none" marker-end="url(#ah0)" />
 <text x="845.0" y="256" font-size="13" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">w₃</text>
 <text x="845.0" y="284" font-size="10" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">keep-filter</text>
-<text x="695" y="406" font-size="12.5" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="normal">candidates only leave, never return:  V₀ ⊇ V₁ ⊇ V₂ ⊇ V₃</text>
+<text x="695" y="406" font-size="12.5" font-family="Helvetica" fill="#1d4ed8" text-anchor="middle" font-weight="normal">the survivor set only shrinks:  V₀ ⊇ V₁ ⊇ V₂ ⊇ V₃</text>
 <path d="M470,112 L470,158" stroke="#8a8fa3" stroke-width="1.6" fill="none" stroke-dasharray="5,4" marker-end="url(#ah5)" />
 <path d="M620,112 L620,158" stroke="#8a8fa3" stroke-width="1.6" fill="none" stroke-dasharray="5,4" marker-end="url(#ah5)" />
 <path d="M770,112 L770,158" stroke="#8a8fa3" stroke-width="1.6" fill="none" stroke-dasharray="5,4" marker-end="url(#ah5)" />
@@ -179,7 +179,7 @@
 <text x="1230" y="556" font-size="10" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">Y→X</text>
 <circle cx="1280" cy="528" r="10" fill="white" stroke="#22223b" stroke-width="1.6" />
 <text x="1280" y="556" font-size="10" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">U</text>
-<text x="1230" y="505" font-size="10" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">dark under observation</text>
+<text x="1230" y="505" font-size="10" font-family="Helvetica" fill="#8a8fa3" text-anchor="middle" font-weight="normal">indistinguishable under observation</text>
 <path d="M1318,528 L1372,528" stroke="#b91c1c" stroke-width="2.2" fill="none" marker-end="url(#ah4)" />
 <text x="1345" y="518" font-size="11" font-family="Helvetica" fill="#b91c1c" text-anchor="middle" font-weight="normal">do X:=1</text>
 <text x="1500" y="515" font-size="12" font-family="Helvetica" fill="#22223b" text-anchor="middle" font-weight="normal">query answered: 1 word</text>

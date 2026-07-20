@@ -161,12 +161,12 @@ table(1110, 84, ['[do X:=0]', '[do X:=1]', 'twin [0,1]'],
       [('coupled', ['{0},{1}', '{0},{1}', '{00},{11}']),
        ('anti', ['{0},{1}', '{1},{0}', '{01},{10}'])],
       120, 30, RED, hi_cols={0, 1})
-txt('single-regime columns: EQUAL as sets — dark', 1370, 162, 10.5, GREEN)
+txt('single-regime columns: EQUAL as sets — indistinguishable', 1370, 162, 10.5, GREEN)
 txt('twin column: DIFFERENT — the separator', 1370, 178, 10.5, RED)
 box(1110, 200, 500, 88, 'white', GREY, rx=8)
 txt('every single-regime word keeps both mechanisms alive:', 1360, 222, 11, INK)
-txt('dark at the entire per-regime interventional presentation', 1360, 239, 11, INK)
-txt('(the banked dark-pair laws apply to this pair verbatim:', 1360, 258, 9.5, GREY)
+txt('indistinguishable across every per-regime intervention', 1360, 239, 11, INK)
+txt('(the banked indistinguishability (dark-pair) laws apply to this pair verbatim:', 1360, 258, 9.5, GREY)
 txt('co-survival on every sample, blindness at the limit)', 1360, 272, 9.5, GREY)
 box(1110, 304, 500, 76, REDBG, RED, rx=8)
 txt('buy the TWIN word: ([doX0, doX1], {00, 11})', 1360, 326, 11.5, RED, weight='bold')

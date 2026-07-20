@@ -199,9 +199,9 @@ for i, mname in enumerate(models):
 for mx, mname in [(990, 'model A'), (1230, 'model B'), (1470, 'model C')]:
     box(mx - 60, 176, 120, 36, AMBERBG, AMBER, rx=8)
     txt(mname, mx, 199, 13, INK)
-txt('six encodings, three behaviors: revisions are priced by the three,', 1245, 250, 12.3, INK)
-txt('never the six.  Making the map one-to-one turns the bound into an equality.', 1245, 268, 12.3, INK)
-txt('a count that factors through a map is priced by the image; duplicates never cost.', 1245, 292, 11.5, GREY)
+txt('six encodings, three behaviors: revisions are priced by the three behaviors;', 1245, 250, 12.3, INK)
+txt('the duplicate encodings cost nothing.  A one-to-one map makes the bound exact.', 1245, 268, 12.3, INK)
+txt('a count that factors through a map is priced by the image; duplicates cost nothing.', 1245, 292, 11.5, GREY)
 
 # ---------- (C) survivor floor ----------
 zone(850, 330, 790, 'THE CONSISTENT SET AS CANONICAL STATE', TEAL)
@@ -212,7 +212,7 @@ for r, (lbl, bits) in enumerate(sets):
     for i, b in enumerate(bits):
         box(1020 + i*66, sy0 + r*54, 54, 30, TEALBG if b else LGREY, TEAL if b else GREY, rx=6, sw=1.2)
         txt(f'c{i+1}', 1020 + i*66 + 27, sy0 + r*54 + 20, 11.5, INK if b else GREY)
-txt('append evidence = intersect survivor sets: order-free, only shrinking, and an empty set never refills.', 1245, 590, 12.0, INK)
+txt('append evidence = intersect survivor sets: order-free, only shrinking, and an empty set stays empty.', 1245, 590, 12.0, INK)
 
 # ---------- (D) settling by well-ordering ----------
 zone(18, 452 - 6, 790, 'ENUMERATION OVER A WELL-ORDER', GREEN)
@@ -259,8 +259,8 @@ for r, mech in enumerate(['object M', 'object M′']):
         txt('same', 250 + j*110, yy + 24, 12, GREY)
     box(660, yy, 120, 38, VIOLETBG, VIOLET, rx=7, sw=1.6)
     txt('0' if r == 0 else '1', 720, yy + 25, 14, VIOLET, weight='bold')
-txt('two DIFFERENT objects, identical under every read in the family: dark.', 413, 218, 12.3, INK)
-txt('darkness is destroyed exactly by enlarging the family; no amount of repetition inside it helps.', 413, 236, 12.3, INK)
+txt('two DIFFERENT objects, identical under every read in the family: indistinguishable.', 413, 218, 12.3, INK)
+txt('enlarging the family is what separates them; repeating the existing reads does nothing.', 413, 236, 12.3, INK)
 txt('on the causal store of page three, the family is observation and the enlarging read is an intervention.', 413, 260, 11.5, GREY)
 
 # ---------- (B) the limit escapes every finite view ----------
